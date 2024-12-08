@@ -6,7 +6,7 @@ import {OrbitControls} from "three/addons";
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
-	
+
 	// Initialize Three.js
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -22,22 +22,104 @@ const main = () => {
 	controls.zoomSpeed = 2;
 	controls.maxDistance = 30;
 	controls.minDistance = 5;
+
+	// HELPMENU
+	const helpMenu = document.getElementById("helpMenu");
+
+	window.addEventListener('keydown', (event) => {
+		if (event.key === 'h') {
+			// Toggle help menu visibility
+			if (helpMenu.style.display === 'none') {
+				helpMenu.style.display = 'block';
+			} else {
+				helpMenu.style.display = 'none';
+			}
+		}
+	});
+	//
+
+
+	// TRYING RAYCASTER
+	const raycaster = new THREE.Raycaster();
+	const mouse = new THREE.Vector2();
+	let selectedObject = null;
+
+	window.addEventListener('mousemove', (event) => {
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	});
+
+
+
+	const objectDataMap = new Map(); // Her obje için konum ve dönüş verilerini tutar.
+	let userRotation = { x: 0, y: 0 };
+	let userPosition = { x: 0, y: 0, z: 0 };
+
+	window.addEventListener('mousedown', () => {
+		raycaster.setFromCamera(mouse, camera);
+		const intersects = raycaster.intersectObjects(scene.children);
+		if (intersects.length > 0) {
+			selectedObject = intersects[0].object; // Yeni objeyi seç
+
+			// Mevcut obje için veri varsa yükle, yoksa varsayılan oluştur
+			const data = objectDataMap.get(selectedObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+			userPosition = data.userPosition;
+			userRotation = data.userRotation;
+
+			console.log("Selected Object:", selectedObject);
+		} else {
+			selectedObject = null; // Hiçbir şey seçilmediyse
+		}
+	});
+
+// Kullanıcı bir hareket veya dönüş yaptığında veriyi güncelle
+	window.addEventListener('keydown', (event) => {
+		if (selectedObject) {
+			const step = 0.1;
+			switch (event.key) {
+				case 'ArrowUp': userPosition.y += step; break;
+				case 'ArrowDown': userPosition.y -= step; break;
+				case 'ArrowLeft': userPosition.x -= step; break;
+				case 'ArrowRight': userPosition.x += step; break;
+				case 'w': userPosition.z -= step; break;
+				case 's': userPosition.z += step; break;
+			}
+
+			const angle = Math.PI / 18;
+			switch (event.key) {
+				case 'q': userRotation.y += angle; break;
+				case 'e': userRotation.y -= angle; break;
+				case 'a': userRotation.x += angle; break;
+				case 'd': userRotation.x -= angle; break;
+			}
+
+			// Güncel bilgiyi haritaya yaz
+			objectDataMap.set(selectedObject, { userPosition: { ...userPosition }, userRotation: { ...userRotation } });
+		}
+	});
+
+
+
+
+
+	// RAYCASTER
+
 	// Set the size of the canvas for best visual experience
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	
+
 	// Do not add as we're using an existing canvas and not creating a new one from the depths of Three.JS
 //	document.body.appendChild(renderer.domElement);
-	
+
 	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
 	const material = new THREE.MeshStandardMaterial({color: 0x000055});
-	
+
 	const centerCube = new THREE.Mesh( cubeGeometry, material );
 	centerCube.position.set(0, 0, 0);
 	scene.add(centerCube);
-	
+
 	const orbitCube = new THREE.Mesh( cubeGeometry, material );
-	
-	
+
+
 	let t = 0;
 	orbitCube.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
 	scene.add(orbitCube);
@@ -54,7 +136,7 @@ const main = () => {
 
 	// Possible Game Loop -> will reorganized according to Kepler's Laws
 	const animateStep = (timestamp) => {
-		
+
 		{ // Move the orbit cube
 			const t = timestamp / 1000 * 3;
 			const a = 4, b = 5;
@@ -79,26 +161,37 @@ const main = () => {
 				x = xNew;
 				y = yNew;
 			}
+			const orbitData = objectDataMap.get(orbitCube) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+			x += orbitData.userPosition.x;
+			y += orbitData.userPosition.y;
+			z += orbitData.userPosition.z;
+
 			orbitCube.position.set(x, y, z);
-		}
-		{ // Rotate the orbit cube
-			const t = timestamp / 1000 * 2;
-			orbitCube.rotation.y = t;
-			orbitCube.rotation.x = -1.3*t;
-		}
+
+			// OrbitCube için kullanıcı rotasyonunu uygula
+			const tRotation = timestamp / 1000 * 2;
+			orbitCube.rotation.y = tRotation + orbitData.userRotation.y;
+			orbitCube.rotation.x = -1.3 * tRotation + orbitData.userRotation.x;
+			}
+
 		{ // Rotate the center cube
+			const centerData = objectDataMap.get(centerCube) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
 			const t = timestamp / 1000;
-			centerCube.rotation.y = t;
+
+			// Pozisyon ve rotasyonu uygula
+			centerCube.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
+			centerCube.rotation.y = t + centerData.userRotation.y;
+			centerCube.rotation.x = centerData.userRotation.x;
 		}
-		
+		//userPosition = { x: 0, y: 0, z: 0 };
 		renderer.render(scene, camera);
 	}
-	
+
 	const animate = (timestamp) => {
 		animateStep(timestamp); // Call the actual animation frame
 		requestAnimationFrame(animate); // Request to be called again
 	}
-	
+
 	requestAnimationFrame(animate); // Request to be called again
 }
 

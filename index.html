@@ -1,17 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>BBM412 2024 Fall Project</title>
-		
-		<script type="module" src="/scripts/main.js"></script>
-		<link rel="stylesheet" href="/styles/style.css">
-		<!-- <style type="text/css" src="/styles/style.css"></style> --> <!-- NetBeans complains to this type of style linking -->
-	</head>
-	<body>
-		<!-- Will be resized by Three.js anyway but let it be initially in sufficiently appropriate size -->
-		<canvas id="the_canvas" width=1280 height=800></canvas>
-	</body>
+<head>
+	<meta charset="UTF-8" />
+	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>BBM412 2024 Fall Project</title>
+
+	<script type="module" src="/scripts/main.js"></script>
+	<link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+<!-- Will be resized by Three.js anyway but let it be initially in sufficiently appropriate size -->
+<canvas id="the_canvas" width=1280 height=800></canvas>
+<div id="helpMenu" style="display: none; position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 8px;">
+	<h3>Help Menu</h3>
+	<ul>
+		<li><b>Arrow Keys:</b> Move the selected object in X and Y directions.</li>
+		<li><b>W/S:</b> Move the selected object along the Z-axis.</li>
+		<li><b>Q/E:</b> Rotate the selected object around the Y-axis.</li>
+		<li><b>A/D:</b> Rotate the selected object around the X-axis.</li>
+		<li><b>Mouse:</b> Hover to highlight and click to select objects.</li>
+		<li><b>H:</b> Toggle this help menu.</li>
+	</ul>
+</div>
+</body>
 </html>
