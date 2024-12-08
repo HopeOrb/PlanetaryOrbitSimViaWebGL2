@@ -27,48 +27,6 @@ const main = () => {
 	
 	// Do not add as we're using an existing canvas and not creating a new one from the depths of Three.JS
 //	document.body.appendChild(renderer.domElement);
-
-	// // Variables to track mouse state
-	// let isLMBPressed = false, isRMBPressed = false, isMMBPressed = false;
-	// let lastMousePosition = { x: 0, y: 0 };
-	//
-	// // Mouse event handlers
-	// window.addEventListener("mousedown", (event) => {
-	// 	if (event.button === 0) isLMBPressed = true; // Left Mouse Button
-	// 	if (event.button === 2) isRMBPressed = true; // Right Mouse Button
-	//
-	// });
-	//
-	// window.addEventListener("mouseup", (event) => {
-	// 	if (event.button === 0) isLMBPressed = false;
-	// 	if (event.button === 2) isRMBPressed = false;
-	//
-	// });
-	//
-	// window.addEventListener("mousemove", (event) => {
-	// 	const deltaX = event.movementX;
-	// 	const deltaY = event.movementY;
-	//
-	// 	if (isLMBPressed) {
-	// 		// Translate camera (X and Y axes)
-	// 		camera.position.x -= deltaX * 0.01;
-	// 		camera.position.y += deltaY * 0.01;
-	// 	} else if (isRMBPressed) {
-	// 		// Rotate camera (change look direction)
-	// 		camera.rotation.y -= deltaX * 0.01;
-	// 		camera.rotation.x -= deltaY * 0.01;
-	// 	}
-	//
-	// 	lastMousePosition.x = event.clientX;
-	// 	lastMousePosition.y = event.clientY;
-	// });
-	// window.addEventListener("wheel", (event) => {
-	// 	// Zoom in/out with scroll wheel
-	// 	camera.position.z += event.deltaY * 0.01;
-	// });
-	//
-	// // Prevent default context menu on right-click
-	// window.addEventListener("contextmenu", (event) => event.preventDefault());
 	
 	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
 	const material = new THREE.MeshStandardMaterial({color: 0x000055});
@@ -84,12 +42,7 @@ const main = () => {
 	orbitCube.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
 	scene.add(orbitCube);
 	
-	
-	
-	{ // Look from up
-//		camera.position.set(0, 12, 0);
-//		camera.lookAt(0, 0, 0);
-	}
+
 	{ // Point light
 		const plight = new THREE.PointLight( 0xffffff, 100, 0 );
 		plight.position.set(-3, 3, 3);
@@ -98,7 +51,8 @@ const main = () => {
 		const alight = new THREE.AmbientLight(0xffffff, 10);
 		scene.add(alight);
 	}
-	
+
+	// Possible Game Loop -> will reorganized according to Kepler's Laws
 	const animateStep = (timestamp) => {
 		
 		{ // Move the orbit cube
