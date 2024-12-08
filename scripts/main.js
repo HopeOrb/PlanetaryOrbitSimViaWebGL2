@@ -55,7 +55,7 @@ const main = () => {
 	let userRotation = { x: 0, y: 0 };
 	let userPosition = { x: 0, y: 0, z: 0 };
 
-	window.addEventListener('mousedown', () => {
+	window.addEventListener('click', () => {
 		raycaster.setFromCamera(mouse, camera);
 		const intersects = raycaster.intersectObjects(scene.children);
 		if (intersects.length > 0) {
