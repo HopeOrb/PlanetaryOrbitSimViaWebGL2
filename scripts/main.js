@@ -1,6 +1,8 @@
 //import './../style/style.css'; # Done from the html page. I remember that css shouşdn't be imported from script anyway.
 import * as THREE from './../node_modules/three/build/three.module.js';
-
+// importing orbital controls for the camera
+import {GLTFLoader} from './../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import {OrbitControls} from "three/addons";
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -11,12 +13,62 @@ const main = () => {
 	const renderer = new THREE.WebGLRenderer({canvas: theCanvas});
 	camera.position.set(4, 4, 8);
 	camera.lookAt(0, 0, 0);
-	
+	// Add orbit controller
+	const controls = new OrbitControls(camera,renderer.domElement);
+
+	// Orbit controller configurations
+	controls.panSpeed = 2;
+	controls.rotateSpeed = 2;
+	controls.zoomSpeed = 2;
+	controls.maxDistance = 30;
+	controls.minDistance = 5;
 	// Set the size of the canvas for best visual experience
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	
 	// Do not add as we're using an existing canvas and not creating a new one from the depths of Three.JS
 //	document.body.appendChild(renderer.domElement);
+
+	// // Variables to track mouse state
+	// let isLMBPressed = false, isRMBPressed = false, isMMBPressed = false;
+	// let lastMousePosition = { x: 0, y: 0 };
+	//
+	// // Mouse event handlers
+	// window.addEventListener("mousedown", (event) => {
+	// 	if (event.button === 0) isLMBPressed = true; // Left Mouse Button
+	// 	if (event.button === 2) isRMBPressed = true; // Right Mouse Button
+	//
+	// });
+	//
+	// window.addEventListener("mouseup", (event) => {
+	// 	if (event.button === 0) isLMBPressed = false;
+	// 	if (event.button === 2) isRMBPressed = false;
+	//
+	// });
+	//
+	// window.addEventListener("mousemove", (event) => {
+	// 	const deltaX = event.movementX;
+	// 	const deltaY = event.movementY;
+	//
+	// 	if (isLMBPressed) {
+	// 		// Translate camera (X and Y axes)
+	// 		camera.position.x -= deltaX * 0.01;
+	// 		camera.position.y += deltaY * 0.01;
+	// 	} else if (isRMBPressed) {
+	// 		// Rotate camera (change look direction)
+	// 		camera.rotation.y -= deltaX * 0.01;
+	// 		camera.rotation.x -= deltaY * 0.01;
+	// 	}
+	//
+	// 	lastMousePosition.x = event.clientX;
+	// 	lastMousePosition.y = event.clientY;
+	// });
+	// window.addEventListener("wheel", (event) => {
+	// 	// Zoom in/out with scroll wheel
+	// 	camera.position.z += event.deltaY * 0.01;
+	// });
+	//
+	// // Prevent default context menu on right-click
+	// window.addEventListener("contextmenu", (event) => event.preventDefault());
 	
 	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
 	const material = new THREE.MeshStandardMaterial({color: 0x000055});
