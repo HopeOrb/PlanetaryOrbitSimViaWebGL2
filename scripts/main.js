@@ -1,5 +1,10 @@
 //import './../style/style.css'; # Done from the html page. I remember that css shouşdn't be imported from script anyway.
 import * as THREE from './../node_modules/three/build/three.module.js';
+import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
+import { OrbitControls } from './../node_modules/three/examples/jsm/Addons.js';
+
+import { phongVertex } from './shaders/phong_shading.js';
+import { phongFragment } from './shaders/phong_shading.js';
 
 
 const main = () => {
@@ -17,10 +22,30 @@ const main = () => {
 	
 	// Do not add as we're using an existing canvas and not creating a new one from the depths of Three.JS
 //	document.body.appendChild(renderer.domElement);
+
+	// For seeing FPS
+		const stats = new Stats();
+		document.body.appendChild( stats.dom );
+
+	const controls = new OrbitControls(camera, renderer.domElement);
 	
-	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-	const material = new THREE.MeshStandardMaterial({color: 0x000055});
-	
+//	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+	const cubeGeometry = new THREE.SphereGeometry(); // Just to test for other shapes
+//	const material = new THREE.MeshStandardMaterial({color: 0x000055});
+	const material = new THREE.ShaderMaterial({
+		vertexShader: phongVertex,
+		fragmentShader: phongFragment,
+		lights: true,	// Enables the lighting, passes the properties of three.js lights to our shaders					
+		uniforms: THREE.UniformsUtils.merge([
+			THREE.UniformsLib['lights'],	// After setting lights to true, we still need to define the uniforms for lights
+			{
+				color: {value: new THREE.Color(0x334455)},
+				shininess: {value: 1.0}
+			}
+		]),
+		});
+	console.log(material.uniforms);
+
 	const centerCube = new THREE.Mesh( cubeGeometry, material );
 	centerCube.position.set(0, 0, 0);
 	scene.add(centerCube);
@@ -38,6 +63,10 @@ const main = () => {
 //		camera.position.set(0, 12, 0);
 //		camera.lookAt(0, 0, 0);
 	}
+	{ // Look from light	
+//		camera.position.set(-4, 4, 4);
+//		camera.lookAt(0, 0, 0);
+	}
 	{ // Point light
 		const plight = new THREE.PointLight( 0xffffff, 100, 0 );
 		plight.position.set(-3, 3, 3);
@@ -46,7 +75,7 @@ const main = () => {
 		const alight = new THREE.AmbientLight(0xffffff, 10);
 		scene.add(alight);
 	}
-	
+
 	const animateStep = (timestamp) => {
 		
 		{ // Move the orbit cube
@@ -90,6 +119,7 @@ const main = () => {
 	
 	const animate = (timestamp) => {
 		animateStep(timestamp); // Call the actual animation frame
+		stats.update(); // Needs to be updated in order to show the FPS count
 		requestAnimationFrame(animate); // Request to be called again
 	}
 	
