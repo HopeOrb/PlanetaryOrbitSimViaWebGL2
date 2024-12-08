@@ -11,6 +11,106 @@ const main = () => {
 	const renderer = new THREE.WebGLRenderer({canvas: theCanvas});
 	camera.position.set(4, 4, 8);
 	camera.lookAt(0, 0, 0);
+
+	// HELPMENU
+	const helpMenu = document.getElementById("helpMenu");
+
+	window.addEventListener('keydown', (event) => {
+		if (event.key === 'h') {
+			// Toggle help menu visibility
+			if (helpMenu.style.display === 'none') {
+				helpMenu.style.display = 'block';
+			} else {
+				helpMenu.style.display = 'none';
+			}
+		}
+	});
+	//
+
+
+	// TRYING RAYCASTER
+	const raycaster = new THREE.Raycaster();
+	const mouse = new THREE.Vector2();
+	let selectedObject = null;
+
+	window.addEventListener('mousemove', (event) => {
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	});
+
+	const resetUserTransforms = () => {
+		userPosition = { x: 0, y: 0, z: 0 };
+		userRotation = { x: 0, y: 0 };
+		console.log("User transformations reset");
+	};
+
+
+	window.addEventListener('mousedown', () => {
+		raycaster.setFromCamera(mouse, camera);
+		const intersects = raycaster.intersectObjects(scene.children);
+		if (intersects.length > 0) {
+			selectedObject = intersects[0].object; // İlk kesişen nesneyi seç
+			resetUserTransforms();
+			console.log("Selected Object:", selectedObject);
+		} else {
+			selectedObject = null; // Hiçbir şey seçilmediyse
+		}
+	});
+
+	let userPosition = {x: 0, y: 0, z : 0};
+
+
+	window.addEventListener('keydown', (event) => {
+		if (selectedObject) {
+			const step = 0.1;
+			switch (event.key) {
+				case 'ArrowUp': // Yukarı hareket
+					userPosition.y += step;
+					break;
+				case 'ArrowDown': // Aşağı hareket
+					userPosition.y -= step;
+					break;
+				case 'ArrowLeft': // Sola hareket
+					userPosition.x -= step;
+					break;
+				case 'ArrowRight': // Sağa hareket
+					userPosition.x += step;
+					break;
+				case 'w': // İleri hareket (Z ekseni)
+					userPosition.z -= step;
+					break;
+				case 's': // Geri hareket (Z ekseni)
+					userPosition.z += step;
+					break;
+			}
+		}
+	});
+
+	let userRotation = { x: 0, y: 0 }; // Kullanıcı tarafından yapılan döndürmeler
+
+	window.addEventListener('keydown', (event) => {
+		if (selectedObject) {
+			const angle = Math.PI / 18; // 10 derece
+			switch (event.key) {
+				case 'q': // Saat yönünde dön (Y ekseni)
+					userRotation.y += angle;
+					break;
+				case 'e': // Saat yönünün tersinde dön (Y ekseni)
+					userRotation.y -= angle;
+					break;
+				case 'a': // X ekseninde döndürme
+					userRotation.x += angle;
+					break;
+				case 'd': // X ekseninde döndürme
+					userRotation.x -= angle;
+					break;
+			}
+		}
+	});
+
+
+
+	// RAYCASTER
 	
 	// Set the size of the canvas for best visual experience
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -24,7 +124,7 @@ const main = () => {
 	const centerCube = new THREE.Mesh( cubeGeometry, material );
 	centerCube.position.set(0, 0, 0);
 	scene.add(centerCube);
-	
+
 	const orbitCube = new THREE.Mesh( cubeGeometry, material );
 	
 	
@@ -46,7 +146,9 @@ const main = () => {
 		const alight = new THREE.AmbientLight(0xffffff, 10);
 		scene.add(alight);
 	}
-	
+
+
+
 	const animateStep = (timestamp) => {
 		
 		{ // Move the orbit cube
@@ -73,18 +175,42 @@ const main = () => {
 				x = xNew;
 				y = yNew;
 			}
-			orbitCube.position.set(x, y, z);
+			if (selectedObject === orbitCube) {
+				console.log("selected orbit");
+				x += userPosition.x;
+				y += userPosition.y;
+				z += userPosition.z;
+				orbitCube.position.set(x, y, z);
+			} else {
+				orbitCube.position.set(x,y,z);
+			}
 		}
+
 		{ // Rotate the orbit cube
+			if (selectedObject === orbitCube) {
+				const t = timestamp / 1000 * 2;
+				orbitCube.rotation.y = t + userRotation.y;
+				orbitCube.rotation.x = -1.3*t + userRotation.x;
+			} else {
 			const t = timestamp / 1000 * 2;
 			orbitCube.rotation.y = t;
 			orbitCube.rotation.x = -1.3*t;
+			}
 		}
 		{ // Rotate the center cube
-			const t = timestamp / 1000;
-			centerCube.rotation.y = t;
+			if (selectedObject === centerCube){
+				const t = timestamp / 1000;
+				centerCube.rotation.y = userRotation.y + t;
+				centerCube.rotation.x = userRotation.x;
+
+				centerCube.position.set(userPosition.x,	userPosition.y, userPosition.z);
+			}
+			else {
+				const t = timestamp / 1000;
+				centerCube.rotation.y =  t;
+			}
 		}
-		
+		//userPosition = { x: 0, y: 0, z: 0 };
 		renderer.render(scene, camera);
 	}
 	
