@@ -3,6 +3,10 @@ import * as THREE from './../node_modules/three/build/three.module.js';
 // importing orbital controls for the camera
 import {GLTFLoader} from './../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import {OrbitControls} from "three/addons";
+import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
+
+import { ShaderPhongMaterial } from './materials/shaderPhongMaterial.js';
+import { ShaderToonMaterial } from './materials/ShaderToonMaterial.js';
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -110,27 +114,35 @@ const main = () => {
 	// Do not add as we're using an existing canvas and not creating a new one from the depths of Three.JS
 //	document.body.appendChild(renderer.domElement);
 
-	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-	const material = new THREE.MeshStandardMaterial({color: 0x000055});
+	// For seeing FPS
+	const stats = new Stats();
+	document.body.appendChild( stats.dom );
+	
+//	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+	const cubeGeometry = new THREE.TorusKnotGeometry(); // Just to test for other shapes
+	
+	const meshPhongMaterial = new THREE.MeshPhongMaterial({ color: 0x008888 });
+	const shaderPhongMaterial = new ShaderPhongMaterial({ color: {value: new THREE.Color(0x008888)}, shininess: {value: 1.0} });
+	const shaderToonMaterial = new ShaderToonMaterial({ color: {value: new THREE.Color(0x008888)} });
+	
 
-	const centerCube = new THREE.Mesh( cubeGeometry, material );
+	const centerCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
 	centerCube.position.set(0, 0, 0);
 	scene.add(centerCube);
-
-	const orbitCube = new THREE.Mesh( cubeGeometry, material );
-
-
+	
+	const orbitCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
+	
+	
 	let t = 0;
 	orbitCube.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
 	scene.add(orbitCube);
 	
-
 	{ // Point light
-		const plight = new THREE.PointLight( 0xffffff, 100, 0 );
-		plight.position.set(-3, 3, 3);
+		const plight = new THREE.PointLight( 0xffffff, 50 );
+		plight.position.set(0, 5, 0);
 		scene.add(plight);
 	} { // Ambient light
-		const alight = new THREE.AmbientLight(0xffffff, 10);
+		const alight = new THREE.AmbientLight(0xffffff, 1);
 		scene.add(alight);
 	}
 
@@ -189,10 +201,29 @@ const main = () => {
 
 	const animate = (timestamp) => {
 		animateStep(timestamp); // Call the actual animation frame
+		stats.update(); // Needs to be updated in order to show the FPS count
 		requestAnimationFrame(animate); // Request to be called again
 	}
 
 	requestAnimationFrame(animate); // Request to be called again
+
+	// To see the difference between shaders (only for testing)
+	document.addEventListener('keydown', function(event) {
+		switch (event.key) {
+			case "1":
+				centerCube.material = meshPhongMaterial;
+				orbitCube.material = meshPhongMaterial;
+				break;
+			case "2":
+				centerCube.material = shaderPhongMaterial;
+				orbitCube.material = shaderPhongMaterial;
+				break;
+			case "3":
+				centerCube.material = shaderToonMaterial;
+				orbitCube.material = shaderToonMaterial;
+				break;
+		}
+	})
 }
 
 
