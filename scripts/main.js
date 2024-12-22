@@ -3,9 +3,14 @@ import * as THREE from './../node_modules/three/build/three.module.js';
 import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from './../node_modules/three/examples/jsm/Addons.js';
 
-import { phongVertex } from './shaders/phong_shading.js';
-import { phongFragment } from './shaders/phong_shading.js';
+import { phongVertex } from './materials/shaders/phong_shading.js';
+import { phongFragment } from './materials/shaders/phong_shading.js';
 
+import { toonVertex } from './materials/shaders/toon_shading.js';
+import { toonFragment } from './materials/shaders/toon_shading.js';
+
+import { ShaderPhongMaterial } from './materials/shaderPhongMaterial.js';
+import { ShaderToonMaterial } from './materials/ShaderToonMaterial.js';
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -24,33 +29,26 @@ const main = () => {
 //	document.body.appendChild(renderer.domElement);
 
 	// For seeing FPS
-		const stats = new Stats();
-		document.body.appendChild( stats.dom );
+	const stats = new Stats();
+	document.body.appendChild( stats.dom );
 
 	const controls = new OrbitControls(camera, renderer.domElement);
 	
 //	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-	const cubeGeometry = new THREE.SphereGeometry(); // Just to test for other shapes
-//	const material = new THREE.MeshStandardMaterial({color: 0x000055});
-	const material = new THREE.ShaderMaterial({
-		vertexShader: phongVertex,
-		fragmentShader: phongFragment,
-		lights: true,	// Enables the lighting, passes the properties of three.js lights to our shaders					
-		uniforms: THREE.UniformsUtils.merge([
-			THREE.UniformsLib['lights'],	// After setting lights to true, we still need to define the uniforms for lights
-			{
-				color: {value: new THREE.Color(0x334455)},
-				shininess: {value: 1.0}
-			}
-		]),
-		});
-	console.log(material.uniforms);
+	const cubeGeometry = new THREE.TorusKnotGeometry(); // Just to test for other shapes
+	
+	const meshPhongMaterial = new THREE.MeshPhongMaterial({ color: 0x008888 });
+	const shaderPhongMaterial = new ShaderPhongMaterial({ color: {value: new THREE.Color(0x008888)}, shininess: {value: 1.0} });
+	const shaderToonMaterial = new ShaderToonMaterial({ color: {value: new THREE.Color(0x008888)} });
 
-	const centerCube = new THREE.Mesh( cubeGeometry, material );
+	console.log(shaderToonMaterial.uniforms);
+
+
+	const centerCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
 	centerCube.position.set(0, 0, 0);
 	scene.add(centerCube);
 	
-	const orbitCube = new THREE.Mesh( cubeGeometry, material );
+	const orbitCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
 	
 	
 	let t = 0;
@@ -68,11 +66,11 @@ const main = () => {
 //		camera.lookAt(0, 0, 0);
 	}
 	{ // Point light
-		const plight = new THREE.PointLight( 0xffffff, 100, 0 );
-		plight.position.set(-3, 3, 3);
+		const plight = new THREE.PointLight( 0xffffff, 50 );
+		plight.position.set(0, 5, 0);
 		scene.add(plight);
 	} { // Ambient light
-		const alight = new THREE.AmbientLight(0xffffff, 10);
+		const alight = new THREE.AmbientLight(0xffffff, 1);
 		scene.add(alight);
 	}
 
@@ -124,6 +122,24 @@ const main = () => {
 	}
 	
 	requestAnimationFrame(animate); // Request to be called again
+
+	// To see the difference between shaders (only for testing)
+	document.addEventListener('keydown', function(event) {
+		switch (event.key) {
+			case "1":
+				centerCube.material = meshPhongMaterial;
+				orbitCube.material = meshPhongMaterial;
+				break;
+			case "2":
+				centerCube.material = shaderPhongMaterial;
+				orbitCube.material = shaderPhongMaterial;
+				break;
+			case "3":
+				centerCube.material = shaderToonMaterial;
+				orbitCube.material = shaderToonMaterial;
+				break;
+		}
+	})
 }
 
 
