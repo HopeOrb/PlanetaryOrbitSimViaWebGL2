@@ -8,6 +8,8 @@ import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
 import { ShaderPhongMaterial } from './materials/shaderPhongMaterial.js';
 import { ShaderToonMaterial } from './materials/ShaderToonMaterial.js';
 
+import { setupGUI } from './gui.js';
+
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
 
@@ -48,6 +50,51 @@ const main = () => {
 	const mouse = new THREE.Vector2();
 	let selectedObject = null;
 
+	function createThickAxes(size = 1, thickness = 0.05) {
+		const group = new THREE.Group();
+
+		// X Axis (Red)
+		const xGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 32);
+		const xMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+		const xAxis = new THREE.Mesh(xGeometry, xMaterial);
+		xAxis.rotation.z = -Math.PI / 2; // Yatay hale getirin
+		xAxis.position.x = size / 2;
+		group.add(xAxis);
+
+		// Y Axis (Green)
+		const yGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 32);
+		const yMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		const yAxis = new THREE.Mesh(yGeometry, yMaterial);
+		yAxis.position.y = size / 2;
+		group.add(yAxis);
+
+		// Z Axis (Blue)
+		const zGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 32);
+		const zMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+		const zAxis = new THREE.Mesh(zGeometry, zMaterial);
+		zAxis.rotation.x = Math.PI / 2; // Dikeyden yataya çevir
+		zAxis.position.z = size / 2;
+		group.add(zAxis);
+
+		return group;
+	}
+
+
+
+	let axisHelper = null;
+
+	function updateAxisHelper(selectedObject) {
+		if (axisHelper && axisHelper.parent) {
+			axisHelper.parent.remove(axisHelper);
+			//scene.remove(axisHelper); // Önceki eksenleri kaldır
+		}
+		if (selectedObject) {
+			axisHelper = createThickAxes(5, 0.1);
+			selectedObject.add(axisHelper); // Seçilen objeye ekle
+		}
+	}
+
+
 	window.addEventListener('mousemove', (event) => {
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -60,6 +107,11 @@ const main = () => {
 	let userPosition = { x: 0, y: 0, z: 0 };
 
 	window.addEventListener('click', () => {
+
+		if (event.target.closest('.lil-gui')) {
+			return; // GUI'ye tıklanırsa işlem yapma
+		}
+
 		raycaster.setFromCamera(mouse, camera);
 		const intersects = raycaster.intersectObjects(scene.children);
 		if (intersects.length > 0) {
@@ -69,10 +121,16 @@ const main = () => {
 			const data = objectDataMap.get(selectedObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
 			userPosition = data.userPosition;
 			userRotation = data.userRotation;
+			updateAxisHelper(selectedObject);
+
+			setupGUI(selectedObject);
 
 			console.log("Selected Object:", selectedObject);
 		} else {
+			console.log("Selected : Null");
 			selectedObject = null; // Hiçbir şey seçilmediyse
+			updateAxisHelper(null);
+			setupGUI(selectedObject);
 		}
 	});
 
@@ -117,26 +175,26 @@ const main = () => {
 	// For seeing FPS
 	const stats = new Stats();
 	document.body.appendChild( stats.dom );
-	
+
 //	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
 	const cubeGeometry = new THREE.TorusKnotGeometry(); // Just to test for other shapes
-	
+
 	const meshPhongMaterial = new THREE.MeshPhongMaterial({ color: 0x008888 });
 	const shaderPhongMaterial = new ShaderPhongMaterial({ color: {value: new THREE.Color(0x008888)}, shininess: {value: 1.0} });
 	const shaderToonMaterial = new ShaderToonMaterial({ color: {value: new THREE.Color(0x008888)} });
-	
+
 
 	const centerCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
 	centerCube.position.set(0, 0, 0);
 	scene.add(centerCube);
-	
+
 	const orbitCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
-	
-	
+
+
 	let t = 0;
 	orbitCube.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
 	scene.add(orbitCube);
-	
+
 	{ // Point light
 		const plight = new THREE.PointLight( 0xffffff, 50 );
 		plight.position.set(0, 5, 0);
@@ -184,7 +242,7 @@ const main = () => {
 			const tRotation = timestamp / 1000 * 2;
 			orbitCube.rotation.y = tRotation + orbitData.userRotation.y;
 			orbitCube.rotation.x = -1.3 * tRotation + orbitData.userRotation.x;
-			}
+		}
 
 		{ // Rotate the center cube
 			const centerData = objectDataMap.get(centerCube) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
