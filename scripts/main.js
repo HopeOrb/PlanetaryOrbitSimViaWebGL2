@@ -2,13 +2,15 @@
 import * as THREE from './../node_modules/three/build/three.module.js';
 // importing orbital controls for the camera
 import {GLTFLoader} from './../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
-import {OrbitControls} from "three/addons";
+import {OrbitControls, TransformControls} from "three/addons";
 import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
 
 import { ShaderPhongMaterial } from './materials/shaderPhongMaterial.js';
 import { ShaderToonMaterial } from './materials/ShaderToonMaterial.js';
 
 import { setupGUI } from './gui.js';
+import { Star } from './classes/Star.js';
+import { Planet } from './classes/Planet.js';
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -176,25 +178,17 @@ const main = () => {
 	const stats = new Stats();
 	document.body.appendChild( stats.dom );
 
-//	const cubeGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-	const cubeGeometry = new THREE.TorusKnotGeometry(); // Just to test for other shapes
-
-	const meshPhongMaterial = new THREE.MeshPhongMaterial({ color: 0x008888 });
-	const shaderPhongMaterial = new ShaderPhongMaterial({ color: {value: new THREE.Color(0x008888)}, shininess: {value: 1.0} });
-	const shaderToonMaterial = new ShaderToonMaterial({ color: {value: new THREE.Color(0x008888)} });
-
-
-	const centerCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
-	centerCube.position.set(0, 0, 0);
-	scene.add(centerCube);
-
-	const orbitCube = new THREE.Mesh( cubeGeometry, meshPhongMaterial );
-
-
+	const centerObject = new Star(new THREE.Color(0xbb5500));	// We have to pass only color now, may change later
+	centerObject.position.set(0, 0, 0);
+	scene.add(centerObject);
+	
+	const orbitObject = new Planet(new THREE.Color(0x0077cc));	// Same as above
+	
+	
 	let t = 0;
-	orbitCube.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
-	scene.add(orbitCube);
-
+	orbitObject.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
+	scene.add(orbitObject);
+	
 	{ // Point light
 		const plight = new THREE.PointLight( 0xffffff, 50 );
 		plight.position.set(0, 5, 0);
@@ -231,27 +225,27 @@ const main = () => {
 				x = xNew;
 				y = yNew;
 			}
-			const orbitData = objectDataMap.get(orbitCube) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+			const orbitData = objectDataMap.get(orbitObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
 			x += orbitData.userPosition.x;
 			y += orbitData.userPosition.y;
 			z += orbitData.userPosition.z;
 
-			orbitCube.position.set(x, y, z);
+			orbitObject.position.set(x, y, z);
 
 			// OrbitCube için kullanıcı rotasyonunu uygula
 			const tRotation = timestamp / 1000 * 2;
-			orbitCube.rotation.y = tRotation + orbitData.userRotation.y;
-			orbitCube.rotation.x = -1.3 * tRotation + orbitData.userRotation.x;
-		}
+			orbitObject.rotation.y = tRotation + orbitData.userRotation.y;
+			orbitObject.rotation.x = -1.3 * tRotation + orbitData.userRotation.x;
+			}
 
 		{ // Rotate the center cube
-			const centerData = objectDataMap.get(centerCube) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+			const centerData = objectDataMap.get(centerObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
 			const t = timestamp / 1000;
 
 			// Pozisyon ve rotasyonu uygula
-			centerCube.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
-			centerCube.rotation.y = t + centerData.userRotation.y;
-			centerCube.rotation.x = centerData.userRotation.x;
+			centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
+			centerObject.rotation.y = t + centerData.userRotation.y;
+			centerObject.rotation.x = centerData.userRotation.x;
 		}
 		//userPosition = { x: 0, y: 0, z: 0 };
 		renderer.render(scene, camera);
@@ -269,16 +263,16 @@ const main = () => {
 	document.addEventListener('keydown', function(event) {
 		switch (event.key) {
 			case "1":
-				centerCube.material = meshPhongMaterial;
-				orbitCube.material = meshPhongMaterial;
+				centerObject.material = centerObject.defaultMaterial;
+				orbitObject.material = orbitObject.defaultMaterial;
 				break;
 			case "2":
-				centerCube.material = shaderPhongMaterial;
-				orbitCube.material = shaderPhongMaterial;
+				centerObject.material = centerObject.phongMaterial;
+				orbitObject.material = orbitObject.phongMaterial;
 				break;
 			case "3":
-				centerCube.material = shaderToonMaterial;
-				orbitCube.material = shaderToonMaterial;
+				centerObject.material = centerObject.toonMaterial;
+				orbitObject.material = orbitObject.toonMaterial;
 				break;
 		}
 	})
