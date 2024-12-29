@@ -5,10 +5,8 @@ import {GLTFLoader} from './../node_modules/three/examples/jsm/loaders/GLTFLoade
 import {OrbitControls, TransformControls} from "three/addons";
 import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
 
-import { ShaderPhongMaterial } from './materials/shaderPhongMaterial.js';
-import { ShaderToonMaterial } from './materials/ShaderToonMaterial.js';
-
 import { setupGUI } from './gui.js';
+
 import { Star } from './classes/Star.js';
 import { Planet } from './classes/Planet.js';
 
