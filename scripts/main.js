@@ -242,11 +242,13 @@ const main = () => {
 
 			// Pozisyon ve rotasyonu uygula
 			centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
-			centerObject.rotation.y = t + centerData.userRotation.y;
-			centerObject.rotation.x = centerData.userRotation.x;
+//			centerObject.rotation.y = t + centerData.userRotation.y;
+//			centerObject.rotation.x = centerData.userRotation.x;
 		}
 		//userPosition = { x: 0, y: 0, z: 0 };
-		renderer.render(scene, camera);
+		centerObject.material.uniforms.time.value += 0.006;
+
+		renderer.render( scene, camera );
 	}
 
 	const animate = (timestamp) => {
@@ -261,15 +263,12 @@ const main = () => {
 	document.addEventListener('keydown', function(event) {
 		switch (event.key) {
 			case "1":
-				centerObject.material = centerObject.defaultMaterial;
 				orbitObject.material = orbitObject.defaultMaterial;
 				break;
 			case "2":
-				centerObject.material = centerObject.phongMaterial;
 				orbitObject.material = orbitObject.phongMaterial;
 				break;
 			case "3":
-				centerObject.material = centerObject.toonMaterial;
 				orbitObject.material = orbitObject.toonMaterial;
 				break;
 		}
