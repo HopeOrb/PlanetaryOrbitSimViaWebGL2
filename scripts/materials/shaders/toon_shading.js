@@ -55,6 +55,6 @@ void main() {
         result += pointLights[0].color * color * 0.02;
     }
 
-    gl_FragColor = vec4(result, 1.0);
+    gl_FragColor = vec4(result / 2.8, 1.0);
 }
 `;

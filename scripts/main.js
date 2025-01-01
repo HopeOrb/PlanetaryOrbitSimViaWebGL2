@@ -2,13 +2,14 @@
 import * as THREE from './../node_modules/three/build/three.module.js';
 // importing orbital controls for the camera
 import {GLTFLoader} from './../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
-import {OrbitControls, TransformControls} from "three/addons";
+import {BloomPass, EffectComposer, OrbitControls, OutputPass, RenderPass, ShaderPass, TransformControls, UnrealBloomPass} from "three/addons";
 import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
 
 import { setupGUI } from './gui.js';
 
 import { Star } from './classes/Star.js';
 import { Planet } from './classes/Planet.js';
+import { selectiveFragment, selectiveVertex } from './post_processing/selective_bloom.js';
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -196,6 +197,65 @@ const main = () => {
 		scene.add(alight);
 	}
 
+	// POST PROCESSING
+	
+	const bloomComposer = new EffectComposer( renderer );
+	bloomComposer.renderToScreen = false;	// The output of this pass isn't displayed, it's sent to the next pass
+
+	const renderScene = new RenderPass( scene, camera );	// The contents of our scene before post processing
+	bloomComposer.addPass(renderScene);
+
+	const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 0.75, 0.1, 0.0 );
+	bloomComposer.addPass(bloomPass);
+
+	const finalComposer = new EffectComposer( renderer );
+	
+	finalComposer.addPass( renderScene );
+
+	// Adds objects with bloom to the rest of the scene
+	const mixPass = new ShaderPass(
+		new THREE.ShaderMaterial({
+			uniforms: {
+				baseTexture: {value: null},
+				bloomTexture: {value: null}
+			},
+			vertexShader: selectiveVertex,
+			fragmentShader: selectiveFragment,
+			defines: {}
+		}), 'baseTexture'
+	);
+	mixPass.needsSwap = true;
+	finalComposer.addPass( mixPass );
+	
+	const outputPass = new OutputPass();	// For color space conversion and tone mapping
+	finalComposer.addPass( outputPass );
+
+	// The layer which will contain the objects that we'll apply the bloom effect
+	const BLOOM_SCENE = 1;
+	const bloomLayer = new THREE.Layers();
+	bloomLayer.set(BLOOM_SCENE);
+
+	const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+	const materials = {};
+
+	centerObject.layers.toggle(BLOOM_SCENE);	// To add our star to the bloom layer
+
+	// We will darken the objects which are "non-bloomed" before the first pass
+	function nonBloomed(obj) {
+		if (obj.isMesh && bloomLayer.test(obj.layers) === false) {
+			materials[obj.uuid] = obj.material;
+			obj.material = darkMaterial;
+		}
+	}
+
+	// We restore the materials after the bloom pass
+	function restoreMaterial(obj) {
+		if (materials[obj.uuid]) {
+			obj.material = materials[obj.uuid];
+			delete materials[obj.uuid];
+		} 
+	}
+
 	// Possible Game Loop -> will reorganized according to Kepler's Laws
 	const animateStep = (timestamp) => {
 
@@ -246,9 +306,17 @@ const main = () => {
 //			centerObject.rotation.x = centerData.userRotation.x;
 		}
 		//userPosition = { x: 0, y: 0, z: 0 };
-		centerObject.material.uniforms.time.value += 0.006;
+		centerObject.material.uniforms.time.value += 0.006;	// To move the lava texture on sun
 
-		renderer.render( scene, camera );
+		scene.traverse(nonBloomed);	// Darken the objects which are not bloomed
+
+		bloomComposer.render();
+
+		mixPass.material.uniforms.bloomTexture.value = bloomComposer.readBuffer.texture;	// Pass the output of first pass to the final pass
+
+		scene.traverse(restoreMaterial);	// Restore the darkened objects
+
+		finalComposer.render();
 	}
 
 	const animate = (timestamp) => {
@@ -273,6 +341,21 @@ const main = () => {
 				break;
 		}
 	})
+
+	// Update camera and renderer on window resize
+	window.onresize = function () {
+
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( width, height );
+
+		bloomComposer.setSize( width, height );
+		finalComposer.setSize( width, height );
+	};
 }
 
 

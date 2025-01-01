@@ -62,7 +62,7 @@ void main() {
 
     float decay = 3.0 + 2.0 * d + 1.0 * d * d;
 
-    vec3 result = (ambient + (diffuse + specular2) / decay) * color;
+    vec3 result = ((ambient + (diffuse + specular2) / decay) * color) / 2.8;
 
     gl_FragColor = vec4(result, 1.0);
 }
