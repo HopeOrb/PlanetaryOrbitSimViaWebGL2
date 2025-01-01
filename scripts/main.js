@@ -15,6 +15,8 @@ const main = () => {
 
 	// Initialize Three.js
 	const scene = new THREE.Scene();
+	//scene.add( new THREE.GridHelper( 15, 10, 0x888888, 0x444444 ) );
+
 	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 	const renderer = new THREE.WebGLRenderer({canvas: theCanvas});
 	camera.position.set(4, 4, 8);
@@ -28,6 +30,27 @@ const main = () => {
 	controls.zoomSpeed = 2;
 	controls.maxDistance = 30;
 	controls.minDistance = 5;
+
+	const transformControls = new TransformControls(camera, renderer.domElement);
+	transformControls.addEventListener('change', () => {
+		renderer.render(scene, camera); // Sahneyi yeniden çizin
+	});
+	let isDragging = false; // Sürükleme durumu
+	let isClickBlocked = false; // Tıklama engellemeyi kontrol eden durum
+
+	transformControls.addEventListener('dragging-changed', (event) => {
+		isDragging = event.value; // Sürükleme başlatıldığında `isDragging` true olacak
+		if (!isDragging) {
+			// Sürükleme tamamlandığında tıklamayı tekrar engellemeyi kaldır
+			isClickBlocked = true;
+			setTimeout(() => {
+				isClickBlocked = false; // Tıklama engellemeyi kaldır
+			}, 100); // Sürükleme tamamlandıktan sonra bir süre tıklama engellenir
+		}
+	});
+
+	transformControls.addEventListener( 'mouseDown', () => controls.enabled = false );
+	transformControls.addEventListener( 'mouseUp', () => controls.enabled = true );
 
 	// HELPMENU
 	const helpMenu = document.getElementById("helpMenu");
@@ -50,50 +73,6 @@ const main = () => {
 	const mouse = new THREE.Vector2();
 	let selectedObject = null;
 
-	function createThickAxes(size = 1, thickness = 0.05) {
-		const group = new THREE.Group();
-
-		// X Axis (Red)
-		const xGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 32);
-		const xMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-		const xAxis = new THREE.Mesh(xGeometry, xMaterial);
-		xAxis.rotation.z = -Math.PI / 2; // Yatay hale getirin
-		xAxis.position.x = size / 2;
-		group.add(xAxis);
-
-		// Y Axis (Green)
-		const yGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 32);
-		const yMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-		const yAxis = new THREE.Mesh(yGeometry, yMaterial);
-		yAxis.position.y = size / 2;
-		group.add(yAxis);
-
-		// Z Axis (Blue)
-		const zGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 32);
-		const zMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-		const zAxis = new THREE.Mesh(zGeometry, zMaterial);
-		zAxis.rotation.x = Math.PI / 2; // Dikeyden yataya çevir
-		zAxis.position.z = size / 2;
-		group.add(zAxis);
-
-		return group;
-	}
-
-
-
-	let axisHelper = null;
-
-	function updateAxisHelper(selectedObject) {
-		if (axisHelper && axisHelper.parent) {
-			axisHelper.parent.remove(axisHelper);
-			//scene.remove(axisHelper); // Önceki eksenleri kaldır
-		}
-		if (selectedObject) {
-			axisHelper = createThickAxes(5, 0.1);
-			selectedObject.add(axisHelper); // Seçilen objeye ekle
-		}
-	}
-
 
 	window.addEventListener('mousemove', (event) => {
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -101,12 +80,24 @@ const main = () => {
 	});
 
 
-
 	const objectDataMap = new Map(); // Her obje için konum ve dönüş verilerini tutar.
 	let userRotation = { x: 0, y: 0 };
 	let userPosition = { x: 0, y: 0, z: 0 };
 
+
+
+	let previousSelectedObject = null; // Önceki seçilen objeyi tutan değişken
+
+
 	window.addEventListener('click', () => {
+		console.log(isClickBlocked.valueOf());
+		if (isClickBlocked) {
+			return;
+		}
+		if (isDragging) {
+			isClickBlocked = true;
+			return; // Sürükleme işlemi devam ediyorsa tıklama işlemi yapma
+		}
 
 		if (event.target.closest('.lil-gui')) {
 			return; // GUI'ye tıklanırsa işlem yapma
@@ -117,22 +108,61 @@ const main = () => {
 		if (intersects.length > 0) {
 			selectedObject = intersects[0].object; // Yeni objeyi seç
 
-			// Mevcut obje için veri varsa yükle, yoksa varsayılan oluştur
-			const data = objectDataMap.get(selectedObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
-			userPosition = data.userPosition;
-			userRotation = data.userRotation;
-			updateAxisHelper(selectedObject);
+			if (!(selectedObject instanceof Star || selectedObject instanceof Planet)) {
+				selectedObject = null; // Hiçbir şey seçilmediyse
+				console.log("heree");
 
-			setupGUI(selectedObject);
+				transformControls.detach();
+				scene.remove(transformControls.getHelper());
+				//return;
+			}
+			else if (selectedObject !== previousSelectedObject) {
+				transformControls.detach();
+				scene.remove(transformControls.getHelper());
+				console.log("Object changed. Previous:", previousSelectedObject, "New:", selectedObject);
+
+				transformControls.attach(selectedObject);
+				scene.add(transformControls.getHelper());
+
+				// Mevcut obje için veri varsa yükle, yoksa varsayılan oluştur
+				const data = objectDataMap.get(selectedObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+				userPosition = data.userPosition;
+				userRotation = data.userRotation;
+
+				setupGUI(selectedObject);
+			}
+
+			previousSelectedObject = selectedObject; // Şu anki objeyi önceki objeye aktar
 
 			console.log("Selected Object:", selectedObject);
+
 		} else {
 			console.log("Selected : Null");
 			selectedObject = null; // Hiçbir şey seçilmediyse
-			updateAxisHelper(null);
+
+			transformControls.detach();
+			scene.remove(transformControls.getHelper());
+
+			//updateAxisHelper(null);
 			setupGUI(selectedObject);
 		}
 	});
+
+	window.addEventListener("keydown", (event) => {
+		switch (event.key) {
+			case 'q':
+				transformControls.setMode('rotate');
+				break;
+			case 'w':
+				transformControls.setMode('translate');
+				break;
+			case 'e':
+				transformControls.setMode('scale');
+				break;
+
+		}
+	});
+
 
 // Kullanıcı bir hareket veya dönüş yaptığında veriyi güncelle
 	window.addEventListener('keydown', (event) => {
@@ -148,7 +178,7 @@ const main = () => {
 			}
 
 			const angle = Math.PI / 18;
-			switch (event.key) {
+			switch (eventkey) {
 				case 'q': userRotation.y += angle; break;
 				case 'e': userRotation.y -= angle; break;
 				case 'a': userRotation.x += angle; break;
@@ -237,13 +267,13 @@ const main = () => {
 			}
 
 		{ // Rotate the center cube
-			const centerData = objectDataMap.get(centerObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
-			const t = timestamp / 1000;
+		//	const centerData = objectDataMap.get(centerObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+		//	const t = timestamp / 1000;
 
 			// Pozisyon ve rotasyonu uygula
-			centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
-			centerObject.rotation.y = t + centerData.userRotation.y;
-			centerObject.rotation.x = centerData.userRotation.x;
+			//centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
+			//centerObject.rotation.y = t + centerData.userRotation.y;
+			//centerObject.rotation.x = centerData.userRotation.x;
 		}
 		//userPosition = { x: 0, y: 0, z: 0 };
 		renderer.render(scene, camera);
