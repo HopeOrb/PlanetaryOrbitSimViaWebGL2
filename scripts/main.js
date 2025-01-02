@@ -203,7 +203,23 @@ const main = () => {
 			case 'e':
 				transformControls.setMode('scale');
 				break;
+			default:
+				console.log(event.key + " is pressed!")
+				break;
 
+		}
+	});
+
+	// Reset Camera
+	window.addEventListener("keydown", (event) =>{
+		switch (event.key) {
+			case ',':
+				controls.reset();
+				camera.position.set(4, 4, 8);
+				// camera.lookAt(0, 0, 0); // unnecessary
+				camera.updateProjectionMatrix();
+				// controls.update(); // need to update whenever OrbitControls or camera get updates
+				break;
 		}
 	});
 
@@ -385,14 +401,17 @@ const main = () => {
 			}
 
 		{ // Rotate the center cube
-		//	const centerData = objectDataMap.get(centerObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
-		//	const t = timestamp / 1000;
+			const centerData = objectDataMap.get(centerObject) || { userPosition: { x: 0, y: 0, z: 0 }, userRotation: { x: 0, y: 0 } };
+			const t = timestamp / (1000 * 3);
 
 			// Pozisyon ve rotasyonu uygula
-			//centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
-			//centerObject.rotation.y = t + centerData.userRotation.y;
-			//centerObject.rotation.x = centerData.userRotation.x;
+			centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
+			centerObject.rotation.y = t + centerData.userRotation.y;
+			centerObject.rotation.x = centerData.userRotation.x;
 		}
+		// Reset camera
+		camera.updateProjectionMatrix();
+		controls.update();
 
 		//userPosition = { x: 0, y: 0, z: 0 };
 		centerObject.material.uniforms.time.value += 0.003;	// To move the lava texture on sun
