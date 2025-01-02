@@ -46,15 +46,15 @@ void main() {
     float intensity = dot(N, L);
     
     if (intensity / decay > 0.02) {
-        result += pointLights[0].color * color * 0.05;
-    }
-    else if (intensity / decay > 0.008) {
         result += pointLights[0].color * color * 0.03;
     }
-    else if (intensity / decay > 0.0) {
+    else if (intensity / decay > 0.012) {
         result += pointLights[0].color * color * 0.02;
     }
+    else if (intensity / decay > 0.0) {
+        result += pointLights[0].color * color * 0.007;
+    }
 
-    gl_FragColor = vec4(result, 1.0);
+    gl_FragColor = vec4(result / 2.8, 1.0);
 }
 `;

@@ -2,6 +2,7 @@ import * as THREE from './../../node_modules/three/build/three.module.js';
 
 import { ShaderPhongMaterial } from '../materials/shaderPhongMaterial.js';
 import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
+import { StarMaterial } from '../materials/StarMaterial.js';
 
 export class Star extends THREE.Mesh {
     
@@ -14,6 +15,6 @@ export class Star extends THREE.Mesh {
 
         this.geometry = new THREE.SphereGeometry();
 
-        this.material = this.defaultMaterial;
+        this.material = new StarMaterial();
     }
 }
