@@ -182,6 +182,7 @@ const main = () => {
 	scene.add(centerObject);
 	
 	const orbitObject = new Planet(new THREE.Color(0x0077cc));	// Same as above
+	orbitObject.geometry.scale(0.2, 0.2, 0.2);
 	
 	
 	let t = 0;
@@ -196,6 +197,51 @@ const main = () => {
 		const alight = new THREE.AmbientLight(0xffffff, 1);
 		scene.add(alight);
 	}
+
+	// Star background
+	
+	const stars = new Array();
+	for ( let i=0; i<3000; i++ ) {
+	    let x = THREE.MathUtils.randFloatSpread( 1000 );
+	    let y = THREE.MathUtils.randFloatSpread( 1000 );
+	    let z = THREE.MathUtils.randFloatSpread( 1000 );
+	    // Nearby stars are not created
+	    if (x*x + y*y + z*z > 60000) {
+	        stars.push(x, y, z);
+	    }
+	}
+
+	const bloomStars = new Array();
+	for ( let i=0; i<500; i++) {
+		let x = THREE.MathUtils.randFloatSpread( 1000 );
+	    let y = THREE.MathUtils.randFloatSpread( 1000 );
+	    let z = THREE.MathUtils.randFloatSpread( 1000 );
+		if (x*x + y*y + z*z > 60000) {
+	        bloomStars.push(x, y, z);
+	    }
+	}
+
+	
+	const starSprite = new THREE.TextureLoader().load('/scripts/materials/textures/star.png');
+	starSprite.colorSpace = THREE.SRGBColorSpace;
+
+	const starsMaterial = new THREE.PointsMaterial( { color: 0xffddff, map: starSprite, transparent: true, size: 1, sizeAttenuation: true} );
+
+	const starsGeometry = new THREE.BufferGeometry();
+	starsGeometry.setAttribute(
+	    "position", new THREE.Float32BufferAttribute(stars, 3)
+	);
+
+	const spaceBackground = new THREE.Points( starsGeometry, starsMaterial );
+	scene.add(spaceBackground);
+
+	const bloomStarsGeometry = new THREE.BufferGeometry();
+	bloomStarsGeometry.setAttribute(
+		"position", new THREE.Float32BufferAttribute(bloomStars, 3)
+	);
+
+	const spaceBackgroundBloom = new THREE.Points( bloomStarsGeometry, starsMaterial );
+	scene.add(spaceBackgroundBloom);
 
 	// POST PROCESSING
 	
@@ -239,10 +285,11 @@ const main = () => {
 	const materials = {};
 
 	centerObject.layers.toggle(BLOOM_SCENE);	// To add our star to the bloom layer
+	spaceBackgroundBloom.layers.toggle(BLOOM_SCENE);
 
 	// We will darken the objects which are "non-bloomed" before the first pass
 	function nonBloomed(obj) {
-		if (obj.isMesh && bloomLayer.test(obj.layers) === false) {
+		if (bloomLayer.test(obj.layers) === false) {
 			materials[obj.uuid] = obj.material;
 			obj.material = darkMaterial;
 		}
@@ -306,7 +353,7 @@ const main = () => {
 //			centerObject.rotation.x = centerData.userRotation.x;
 		}
 		//userPosition = { x: 0, y: 0, z: 0 };
-		centerObject.material.uniforms.time.value += 0.006;	// To move the lava texture on sun
+		centerObject.material.uniforms.time.value += 0.003;	// To move the lava texture on sun
 
 		scene.traverse(nonBloomed);	// Darken the objects which are not bloomed
 
