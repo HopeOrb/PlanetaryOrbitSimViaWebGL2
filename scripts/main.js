@@ -405,7 +405,6 @@ const main = () => {
 			const t = timestamp / (1000 * 3);
 
 			// Pozisyon ve rotasyonu uygula
-			centerObject.position.set(centerData.userPosition.x, centerData.userPosition.y, centerData.userPosition.z);
 			centerObject.rotation.y = t + centerData.userRotation.y;
 			centerObject.rotation.x = centerData.userRotation.x;
 		}
