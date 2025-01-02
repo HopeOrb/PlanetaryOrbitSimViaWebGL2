@@ -13,8 +13,8 @@ export class StarMaterial extends THREE.ShaderMaterial {
 
         const textureLoader = new THREE.TextureLoader();
 
-        const cloudTexture = textureLoader.load( '/scripts/materials/textures/cloud.png' );
-        const lavaTexture = textureLoader.load( '/scripts/materials/textures/lavatile.jpg' );
+        const cloudTexture = textureLoader.load( '/resources/textures/cloud.png' );
+        const lavaTexture = textureLoader.load( '/resources/textures/lavatile.jpg' );
 
         lavaTexture.colorSpace = THREE.SRGBColorSpace;
 

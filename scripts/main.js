@@ -30,6 +30,49 @@ const main = () => {
 	controls.maxDistance = 30;
 	controls.minDistance = 5;
 
+	// POST PROCESSING
+	
+	const bloomComposer = new EffectComposer( renderer );
+	bloomComposer.renderToScreen = false;	// The output of this pass isn't displayed, it's sent to the next pass
+
+	const renderScene = new RenderPass( scene, camera );	// The contents of our scene before post processing
+	bloomComposer.addPass(renderScene);
+
+	const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 0.75, 0.1, 0.0 );
+	bloomComposer.addPass(bloomPass);
+
+	const finalComposer = new EffectComposer( renderer );
+	
+	finalComposer.addPass( renderScene );
+
+	// Adds objects with bloom to the rest of the scene
+	const mixPass = new ShaderPass(
+		new THREE.ShaderMaterial({
+			uniforms: {
+				baseTexture: {value: null},
+				bloomTexture: {value: null}
+			},
+			vertexShader: selectiveVertex,
+			fragmentShader: selectiveFragment,
+			defines: {}
+		}), 'baseTexture'
+	);
+	mixPass.needsSwap = true;
+	finalComposer.addPass( mixPass );
+	
+	const outputPass = new OutputPass();	// For color space conversion and tone mapping
+	finalComposer.addPass( outputPass );
+
+	// The layer which will contain the objects that we'll apply the bloom effect
+	const BLOOM_SCENE = 1;
+	const bloomLayer = new THREE.Layers();
+	bloomLayer.set(BLOOM_SCENE);
+
+	const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+	const materials = {};
+
+	// POST PROCESSING END
+
 	// HELPMENU
 	const helpMenu = document.getElementById("helpMenu");
 
@@ -177,12 +220,23 @@ const main = () => {
 	const stats = new Stats();
 	document.body.appendChild( stats.dom );
 
+	const textureLoader = new THREE.TextureLoader();
+			
+	const earthDayTexture = textureLoader.load("/resources/textures/2k_earth_daymap.jpg");
+	const earthNightTexture = textureLoader.load("/resources/textures/2k_earth_nightmap.jpg");
+
+	const ceresTexture = textureLoader.load("/resources/textures/2k_ceres_fictional.jpg");
+
+	const makemakeTexture = textureLoader.load("/resources/textures/2k_makemake_fictional.jpg");
+
 	const centerObject = new Star(new THREE.Color(0xbb5500));	// We have to pass only color now, may change later
 	centerObject.position.set(0, 0, 0);
+	centerObject.layers.toggle(BLOOM_SCENE);	// To add our star to the bloom layer
 	scene.add(centerObject);
 	
-	const orbitObject = new Planet(new THREE.Color(0x0077cc));	// Same as above
-	orbitObject.geometry.scale(0.2, 0.2, 0.2);
+	const orbitObject = new Planet(new THREE.Color(0x0077cc), earthDayTexture, earthNightTexture);	// If there are separate day/night textures
+//	const orbitObject = new Planet(new THREE.Color(0x0077cc), ceresTexture);	// If there is only one texture
+	orbitObject.geometry.scale(0.3, 0.3, 0.3);
 	
 	
 	let t = 0;
@@ -190,8 +244,8 @@ const main = () => {
 	scene.add(orbitObject);
 	
 	{ // Point light
-		const plight = new THREE.PointLight( 0xffffff, 50 );
-		plight.position.set(0, 5, 0);
+		const plight = new THREE.PointLight( 0xffffff, 25 );
+		plight.position.set(0, 0, 0);
 		scene.add(plight);
 	} { // Ambient light
 		const alight = new THREE.AmbientLight(0xffffff, 1);
@@ -222,7 +276,7 @@ const main = () => {
 	}
 
 	
-	const starSprite = new THREE.TextureLoader().load('/scripts/materials/textures/star.png');
+	const starSprite = new THREE.TextureLoader().load('/resources/textures/star.png');
 	starSprite.colorSpace = THREE.SRGBColorSpace;
 
 	const starsMaterial = new THREE.PointsMaterial( { color: 0xffddff, map: starSprite, transparent: true, size: 1, sizeAttenuation: true} );
@@ -240,52 +294,9 @@ const main = () => {
 		"position", new THREE.Float32BufferAttribute(bloomStars, 3)
 	);
 
-	const spaceBackgroundBloom = new THREE.Points( bloomStarsGeometry, starsMaterial );
-	scene.add(spaceBackgroundBloom);
-
-	// POST PROCESSING
-	
-	const bloomComposer = new EffectComposer( renderer );
-	bloomComposer.renderToScreen = false;	// The output of this pass isn't displayed, it's sent to the next pass
-
-	const renderScene = new RenderPass( scene, camera );	// The contents of our scene before post processing
-	bloomComposer.addPass(renderScene);
-
-	const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 0.75, 0.1, 0.0 );
-	bloomComposer.addPass(bloomPass);
-
-	const finalComposer = new EffectComposer( renderer );
-	
-	finalComposer.addPass( renderScene );
-
-	// Adds objects with bloom to the rest of the scene
-	const mixPass = new ShaderPass(
-		new THREE.ShaderMaterial({
-			uniforms: {
-				baseTexture: {value: null},
-				bloomTexture: {value: null}
-			},
-			vertexShader: selectiveVertex,
-			fragmentShader: selectiveFragment,
-			defines: {}
-		}), 'baseTexture'
-	);
-	mixPass.needsSwap = true;
-	finalComposer.addPass( mixPass );
-	
-	const outputPass = new OutputPass();	// For color space conversion and tone mapping
-	finalComposer.addPass( outputPass );
-
-	// The layer which will contain the objects that we'll apply the bloom effect
-	const BLOOM_SCENE = 1;
-	const bloomLayer = new THREE.Layers();
-	bloomLayer.set(BLOOM_SCENE);
-
-	const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-	const materials = {};
-
-	centerObject.layers.toggle(BLOOM_SCENE);	// To add our star to the bloom layer
+	const spaceBackgroundBloom = new THREE.Points( bloomStarsGeometry, starsMaterial );	
 	spaceBackgroundBloom.layers.toggle(BLOOM_SCENE);
+	scene.add(spaceBackgroundBloom);
 
 	// We will darken the objects which are "non-bloomed" before the first pass
 	function nonBloomed(obj) {
@@ -305,9 +316,9 @@ const main = () => {
 
 	// Possible Game Loop -> will reorganized according to Kepler's Laws
 	const animateStep = (timestamp) => {
-
+		
 		{ // Move the orbit cube
-			const t = timestamp / 1000 * 3;
+			const t = timestamp / 1000;
 			const a = 4, b = 5;
 			const focusDistance = (b**2 - a**2)**0.5;
 			let x = a * Math.cos(t);
@@ -352,6 +363,7 @@ const main = () => {
 //			centerObject.rotation.y = t + centerData.userRotation.y;
 //			centerObject.rotation.x = centerData.userRotation.x;
 		}
+		
 		//userPosition = { x: 0, y: 0, z: 0 };
 		centerObject.material.uniforms.time.value += 0.003;	// To move the lava texture on sun
 
