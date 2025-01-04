@@ -75,10 +75,17 @@ const main = () => {
 
 	// POST PROCESSING END
 
+	resize();
+
 	const transformControls = new TransformControls(camera, renderer.domElement);
+	
+	// Keeping these lines may mess with the bloom effect, I didn't see any side effect when I commented it
+	/*
 	transformControls.addEventListener('change', () => {
 		renderer.render(scene, camera); // Sahneyi yeniden çizin
 	});
+	*/
+
 	let isDragging = false; // Sürükleme durumu
 	let isClickBlocked = false; // Tıklama engellemeyi kontrol eden durum
 
@@ -224,7 +231,8 @@ const main = () => {
 	});
 
 
-// Kullanıcı bir hareket veya dönüş yaptığında veriyi güncelle
+// Kullanıcı bir hareket veya dönüş yaptığında veriyi güncelle (LEGACY CODE, DO NOT UNCOMMENT)
+	/*
 	window.addEventListener('keydown', (event) => {
 		if (selectedObject) {
 			const step = 0.1;
@@ -249,6 +257,7 @@ const main = () => {
 			objectDataMap.set(selectedObject, { userPosition: { ...userPosition }, userRotation: { ...userRotation } });
 		}
 	});
+	*/
 
 
 
@@ -294,7 +303,7 @@ const main = () => {
 		plight.position.set(0, 0, 0);
 		scene.add(plight);
 	} { // Ambient light
-		const alight = new THREE.AmbientLight(0xffffff, 1);
+		const alight = new THREE.AmbientLight(0xffffff, 0.25);
 		scene.add(alight);
 	}
 
@@ -415,6 +424,7 @@ const main = () => {
 		//userPosition = { x: 0, y: 0, z: 0 };
 		centerObject.material.uniforms.time.value += 0.003;	// To move the lava texture on sun
 
+		scene.remove(transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
 		scene.traverse(nonBloomed);	// Darken the objects which are not bloomed
 
 		bloomComposer.render();
@@ -422,6 +432,7 @@ const main = () => {
 		mixPass.material.uniforms.bloomTexture.value = bloomComposer.readBuffer.texture;	// Pass the output of first pass to the final pass
 
 		scene.traverse(restoreMaterial);	// Restore the darkened objects
+		scene.add(transformControls.getHelper());	// Restore transformControls
 
 		finalComposer.render();
 	}
@@ -450,7 +461,10 @@ const main = () => {
 	})
 
 	// Update camera and renderer on window resize
-	window.onresize = function () {
+	window.onresize = resize;
+	
+	// This is now a separate function because we also use it during initialization
+	function resize() {
 
 		const width = window.innerWidth;
 		const height = window.innerHeight;
