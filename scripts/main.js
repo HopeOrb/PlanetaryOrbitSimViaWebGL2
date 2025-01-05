@@ -11,6 +11,8 @@ import { Star } from './classes/Star.js';
 import { Planet } from './classes/Planet.js';
 import { selectiveFragment, selectiveVertex } from './post_processing/selective_bloom.js';
 
+let inPhongShading, inToonShading;	// To know what shading the scene is in
+
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
 
@@ -31,6 +33,8 @@ const main = () => {
 	controls.zoomSpeed = 2;
 	controls.maxDistance = 30;
 	controls.minDistance = 5;
+
+	inPhongShading = true;
 
 	// POST PROCESSING
 
@@ -289,19 +293,19 @@ const main = () => {
 	centerObject.layers.toggle(BLOOM_SCENE);	// To add our star to the bloom layer
 	scene.add(centerObject);
 	
-	const orbitObject = new Planet(new THREE.Color(0x0077cc), earthDayTexture, earthNightTexture);	// If there are separate day/night textures
+	const orbitObject = new Planet( new THREE.Color(0x0077cc), earthDayTexture, earthNightTexture );	// If there are separate day/night textures
 //	const orbitObject = new Planet(new THREE.Color(0x0077cc), ceresTexture);	// If there is only one texture
-	orbitObject.geometry.scale(0.3, 0.3, 0.3);
+	orbitObject.scaling(0.3, 0.3, 0.3);	// We use this function to scale planet objects, so they're scaled in each shading
 	
 	
 	let t = 0;
 	orbitObject.position.set(2*Math.cos(t), 0, 2*Math.sin(t));
 	scene.add(orbitObject);
 	
-	{ // Point light
-		const plight = new THREE.PointLight( 0xffffff, 25 );
-		plight.position.set(0, 0, 0);
-		scene.add(plight);
+	{ // Point light (NO NEED FOR A POINT LIGHT ANYMORE BECAUSE THE STAR HAS ONE INSIDE)
+//		const plight = new THREE.PointLight( 0xffffff, 25 );
+//		plight.position.set(0, 0, 0);
+//		scene.add(plight);
 	} { // Ambient light
 		const alight = new THREE.AmbientLight(0xffffff, 0.25);
 		scene.add(alight);
@@ -422,7 +426,7 @@ const main = () => {
 		controls.update();
 
 		//userPosition = { x: 0, y: 0, z: 0 };
-		centerObject.material.uniforms.time.value += 0.003;	// To move the lava texture on sun
+		if (inPhongShading) centerObject.material.uniforms.time.value += 0.003;	// Toon shading doesn't have a time uniform
 
 		scene.remove(transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
 		scene.traverse(nonBloomed);	// Darken the objects which are not bloomed
@@ -449,13 +453,25 @@ const main = () => {
 	document.addEventListener('keydown', function(event) {
 		switch (event.key) {
 			case "1":
-				orbitObject.material = orbitObject.defaultMaterial;
+				inPhongShading = true;
+				inToonShading = false;
+
+				centerObject.switchToPhong();
+				orbitObject.switchToTest();
 				break;
 			case "2":
-				orbitObject.material = orbitObject.phongMaterial;
+				inPhongShading = true;
+				inToonShading = false;
+
+				centerObject.switchToPhong();
+				orbitObject.switchToPhong();
 				break;
 			case "3":
-				orbitObject.material = orbitObject.toonMaterial;
+				inPhongShading = false;
+				inToonShading = true;
+
+				centerObject.switchToToon();
+				orbitObject.switchToToon();
 				break;
 		}
 	})

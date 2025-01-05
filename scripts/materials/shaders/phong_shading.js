@@ -31,7 +31,6 @@ in mediump vec3 fL;
 
 in vec2 vUv;
 
-uniform vec3 color;
 uniform vec3 ambientLightColor;
 uniform float shininess;
 

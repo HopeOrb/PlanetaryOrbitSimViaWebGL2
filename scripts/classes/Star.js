@@ -1,7 +1,5 @@
 import * as THREE from './../../node_modules/three/build/three.module.js';
 
-import { ShaderPhongMaterial } from '../materials/shaderPhongMaterial.js';
-import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
 import { StarMaterial } from '../materials/StarMaterial.js';
 
 export class Star extends THREE.Mesh {
@@ -9,12 +7,55 @@ export class Star extends THREE.Mesh {
     constructor(color) {
         super();
 
-        this.defaultMaterial = new THREE.MeshPhongMaterial({color: color}); // This is only for testing while development, will be removed in final
-        this.phongMaterial = new ShaderPhongMaterial( {color: {value: color}, shininess: {value: 1.0}} );    
-        this.toonMaterial = new ShaderToonMaterial( {color: {value: color}} );
+        this.light = new THREE.PointLight( 0xffffff, 25 );
+
+        this.switchToPhong();
+    }
+
+    switchToPhong() {   
+        this.reset()
 
         this.geometry = new THREE.SphereGeometry();
-
         this.material = new StarMaterial();
+    }
+
+    switchToToon() {
+        this.reset();
+
+        this.geometry = new THREE.SphereGeometry( 1.25 );
+        this.material = new THREE.MeshBasicMaterial( {color: 0xfc2e00, transparent: true, opacity: 0.4} );
+
+        const sphere1 = new THREE.SphereGeometry( 1.10 );
+        const material1 = new THREE.MeshBasicMaterial( {color: 0xfc9100, transparent: true, opacity: 0.7} );
+        const middleSphere = new THREE.Mesh( sphere1, material1 );
+        
+        this.attach( middleSphere );
+        
+        middleSphere.position.set( 0, 0, 0 );
+        middleSphere.scale.set( 1, 1, 1 );
+
+        const sphere2 = new THREE.SphereGeometry( 1.00 );
+        const material2 = new THREE.MeshBasicMaterial( {color: 0xfcd900} );
+        const innerSphere = new THREE.Mesh( sphere2, material2 );
+        
+        this.attach( innerSphere );
+
+        innerSphere.position.set( 0, 0, 0 );
+
+        innerSphere.scale.set( 1, 1, 1 );
+                
+        // This is needed as the two outer layers are both semi-transparent and the renderer renders them in the wrong order
+        middleSphere.renderOrder = 1;
+        this.renderOrder = 2;
+    }
+
+    reset() {
+        this.clear();
+
+        this.attach( this.light );
+        this.light.position.set( 0, 0, 0 );
+
+        this.geometry = null;
+        this.material = null;
     }
 }
