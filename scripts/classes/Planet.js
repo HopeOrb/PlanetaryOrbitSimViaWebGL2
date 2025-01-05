@@ -3,6 +3,8 @@ import * as THREE from './../../node_modules/three/build/three.module.js';
 import { ShaderPhongMaterial } from '../materials/ShaderPhongMaterial.js';
 import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
 
+import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
+
 export class Planet extends THREE.Mesh {
     
     constructor(color, texture, texture2 = texture) {
@@ -22,21 +24,32 @@ export class Planet extends THREE.Mesh {
 
     // Shading only for test!!! Will be removed in delivery!!!
     switchToTest() {
+        this.reset();
+
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         this.material = new THREE.MeshPhongMaterial( {color: this.color} );
     }
 
     switchToPhong() {
+        this.reset();
+
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
     }
 
     switchToToon() {
+        this.reset();
+
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         this.material = new ShaderToonMaterial( {color: {value: this.color}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+
+        const outline = new ShaderToonOutline( this );
+        this.attach( outline );
+        outline.position.set( 0, 0, 0 );
+        outline.scale.set( 1, 1, 1 );
     }
 
     // For some reason it doesn't work when we call it scale
@@ -46,6 +59,10 @@ export class Planet extends THREE.Mesh {
         this.sizeZ = z;
 
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
+    }
+
+    reset() {
+        this.clear()
     }
 
 }

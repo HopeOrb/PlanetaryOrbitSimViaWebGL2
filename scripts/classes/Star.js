@@ -2,6 +2,8 @@ import * as THREE from './../../node_modules/three/build/three.module.js';
 
 import { StarMaterial } from '../materials/StarMaterial.js';
 
+import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
+
 export class Star extends THREE.Mesh {
     
     constructor(color) {
@@ -22,11 +24,12 @@ export class Star extends THREE.Mesh {
     switchToToon() {
         this.reset();
 
-        this.geometry = new THREE.SphereGeometry( 1.25 );
-        this.material = new THREE.MeshBasicMaterial( {color: 0xfc2e00, transparent: true, opacity: 0.4} );
+        this.geometry = new THREE.SphereGeometry( 1.40 );
+        this.material = new THREE.MeshBasicMaterial( {color: 0xfc2e00, transparent: true, opacity: 0.8} );
 
-        const sphere1 = new THREE.SphereGeometry( 1.10 );
-        const material1 = new THREE.MeshBasicMaterial( {color: 0xfc9100, transparent: true, opacity: 0.7} );
+        const sphere1 = new THREE.SphereGeometry( 1.25 );
+        const material1 = new THREE.MeshBasicMaterial( {color: 0xfc9100, transparent: true, opacity: 0.9} );
+        material1.side = THREE.BackSide;
         const middleSphere = new THREE.Mesh( sphere1, material1 );
         
         this.attach( middleSphere );
@@ -41,9 +44,14 @@ export class Star extends THREE.Mesh {
         this.attach( innerSphere );
 
         innerSphere.position.set( 0, 0, 0 );
-
         innerSphere.scale.set( 1, 1, 1 );
-                
+
+        const outline = new ShaderToonOutline( innerSphere );
+        this.attach( outline );
+
+        outline.position.set( 0, 0, 0 );
+        outline.scale.set( 1, 1, 1 );
+        
         // This is needed as the two outer layers are both semi-transparent and the renderer renders them in the wrong order
         middleSphere.renderOrder = 1;
         this.renderOrder = 2;

@@ -65,8 +65,35 @@ void main() {
         nightTexColor = nightTexColor * 0.3;
     }
 
-    vec4 texColor = mix( nightTexColor, dayTexColor, intensity );
+    vec4 texColor = dayTexColor * 0.7;  // Multiplied because it looks better
+    
+    if (intensity == 0.0) {
+        texColor = nightTexColor;
+    }
+
+    // EDGE DETECTION
+
+    ivec2 texSize = textureSize( dayTexture, 0 );
+
+    float offsetX = 1.0 / float(texSize.x);
+    float offsetY = 1.0 / float(texSize.y);
+
+    vec4 texColorRight = texture2D( dayTexture, vUv + offsetX );
+    vec4 texColorLeft = texture2D( dayTexture, vUv - offsetX );
+    vec4 texColorUp = texture2D( dayTexture, vUv + offsetY );
+    vec4 texColorDown = texture2D( dayTexture, vUv - offsetY );
+
+    vec4 horizontalGradient = texColorRight - texColorLeft;
+    vec4 verticalGradient = texColorUp - texColorDown;
+
+    vec4 edgeMagnitude = sqrt( horizontalGradient * horizontalGradient + verticalGradient * verticalGradient );
+    float edgeIntensity = (edgeMagnitude.r + edgeMagnitude.g + edgeMagnitude.b) / 3.0;
 
     gl_FragColor = vec4(light + ambient, 1.0) * texColor;
+    
+    // If edge paint black
+    if (edgeIntensity > 0.06) {
+        gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+    }
 }
 `;

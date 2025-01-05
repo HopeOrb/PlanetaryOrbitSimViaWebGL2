@@ -10,8 +10,10 @@ import { setupGUI } from './gui.js';
 import { Star } from './classes/Star.js';
 import { Planet } from './classes/Planet.js';
 import { selectiveFragment, selectiveVertex } from './post_processing/selective_bloom.js';
+import { ShaderToonOutline } from './materials/ShaderToonMaterial.js';
 
 let inPhongShading, inToonShading;	// To know what shading the scene is in
+let backgroundColor;
 
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -426,10 +428,14 @@ const main = () => {
 		controls.update();
 
 		//userPosition = { x: 0, y: 0, z: 0 };
-		if (inPhongShading) centerObject.material.uniforms.time.value += 0.003;	// Toon shading doesn't have a time uniform
+		if (inPhongShading) centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
+		if (inToonShading) {
+			centerObject.material.opacity = 0.5 + (Math.sin(timestamp/500) / 7);	// So the bloom effect in toon shading oscillates
+		}
 
 		scene.remove(transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
 		scene.traverse(nonBloomed);	// Darken the objects which are not bloomed
+		renderer.setClearColor(0x000000);	// Set the background to black before bloom
 
 		bloomComposer.render();
 
@@ -437,7 +443,8 @@ const main = () => {
 
 		scene.traverse(restoreMaterial);	// Restore the darkened objects
 		scene.add(transformControls.getHelper());	// Restore transformControls
-
+		renderer.setClearColor(backgroundColor);	// Restore background
+		
 		finalComposer.render();
 	}
 
@@ -456,6 +463,8 @@ const main = () => {
 				inPhongShading = true;
 				inToonShading = false;
 
+				backgroundColor = 0x000000;
+
 				centerObject.switchToPhong();
 				orbitObject.switchToTest();
 				break;
@@ -463,12 +472,17 @@ const main = () => {
 				inPhongShading = true;
 				inToonShading = false;
 
+				backgroundColor = 0x000000;
+
 				centerObject.switchToPhong();
 				orbitObject.switchToPhong();
 				break;
 			case "3":
 				inPhongShading = false;
 				inToonShading = true;
+
+				//backgroundColor = 0x06000e;
+				backgroundColor = 0x010005;
 
 				centerObject.switchToToon();
 				orbitObject.switchToToon();
