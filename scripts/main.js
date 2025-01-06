@@ -12,13 +12,21 @@ import { Planet } from './classes/Planet.js';
 import { selectiveFragment, selectiveVertex } from './post_processing/selective_bloom.js';
 import { ShaderToonOutline } from './materials/ShaderToonMaterial.js';
 
+import {GameManager} from "./managers/GameManager.js";
+
 let inPhongShading, inToonShading;	// To know what shading the scene is in
 let backgroundColor;
 
 
 
 const clean_main = () => {
-	const gm = new GameManager();
+	const theCanvas = document.getElementById("the_canvas");
+	// Init GameManager
+	const gm = new GameManager(theCanvas);
+	// Init Game
+	gm.init();
+	// Start Simulation
+	gm.update();
 }
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
@@ -514,5 +522,6 @@ const main = () => {
 	};
 }
 
-
-main();
+let boolClean = true;
+if(boolClean) clean_main();
+else main();

@@ -2,8 +2,9 @@ import * as THREE from './../../node_modules/three/build/three.module.js';
 
 import { ShaderPhongMaterial } from '../materials/ShaderPhongMaterial.js';
 import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
+import {GameObject} from "./GameObject.js";
 
-export class Asteroid extends THREE.Mesh {
+export class Asteroid extends GameObject {
 
     constructor(color) {
         super();
