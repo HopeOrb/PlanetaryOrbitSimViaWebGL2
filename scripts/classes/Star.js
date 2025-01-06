@@ -3,8 +3,9 @@ import * as THREE from './../../node_modules/three/build/three.module.js';
 import { StarMaterial } from '../materials/StarMaterial.js';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
+import {GameObject} from "./GameObject.js";
 
-export class Star extends THREE.Mesh {
+export class Star extends GameObject {
     
     constructor(color) {
         super();
@@ -14,7 +15,7 @@ export class Star extends THREE.Mesh {
         this.switchToPhong();
     }
 
-    switchToPhong() {   
+    switchToPhong() {
         this.reset()
 
         this.geometry = new THREE.SphereGeometry();

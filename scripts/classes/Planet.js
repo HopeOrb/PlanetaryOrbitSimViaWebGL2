@@ -4,8 +4,9 @@ import { ShaderPhongMaterial } from '../materials/ShaderPhongMaterial.js';
 import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
+import {GameObject} from "./GameObject.js";
 
-export class Planet extends THREE.Mesh {
+export class Planet extends GameObject {
     
     constructor(color, texture, texture2 = texture) {
         super();

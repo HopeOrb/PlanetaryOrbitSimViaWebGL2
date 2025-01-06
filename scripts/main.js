@@ -15,6 +15,11 @@ import { ShaderToonOutline } from './materials/ShaderToonMaterial.js';
 let inPhongShading, inToonShading;	// To know what shading the scene is in
 let backgroundColor;
 
+
+
+const clean_main = () => {
+	const gm = new GameManager();
+}
 const main = () => {
 	const theCanvas = document.getElementById("the_canvas"); // Use our already-existent canvas
 
