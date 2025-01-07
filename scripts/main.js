@@ -321,13 +321,13 @@ const main = () => {
 //		const plight = new THREE.PointLight( 0xffffff, 25 );
 //		plight.position.set(0, 0, 0);
 //		scene.add(plight);
-	} { // Ambient light
+	}
+	{ // Ambient light
 		const alight = new THREE.AmbientLight(0xffffff, 0.25);
 		scene.add(alight);
 	}
 
 	// Star background
-
 	const stars = new Array();
 	for ( let i=0; i<3000; i++ ) {
 	    let x = THREE.MathUtils.randFloatSpread( 1000 );
@@ -501,7 +501,7 @@ const main = () => {
 				orbitObject.switchToToon();
 				break;
 		}
-	})
+	});
 
 	// Update camera and renderer on window resize
 	window.onresize = resize;
