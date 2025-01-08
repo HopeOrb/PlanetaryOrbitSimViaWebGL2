@@ -220,27 +220,20 @@ export class GameManager {
         this.scene.remove(this.transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
         //this.scene.traverse(this.nonBloomed);	// Darken the objects which are not bloomed
         this.scene.traverse((child) => {
-            if (child && child.bloomLayer) {
-                this.nonBloomed(child);
-            } else {
-                console.warn("Child does not meet requirements:", child);
-            }
+            // Arrow function ensures `this` refers to the class instance
+            this.nonBloomed(child);
         });
         this.renderer.setClearColor(0x000000);	// Set the background to black before bloom
 
         this.bloomComposer.render();
 
-       this.mixPass.material.uniforms.bloomTexture.value = this.bloomComposer.readBuffer.texture;	// Pass the output of first pass to the final pass
+        this.mixPass.material.uniforms.bloomTexture.value = this.bloomComposer.readBuffer.texture;	// Pass the output of first pass to the final pass
 
         //this.scene.traverse(this.restoreMaterial);	// Restore the darkened objects
         this.scene.traverse((child) => {
-            if (child && child.materials) {
-                this.restoreMaterial(child);
-            } else {
-                console.warn("Skipping object without materials:", child);
-            }
+            // Arrow function ensures `this` refers to the class instance
+            this.restoreMaterial(child);
         });
-
         this.scene.add(this.transformControls.getHelper());	// Restore transformControls
         this.renderer.setClearColor(this.backgroundColor);	// Restore background
 
@@ -303,7 +296,7 @@ export class GameManager {
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
-            this.isDragging = event.value; // Sürükleme başlatıldığında `isDragging` true olacak
+            this.isDragging = event.value; // Sürükleme başlatıldığında isDragging true olacak
             if (!this.isDragging) {
                 // Sürükleme tamamlandığında tıklamayı tekrar engellemeyi kaldır
                 this.isClickBlocked = true;
@@ -612,11 +605,8 @@ export class GameManager {
 
     // We will darken the objects which are "non-bloomed" before the first pass
     nonBloomed(obj) {
-        if (!obj || !obj.bloomLayer) {
-            console.warn("Object does not have a bloomLayer property:", obj);
-            return false; // Or a safe default
-        }
         if (this.bloomLayer.test(obj.layers) === false) {
+            console.log(obj);
             this.materials[obj.uuid] = obj.material;
             obj.material = this.darkMaterial;
         }
