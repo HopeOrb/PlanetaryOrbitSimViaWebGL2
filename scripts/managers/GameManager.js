@@ -117,8 +117,6 @@ export class GameManager {
         // Initialize CameraManager for Camera and OrbitControl
         this.initCameraManager();
 
-        // Initialize DebugManager
-        this.initDebugManager();
         // Initialize TransformControls
         this.initTransformControls();
 
@@ -143,8 +141,12 @@ export class GameManager {
         // Init Scene
         this.initScene();
 
+        // Initialize DebugManager
+        this.initDebugManager();
+
         // Add EventListeners
         this.addEventListeners();
+
     }
 
     // Initialize the Game Loop
@@ -297,7 +299,7 @@ export class GameManager {
         this.camManager.addEventListeners();
 
         // DebugManager Event Listener
-        this.debugManager.addEventListeners();
+        this.debugManager.addDebugEventListeners();
 
         // TransformControls Event Listener
         this.addTransformControlEventListeners();
@@ -382,14 +384,6 @@ export class GameManager {
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
-            // Raycasting visualize debugging
-            const rayLineGeometry = new THREE.BufferGeometry().setFromPoints([
-                this.raycaster.ray.origin,
-                this.raycaster.ray.origin.clone().add(this.raycaster.ray.direction.multiplyScalar(30)) // Extend ray
-            ]);
-            const rayLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-            const rayLine = new THREE.Line(rayLineGeometry, rayLineMaterial);
-            this.scene.add(rayLine);
             
             const intersects = this.raycaster.intersectObjects(this.scene.children, true);
             if (intersects.length > 0) {
@@ -423,6 +417,9 @@ export class GameManager {
                 }
 
                 this.previousSelectedObject = this.selectedObject; // Şu anki objeyi önceki objeye aktar
+
+                // Debug
+                if(this.debugManager.isDebugMode) this.debugManager.debugRaycaster();
 
                 console.log("Selected Object:", this.selectedObject);
 
@@ -653,5 +650,6 @@ export class GameManager {
 
     initDebugManager() {
         this.debugManager = new DebugManager(this.renderer, this.scene);
+        this.debugManager.initRaycaster(this.raycaster);
     }
 }
