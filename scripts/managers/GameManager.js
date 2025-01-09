@@ -261,6 +261,9 @@ export class GameManager {
     initRayCaster() {
         // TRYING RAYCASTER
         this.raycaster = new THREE.Raycaster();
+        this.raycaster.near = 0.1;
+        this.raycaster.far = 1000;
+
 
     }
 
@@ -296,13 +299,14 @@ export class GameManager {
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
+            console.log("in dragging-changed");
             this.isDragging = event.value; // Sürükleme başlatıldığında isDragging true olacak
             if (!this.isDragging) {
                 // Sürükleme tamamlandığında tıklamayı tekrar engellemeyi kaldır
                 this.isClickBlocked = true;
                 setTimeout(() => {
                     this.isClickBlocked = false; // Tıklama engellemeyi kaldır
-                }, 100); // Sürükleme tamamlandıktan sonra bir süre tıklama engellenir
+                }, 1000); // Sürükleme tamamlandıktan sonra bir süre tıklama engellenir
             }
         });
 
@@ -348,13 +352,14 @@ export class GameManager {
 
         window.addEventListener('click', () => {
             console.log(this.isClickBlocked.valueOf());
-            if (this.isClickBlocked) {
-                return;
-            }
             if (this.isDragging) {
                 this.isClickBlocked = true;
                 return; // Sürükleme işlemi devam ediyorsa tıklama işlemi yapma
             }
+            if (this.isClickBlocked) {
+                return;
+            }
+
 
             if (event.target.closest('.lil-gui')) {
                 return; // GUI'ye tıklanırsa işlem yapma
@@ -364,6 +369,7 @@ export class GameManager {
             const intersects = this.raycaster.intersectObjects(this.scene.children);
             if (intersects.length > 0) {
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
+
 
                 if (!(this.selectedObject instanceof Star || this.selectedObject instanceof Planet)) {
                     this.selectedObject = null; // Hiçbir şey seçilmediyse
@@ -606,7 +612,7 @@ export class GameManager {
     // We will darken the objects which are "non-bloomed" before the first pass
     nonBloomed(obj) {
         if (this.bloomLayer.test(obj.layers) === false) {
-            console.log(obj);
+            //console.log(obj);
             this.materials[obj.uuid] = obj.material;
             obj.material = this.darkMaterial;
         }

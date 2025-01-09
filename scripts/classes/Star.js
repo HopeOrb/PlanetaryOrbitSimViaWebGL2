@@ -20,6 +20,7 @@ export class Star extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.material = new StarMaterial();
+
     }
 
     switchToToon() {
@@ -56,6 +57,7 @@ export class Star extends GameObject {
         // This is needed as the two outer layers are both semi-transparent and the renderer renders them in the wrong order
         middleSphere.renderOrder = 1;
         this.renderOrder = 2;
+
     }
 
     reset() {
@@ -67,4 +69,5 @@ export class Star extends GameObject {
         this.geometry = null;
         this.material = null;
     }
+
 }
