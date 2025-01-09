@@ -358,14 +358,7 @@ export class GameManager {
             console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
             this.camManager.updateCameraView();
-            // Raycasting visualize debugging
-            const rayLineGeometry = new THREE.BufferGeometry().setFromPoints([
-                this.raycaster.ray.origin,
-                this.raycaster.ray.origin.clone().add(this.raycaster.ray.direction.multiplyScalar(10)) // Extend ray
-            ]);
-            const rayLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-            const rayLine = new THREE.Line(rayLineGeometry, rayLineMaterial);
-            this.scene.add(rayLine);
+
 
             if (this.isDragging) {
                 this.isClickBlocked = true;
@@ -381,6 +374,15 @@ export class GameManager {
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
+            // Raycasting visualize debugging
+            const rayLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                this.raycaster.ray.origin,
+                this.raycaster.ray.origin.clone().add(this.raycaster.ray.direction.multiplyScalar(30)) // Extend ray
+            ]);
+            const rayLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+            const rayLine = new THREE.Line(rayLineGeometry, rayLineMaterial);
+            this.scene.add(rayLine);
+            
             const intersects = this.raycaster.intersectObjects(this.scene.children, true);
             if (intersects.length > 0) {
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
