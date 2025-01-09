@@ -278,6 +278,9 @@ export class GameManager {
     initRayCaster() {
         // TRYING RAYCASTER
         this.raycaster = new THREE.Raycaster();
+        this.raycaster.near = 0.1;
+        this.raycaster.far = 1000;
+        this.raycaster.layers.set(2);   // Raycasting layer
 
     }
 
@@ -380,9 +383,22 @@ export class GameManager {
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
-            const intersects = this.raycaster.intersectObjects(this.scene.children);
+            const intersects = this.raycaster.intersectObjects( this.scene.children, true );
+
             if (intersects.length > 0 && this.inEditMode) {
+                console.log(intersects);
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
+
+                //for (let i=0; i<intersects.length; i++) {
+                //    if (intersects[i].object instanceof Star || intersects[i].object instanceof Planet) {
+                //        this.selectedObject = intersects[i].object;
+                //        console.log(intersects[i]);
+                //        console.log(i);
+                //        break;
+                //    }
+                //}
+
+                console.log(this.selectedObject);
 
                 if (!(this.selectedObject instanceof Star || this.selectedObject instanceof Planet)) {
                     this.selectedObject = null; // Hiçbir şey seçilmediyse
@@ -544,6 +560,7 @@ export class GameManager {
         let t = 0;
         this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.scene.add(this.orbitObject);
+        //this.scene.add( new THREE.BoxHelper( this.centerObject, 0xffffff ) );
 
         // Add Light
         this.addAmbientLight();
