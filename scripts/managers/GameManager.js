@@ -233,10 +233,14 @@ export class GameManager {
         this.scene.traverse((child) => {
             // Arrow function ensures `this` refers to the class instance
             this.restoreMaterial(child);
+            // to update world-matrix
+            child.updateWorldMatrix();
         });
         this.scene.add(this.transformControls.getHelper());	// Restore transformControls
         this.renderer.setClearColor(this.backgroundColor);	// Restore background
 
+        // to update world-matrix for camera
+        this.camManager.updateCameraView();
         this.finalComposer.render();
 
     }
@@ -345,13 +349,24 @@ export class GameManager {
     }
 
     addRayCastingEventListeners() {
-        window.addEventListener('mousemove', (event) => {
+        window.addEventListener('pointermove', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
 
         window.addEventListener('click', () => {
             console.log(this.isClickBlocked.valueOf());
+            // ensure camera view - world view matrices are synch before raycasting
+            this.camManager.updateCameraView();
+            // Raycasting visualize debugging
+            const rayLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                this.raycaster.ray.origin,
+                this.raycaster.ray.origin.clone().add(this.raycaster.ray.direction.multiplyScalar(10)) // Extend ray
+            ]);
+            const rayLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+            const rayLine = new THREE.Line(rayLineGeometry, rayLineMaterial);
+            this.scene.add(rayLine);
+
             if (this.isDragging) {
                 this.isClickBlocked = true;
                 return; // Sürükleme işlemi devam ediyorsa tıklama işlemi yapma
@@ -366,7 +381,7 @@ export class GameManager {
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
-            const intersects = this.raycaster.intersectObjects(this.scene.children);
+            const intersects = this.raycaster.intersectObjects(this.scene.children, true);
             if (intersects.length > 0) {
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
 
