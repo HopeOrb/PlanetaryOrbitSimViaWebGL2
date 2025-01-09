@@ -21,12 +21,14 @@ import {Planet} from './../classes/Planet.js';
 import {selectiveFragment, selectiveVertex} from './../post_processing/selective_bloom.js';
 import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
+import {DebugManager} from "./DebugManager.js";
 
 export class GameManager {
     // fields
     canvas;
     scene;
     camManager;
+    debugManager;
     renderer;
     transformControls;
     stats;
@@ -86,6 +88,7 @@ export class GameManager {
         this.canvas = canvas;
         this.scene = null;
         this.camManager = null;
+        this.debugManager = null;
         this.renderer = null;
         this.transformControls = null;
         this.stats = null;
@@ -114,6 +117,8 @@ export class GameManager {
         // Initialize CameraManager for Camera and OrbitControl
         this.initCameraManager();
 
+        // Initialize DebugManager
+        this.initDebugManager();
         // Initialize TransformControls
         this.initTransformControls();
 
@@ -290,6 +295,9 @@ export class GameManager {
 
         // OrbitControls Event Listener
         this.camManager.addEventListeners();
+
+        // DebugManager Event Listener
+        this.debugManager.addEventListeners();
 
         // TransformControls Event Listener
         this.addTransformControlEventListeners();
@@ -641,5 +649,9 @@ export class GameManager {
             obj.material = this.materials[obj.uuid];
             delete this.materials[obj.uuid];
         }
+    }
+
+    initDebugManager() {
+        this.debugManager = new DebugManager(this.renderer, this.scene);
     }
 }
