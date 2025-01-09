@@ -145,16 +145,16 @@ export class GameManager {
     // Initialize the Game Loop
     update() {
 
-        const animate = (timestamp) => {
-            this.animate(timestamp); // Call the actual animation frame
+        const updateLoop = (timestamp) => {
+            this.gameLoop(timestamp); // Call the actual animation frame
             this.stats.update(); // Needs to be updated in order to show the FPS count
-            requestAnimationFrame(animate); // Request to be called again
+            requestAnimationFrame(updateLoop); // Request to be called again
         }
-        requestAnimationFrame(animate);
+        requestAnimationFrame(updateLoop);
         window.onresize = this.resize;
     }
 
-    animate(timestamp) {
+    gameLoop(timestamp) {
         {
             // Move the orbit cube
             const t = timestamp / 1000;
