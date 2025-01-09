@@ -50,6 +50,7 @@ export class GameManager {
 
     // shading and postprocessing
     inPhongShading;
+    inToonShading;
     bloomComposer;
     finalComposer;
     renderScene;
@@ -81,6 +82,10 @@ export class GameManager {
     bloomStarsGeometry;
     spaceBackgroundBloom;
 
+    inEditMode;
+    inSimulationMode;
+
+    grid;
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -102,7 +107,7 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
-        this.inPhongShading = true;
+        //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
     }
 
     // Will initialize the Scene / Game
@@ -140,6 +145,10 @@ export class GameManager {
 
         // Add EventListeners
         this.addEventListeners();
+
+        this.initGrid();
+
+        this.initMode();
     }
 
     // Initialize the Game Loop
@@ -155,6 +164,14 @@ export class GameManager {
     }
 
     animate(timestamp) {
+        if (this.inSimulationMode) {
+            this.scene.traverse( (object) => {
+                if (object instanceof Planet) object.position.x += 0.001;   // Placeholder, each object will move and rotate according to their own properties
+            } );
+        }
+
+        // We cannot use timestamp in our Kepler formula as we'll make it possible to pause and continue at any time
+        /*
         {
             // Move the orbit cube
             const t = timestamp / 1000;
@@ -207,15 +224,15 @@ export class GameManager {
             this.centerObject.rotation.y = t + centerData.userRotation.y;
             this.centerObject.rotation.x = centerData.userRotation.x;
         }
+        */
+
         // Reset camera
         this.camManager.camera.updateProjectionMatrix();
         this.camManager.orbitControls.update();
 
         //userPosition = { x: 0, y: 0, z: 0 };
         if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
-        if (this.inToonShading) {
-            this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
-        }
+        if (this.inToonShading) this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
 
         this.scene.remove(this.transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
         //this.scene.traverse(this.nonBloomed);	// Darken the objects which are not bloomed
@@ -292,6 +309,8 @@ export class GameManager {
 
         this.addTestShadersEventListeners();
 
+        this.addSwitchModeEventListeners();
+
     }
 
     addTransformControlEventListeners() {
@@ -362,7 +381,7 @@ export class GameManager {
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
             const intersects = this.raycaster.intersectObjects(this.scene.children);
-            if (intersects.length > 0) {
+            if (intersects.length > 0 && this.inEditMode) {
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
 
                 if (!(this.selectedObject instanceof Star || this.selectedObject instanceof Planet)) {
@@ -469,7 +488,7 @@ export class GameManager {
         document.addEventListener('keydown', function (event) {
             switch (event.key) {
                 case "1":
-                    self.inPhongShading = true;
+                    self.inPhongShading = false;
                     self.inToonShading = false;
 
                     self.backgroundColor = 0x000000;
@@ -478,6 +497,7 @@ export class GameManager {
                     self.orbitObject.switchToTest();
                     break;
                 case "2":
+                    if (self.inPhongShading) break; // Without this the game slows down when we hold the key
                     self.inPhongShading = true;
                     self.inToonShading = false;
 
@@ -487,6 +507,7 @@ export class GameManager {
                     self.orbitObject.switchToPhong();
                     break;
                 case "3":
+                    if (self.inToonShading) break;  // Without this the game slows down when we hold the key
                     self.inPhongShading = false;
                     self.inToonShading = true;
 
@@ -506,9 +527,9 @@ export class GameManager {
         this.earthNightTexture = this.textureLoader.load("/resources/textures/2k_earth_nightmap.jpg");
         this.ceresTexture = this.textureLoader.load("/resources/textures/2k_ceres_fictional.jpg");
         this.makemakeTexture = this.textureLoader.load("/resources/textures/2k_makemake_fictional.jpg");
-        // background stars
+        // Background stars
         this.starSprite = new THREE.TextureLoader().load('/resources/textures/star.png');
-        this.starSprite.colorSpace = THREE.SRGBColorSpace;
+        //this.starSprite.colorSpace = THREE.SRGBColorSpace;    // I don't think we have to define its color space, because it's completely white
     }
 
     initScene() {
@@ -606,7 +627,6 @@ export class GameManager {
     // We will darken the objects which are "non-bloomed" before the first pass
     nonBloomed(obj) {
         if (this.bloomLayer.test(obj.layers) === false) {
-            console.log(obj);
             this.materials[obj.uuid] = obj.material;
             obj.material = this.darkMaterial;
         }
@@ -618,5 +638,48 @@ export class GameManager {
             obj.material = this.materials[obj.uuid];
             delete this.materials[obj.uuid];
         }
+    }
+
+    // Switch to edit mode
+    editMode() {
+        this.inEditMode = true;
+        this.inSimulationMode = false;
+
+        this.scene.add( this.grid );
+    }
+
+    // Switch to simulation mode
+    simulationMode() {
+        this.inEditMode = false;
+        this.inSimulationMode = true;
+
+        // Remove transformControls from the scene if it exists
+        this.transformControls.detach();
+        this.scene.remove(this.transformControls.getHelper());
+
+        this.scene.remove( this.grid );
+    }
+
+    addSwitchModeEventListeners() {
+        document.addEventListener( 'keydown', (event) => {
+            switch (event.key) {
+                case ' ':
+                    if (this.inEditMode) {
+                        this.simulationMode();
+                    }
+                    else {
+                        this.editMode();
+                    }
+            }
+        } );
+    }
+
+    initGrid() {
+        this.grid = new THREE.GridHelper( 100, 50, 0x888888, 0x444444 );
+    }
+
+    // Our scene will start in edit mode
+    initMode() {
+        this.editMode();
     }
 }
