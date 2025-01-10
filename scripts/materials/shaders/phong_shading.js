@@ -3,7 +3,7 @@ export const phongVertex = `
 
 out mediump vec3 fN;
 out mediump vec3 fV;
-out mediump vec3 fL;
+out mediump vec3 fL[NUM_POINT_LIGHTS];
 
 out vec2 vUv;
 
@@ -12,13 +12,17 @@ uniform struct PointLight {
     vec3 color;
     float decay;
     float distance;
-} pointLights[1];
+} pointLights[NUM_POINT_LIGHTS];
 
 void main() {   
     vUv = uv;
     fN = normalMatrix * normal; // Normal (in eye coordinates)
-    fV = - (modelViewMatrix * vec4(position, 0.0)).xyz; // Vector from point to camera (in eye coordinates)
-    fL = pointLights[0].position - (modelViewMatrix * vec4(position, 1.0)).xyz; // Vector from point to light (also in eye coordinates)
+    fV = (modelViewMatrix * vec4(position, 0.0)).xyz; // Vector from point to camera (in eye coordinates)
+    
+    // Array of vectors from the point to the lights (also in eye coordinates)
+    for (int i=0; i<NUM_POINT_LIGHTS; i++) {
+        fL[i] = pointLights[i].position - ((modelViewMatrix * vec4( position, 1.0 )).xyz);
+    }
     
     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }
@@ -27,7 +31,7 @@ void main() {
 export const phongFragment = `
 in mediump vec3 fN;
 in mediump vec3 fV;
-in mediump vec3 fL;
+in mediump vec3 fL[NUM_POINT_LIGHTS];
 
 in vec2 vUv;
 
@@ -39,7 +43,7 @@ uniform struct PointLight {
     vec3 color;
     float decay;
     float distance;
-} pointLights[1];
+} pointLights[NUM_POINT_LIGHTS];
 
 uniform sampler2D dayTexture;
 uniform sampler2D nightTexture;
@@ -47,25 +51,31 @@ uniform sampler2D nightTexture;
 void main() {
     vec3 N = normalize(fN);
     vec3 V = normalize(fV);
-    vec3 L = normalize(fL);
 
-    vec3 H = normalize(L+V);    // The half vector
-
-    float d = length(fL);   // Distance between light and point
-
+    vec3 lightIntensity;
+    
     vec3 ambient = ambientLightColor;
+    lightIntensity += ambient;
 
-    float Kd = max(dot(L, N), 0.0);
-    vec3 diffuse = Kd * pointLights[0].color;
+    for (int i=0; i<NUM_POINT_LIGHTS; i++) {
+        vec3 L = normalize( fL[i] );
+        vec3 H = normalize( L+V );  // The half vector
 
-    float Ks = pow(max(dot(N, H), 0.0), shininess);
-    vec3 specular = Ks * pointLights[0].color;
+        float d = length( fL[i] );  // Distance between light and point
+        float attenuation = 1.0 / (pointLights[i].decay * d * d);
 
-    if (dot(L, N) < 0.0) {
-        specular = vec3(0.0, 0.0, 0.0);
+        float Kd = max( dot( L, N ), 0.0 );
+        vec3 diffuse = Kd * pointLights[i].color * attenuation;
+
+        float Ks = pow( max( dot( N, H ), 0.0 ), shininess );
+        vec3 specular = vec3( Ks ) * attenuation;
+
+        if ( dot( L, N ) < 0.0 ) {
+            specular = vec3( 0.0, 0.0, 0.0 );    
+        }
+
+        lightIntensity += diffuse + specular;
     }
-
-    vec3 specular2 = vec3(pow(specular.x, shininess), pow(specular.y, shininess), pow(specular.z, shininess));  // Specular^shininess
 
     vec4 dayTexColor = texture2D(dayTexture, vUv);
     vec4 nightTexColor = texture2D(nightTexture, vUv);
@@ -74,12 +84,13 @@ void main() {
         nightTexColor = nightTexColor * 0.3;
     }
 
-    vec4 texColor = mix(nightTexColor, dayTexColor, Kd);
+    vec3 temp = lightIntensity - ambient;
+    float temp2 = (temp.x + temp.y + temp.z) / 3.0;
 
-    float decay = 3.0 + 2.0 * d + 1.0 * d * d;
+    float dayNightSlider = min( temp2, 1.0 );
 
-    vec3 result = (ambient + (diffuse + specular) / decay);
+    vec4 texColor = mix(nightTexColor, dayTexColor, dayNightSlider);
 
-    gl_FragColor = vec4(result, 1.0) * texColor;
+    gl_FragColor = vec4(lightIntensity, 1.0) * texColor;
 }
 `;

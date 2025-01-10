@@ -17,5 +17,8 @@ export class ShaderPhongMaterial extends THREE.ShaderMaterial {
             THREE.UniformsLib['lights'],
             parameters
         ]);
+
+        this.uniforms.shininess.value = 50.0;   // Low values: 10-50, high values: 100-200
+        this.needsUpdate = true;
     }
 }

@@ -585,7 +585,7 @@ export class GameManager {
     }
 
     addAmbientLight() {
-        this.alight = new THREE.AmbientLight(0xffffff, 0.25);
+        this.alight = new THREE.AmbientLight(0x777777, 0.25);
         this.scene.add(this.alight);
     }
 
