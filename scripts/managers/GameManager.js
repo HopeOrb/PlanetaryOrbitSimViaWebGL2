@@ -368,7 +368,6 @@ export class GameManager {
 
                 if (!(this.selectedObject instanceof Star || this.selectedObject instanceof Planet)) {
                     this.selectedObject = null; // Hiçbir şey seçilmediyse
-                    console.log("heree");
 
                     this.transformControls.detach();
                     this.scene.remove(this.transformControls.getHelper());
@@ -402,7 +401,7 @@ export class GameManager {
             } else {
                 console.log("Selected : Null");
                 this.selectedObject = null; // Hiçbir şey seçilmediyse
-
+                this.previousSelectedObject = null;
                 this.transformControls.detach();
                 this.scene.remove(this.transformControls.getHelper());
 
