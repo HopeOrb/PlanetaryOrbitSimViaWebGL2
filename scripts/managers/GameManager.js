@@ -21,12 +21,14 @@ import {Planet} from './../classes/Planet.js';
 import {selectiveFragment, selectiveVertex} from './../post_processing/selective_bloom.js';
 import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
+import {DebugManager} from "./DebugManager.js";
 
 export class GameManager {
     // fields
     canvas;
     scene;
     camManager;
+    debugManager;
     renderer;
     transformControls;
     stats;
@@ -86,6 +88,7 @@ export class GameManager {
         this.canvas = canvas;
         this.scene = null;
         this.camManager = null;
+        this.debugManager = null;
         this.renderer = null;
         this.transformControls = null;
         this.stats = null;
@@ -138,8 +141,12 @@ export class GameManager {
         // Init Scene
         this.initScene();
 
+        // Initialize DebugManager
+        this.initDebugManager();
+
         // Add EventListeners
         this.addEventListeners();
+
     }
 
     // Initialize the Game Loop
@@ -291,6 +298,9 @@ export class GameManager {
         // OrbitControls Event Listener
         this.camManager.addEventListeners();
 
+        // DebugManager Event Listener
+        this.debugManager.addDebugEventListeners();
+
         // TransformControls Event Listener
         this.addTransformControlEventListeners();
 
@@ -374,14 +384,6 @@ export class GameManager {
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
-            // Raycasting visualize debugging
-            const rayLineGeometry = new THREE.BufferGeometry().setFromPoints([
-                this.raycaster.ray.origin,
-                this.raycaster.ray.origin.clone().add(this.raycaster.ray.direction.multiplyScalar(30)) // Extend ray
-            ]);
-            const rayLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-            const rayLine = new THREE.Line(rayLineGeometry, rayLineMaterial);
-            this.scene.add(rayLine);
             
             const intersects = this.raycaster.intersectObjects(this.scene.children, true);
             if (intersects.length > 0) {
@@ -415,6 +417,9 @@ export class GameManager {
                 }
 
                 this.previousSelectedObject = this.selectedObject; // Şu anki objeyi önceki objeye aktar
+
+                // Debug
+                if(this.debugManager.isDebugMode) this.debugManager.debugRaycaster();
 
                 console.log("Selected Object:", this.selectedObject);
 
@@ -641,5 +646,10 @@ export class GameManager {
             obj.material = this.materials[obj.uuid];
             delete this.materials[obj.uuid];
         }
+    }
+
+    initDebugManager() {
+        this.debugManager = new DebugManager(this.renderer, this.scene);
+        this.debugManager.initRaycaster(this.raycaster);
     }
 }
