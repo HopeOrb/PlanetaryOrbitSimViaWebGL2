@@ -19,26 +19,29 @@ export class CreditsManager {
     }
     initCreators(){
         this.creatorNames = ["EKIN DOGA TASKIN",
-        "ILTER DOGAC DONMEZ",
-        "MELIH KOC",
-        "MURAT EREN GUVEN"];
+            "ILTER DOGAC DONMEZ",
+            "MELIH KOC",
+            "MURAT EREN GUVEN"];
         const offsetY = 5; // Space between names in Y axis
-        for (let i = 0; i < this.creatorNames.size; i++) {
-            this.creators.add(this.createSentence(this.creatorNames[i], i + offsetY));
+        for (let i = 0; i < this.creatorNames.length; i++) {
+            this.creators.add(this.createSentence(this.creatorNames[i], i * offsetY));
         }
     }
 
     addCreditsEventListeners(){
-        window.addEventListener("keypress", (event) =>{
+        window.addEventListener("keypress", (event) => {
             switch (event.key) {
                 case 'j':
                     this.isCreditsMode = !this.isCreditsMode;
                     // Animate camera
 
                     // Draw - Add Creator Names on Scene
-                    if(this.isCreditsMode)
+                    if(this.isCreditsMode){
                         this.addCreditsRelativeToPosition(this.camera);
-                    else this.removeCredits();
+                    }
+                    else {
+                        this.removeCredits();
+                    }
                     break;
             }
         });
@@ -48,7 +51,7 @@ export class CreditsManager {
         this.initCreators();
         // Determine the position relative to the camera
         const cameraPosition = camera.position.clone();
-        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion); // Forward vector
+        const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion); // Forward vector
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);   // Right vector
         const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);      // Up vector
         console.log("Camera Position: ", cameraPosition);
