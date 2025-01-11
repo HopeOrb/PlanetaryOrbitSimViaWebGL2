@@ -539,18 +539,17 @@ export class GameManager {
 
     initTextureLoader() {
         this.textureLoader = new THREE.TextureLoader();
-        this.earthDayTexture = this.textureLoader.load("/resources/textures/2k_earth_daymap.jpg");
-        this.earthNightTexture = this.textureLoader.load("/resources/textures/2k_earth_nightmap.jpg");
-        this.ceresTexture = this.textureLoader.load("/resources/textures/2k_ceres_fictional.jpg");
-        this.makemakeTexture = this.textureLoader.load("/resources/textures/2k_makemake_fictional.jpg");
-        // Background stars
-        this.starSprite = new THREE.TextureLoader().load('/resources/textures/star.png');
+        this.earthDayTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_daymap.jpg");
+        this.earthNightTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_nightmap.jpg");
+        this.ceresTexture = this.textureLoader.load("/resources/textures/ceres/2k_ceres_fictional.jpg");
+        this.makemakeTexture = this.textureLoader.load("/resources/textures/makemake/2k_makemake_fictional.jpg");
+        this.starSprite = this.textureLoader.load('/resources/textures/star_sprite/star.png');
         //this.starSprite.colorSpace = THREE.SRGBColorSpace;    // I don't think we have to define its color space, because it's completely white
     }
 
     initScene() {
         // Init star
-        this.centerObject = new Star(new THREE.Color(0xbb5500));	// We have to pass only color now, may change later
+        this.centerObject = new Star();	// We have to pass only color now, may change later
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
         this.scene.add(this.centerObject);

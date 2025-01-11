@@ -5,14 +5,15 @@ import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import {GameObject} from "./GameObject.js";
+import { PlanetPhongMaterial } from '../materials/PlanetPhongMaterial.js';
 
 export class Planet extends GameObject {
     
-    constructor(color, texture, texture2 = texture) {
+    constructor(color, dayTexture, nightTexture = dayTexture) {
         super();
 
-        this.dayTexture = texture;
-        this.nightTexture = texture2;
+        this.dayTexture = dayTexture;
+        this.nightTexture = nightTexture;
 
         this.color = color; // Probably won't need in delivery as it's only used in test shading
 
@@ -44,7 +45,8 @@ export class Planet extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+        //this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+        this.material = new PlanetPhongMaterial( this.dayTexture, this.nightTexture );
     }
 
     switchToToon() {
