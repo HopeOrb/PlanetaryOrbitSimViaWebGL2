@@ -10,12 +10,17 @@ export class GameObject extends THREE.Mesh {
      * Mass, Dimensions, Speed, Directions etc.
      *
      */
-    constructor(color) {
+
+    velocity;
+    mass;
+
+    constructor() {
         super();
         this.light = new THREE.PointLight( 0xffffff, 25 );
         this.switchToPhong();
 
         this.layers.toggle(2);  // Raycaster layer
+        this.velocity = new THREE.Vector3();
 
         //this.geometry.computeBoundingBox();
     }

@@ -22,6 +22,7 @@ import {selectiveFragment, selectiveVertex} from './../post_processing/selective
 import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
 import { ShaderManager } from './ShaderManager.js';
+import { PhysicsManager } from './PhysicsManager.js';
 
 export class GameManager {
     // fields
@@ -92,6 +93,7 @@ export class GameManager {
     wireframePlanet;
 
     shaderManager;
+    physicsManager;
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -159,6 +161,8 @@ export class GameManager {
         this.initWireframePlanet();
 
         this.initShaderManager();
+
+        this.initPhysicsManager();
     }
 
     // Initialize the Game Loop
@@ -175,66 +179,8 @@ export class GameManager {
 
     animate(timestamp) {
         if (this.inSimulationMode) {
-            this.scene.traverse( (object) => {
-                if (object instanceof Planet) object.position.x += 0.001;   // Placeholder, each object will move and rotate according to their own properties
-            } );
+            this.physicsManager.updateObjects();
         }
-
-        // We cannot use timestamp in our Kepler formula as we'll make it possible to pause and continue at any time
-        /*
-        {
-            // Move the orbit cube
-            const t = timestamp / 1000;
-            const a = 4, b = 5;
-            const focusDistance = (b ** 2 - a ** 2) ** 0.5;
-            let x = a * Math.cos(t);
-            let y = 0;
-            let z = b * Math.sin(t);
-            z = z - focusDistance; // Move the orbit so that one of its focuses align into the center cube that is also at (0, 0, 0)
-            {
-                const th = -60 * (Math.PI / 180); // Tilt the orbit around (0, 0, 0) by some degrees
-                // Too me like hours to fix it!!! The second param should not be calcullated based on the
-                // modified version of the first version!!!!!!
-                const xNew = x * Math.cos(th) + z * Math.sin(th);
-                const zNew = -x * Math.sin(th) + z * Math.cos(th);
-                x = xNew;
-                z = zNew;
-            }
-            {
-                const th = -15 * (Math.PI / 180); // Tilt the orbit around (0, 0, 0) by some degrees
-                const xNew = x * Math.cos(th) + y * Math.sin(th);
-                const yNew = -x * Math.sin(th) + y * Math.cos(th);
-                x = xNew;
-                y = yNew;
-            }
-            const orbitData = this.objectDataMap.get(this.orbitObject) || {
-                userPosition: {x: 0, y: 0, z: 0},
-                userRotation: {x: 0, y: 0}
-            };
-            x += orbitData.userPosition.x;
-            y += orbitData.userPosition.y;
-            z += orbitData.userPosition.z;
-
-            this.orbitObject.position.set(x, y, z);
-
-            // OrbitCube için kullanıcı rotasyonunu uygula
-            const tRotation = timestamp / 1000 * 2;
-            this.orbitObject.rotation.y = tRotation + orbitData.userRotation.y;
-            this.orbitObject.rotation.x = -1.3 * tRotation + orbitData.userRotation.x;
-        }
-
-        { // Rotate the center cube
-            const centerData = this.objectDataMap.get(this.centerObject) || {
-                userPosition: {x: 0, y: 0, z: 0},
-                userRotation: {x: 0, y: 0}
-            };
-            const t = timestamp / (1000 * 3);
-
-            // Pozisyon ve rotasyonu uygula
-            this.centerObject.rotation.y = t + centerData.userRotation.y;
-            this.centerObject.rotation.x = centerData.userRotation.x;
-        }
-        */
 
         // Reset camera
         this.camManager.camera.updateProjectionMatrix();
@@ -573,16 +519,16 @@ export class GameManager {
 
     initScene() {
         // Init star
-        this.centerObject = new Star(new THREE.Color(0xbb5500));	// We have to pass only color now, may change later
+        this.centerObject = new Star();
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
         this.scene.add(this.centerObject);
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
         let t = 0;
-        this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
+        //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
+        this.orbitObject.position.set( 10, 0, 10 );
         this.scene.add(this.orbitObject);
-        //this.scene.add( new THREE.BoxHelper( this.centerObject, 0xffffff ) );
 
         // Add Light
         this.addAmbientLight();
@@ -684,6 +630,8 @@ export class GameManager {
         }
     }
 
+    // TODO: Move everything below to their corresponding places before merging with test
+
     // Switch to edit mode
     editMode() {
         this.inEditMode = true;
@@ -758,5 +706,9 @@ export class GameManager {
 
     initShaderManager() {
         this.shaderManager = new ShaderManager( this.scene );
+    }
+
+    initPhysicsManager() {
+        this.physicsManager = new PhysicsManager( this.scene );
     }
 }

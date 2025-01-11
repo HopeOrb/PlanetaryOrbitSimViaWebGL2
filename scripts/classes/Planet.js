@@ -27,6 +27,9 @@ export class Planet extends GameObject {
 
         this.scaling( 0.3, 0.3, 0.3 );
 
+        this.mass = 1000;   // TODO: We'll be able to change this in application
+        this.velocity = new THREE.Vector3( 0, 2, -5 );  // TODO: We'll be able to change this in application
+
         this.switchToTest();    // Will start in Phong shading in delivery
     }
 

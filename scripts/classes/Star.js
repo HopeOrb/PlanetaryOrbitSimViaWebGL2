@@ -5,12 +5,16 @@ import { StarMaterial } from '../materials/StarMaterial.js';
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import {GameObject} from "./GameObject.js";
 
+// TODO: Will make the stars bigger
 export class Star extends GameObject {
     
-    constructor(color) {
+    constructor() {
         super();
 
         this.light = new THREE.PointLight( 0xffffff, 25 );
+
+        this.mass = 360000; // TODO: We'll be able to change this in application
+        this.velocity = new THREE.Vector3( 0, 0, 0 );   // TODO: We'll be able to change this in application 
 
         this.switchToPhong();
     }
@@ -19,6 +23,7 @@ export class Star extends GameObject {
         this.reset()
 
         this.geometry = new THREE.SphereGeometry();
+
         this.material = new StarMaterial();
     }
 
