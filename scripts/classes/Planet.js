@@ -25,6 +25,8 @@ export class Planet extends GameObject {
         this.isPhong = false;
         this.isToon = false;
 
+        this.scaling( 0.3, 0.3, 0.3 );
+
         this.switchToTest();    // Will start in Phong shading in delivery
     }
 

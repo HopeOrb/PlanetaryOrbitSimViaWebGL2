@@ -21,6 +21,7 @@ import {Planet} from './../classes/Planet.js';
 import {selectiveFragment, selectiveVertex} from './../post_processing/selective_bloom.js';
 import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
+import { ShaderManager } from './ShaderManager.js';
 
 export class GameManager {
     // fields
@@ -84,8 +85,13 @@ export class GameManager {
 
     inEditMode;
     inSimulationMode;
+    inPlacementMode;
 
     grid;
+
+    wireframePlanet;
+
+    shaderManager;
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -149,6 +155,10 @@ export class GameManager {
         this.initGrid();
 
         this.initMode();
+
+        this.initWireframePlanet();
+
+        this.initShaderManager();
     }
 
     // Initialize the Game Loop
@@ -310,9 +320,11 @@ export class GameManager {
         // Raycasting Event Listener
         this.addRayCastingEventListeners();
 
-        this.addTestShadersEventListeners();
+        //this.addTestShadersEventListeners();
 
         this.addSwitchModeEventListeners();
+
+        this.addPlacementEventListeners();
 
     }
 
@@ -441,6 +453,17 @@ export class GameManager {
                 setupGUI(this.selectedObject);
             }
         });
+
+        window.addEventListener( 'mousemove', () => {
+            this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
+
+            let intersectingPosition = new THREE.Vector3();
+            const intersects = this.raycaster.ray.intersectPlane( new THREE.Plane( new THREE.Vector3( 0, 1, 0 ) ), intersectingPosition );
+
+            if ( intersects && this.inPlacementMode ) {
+                this.wireframePlanet.position.copy( intersectingPosition );
+            }
+        } )
     }
 
     initPostProcessing() {
@@ -556,7 +579,6 @@ export class GameManager {
         this.scene.add(this.centerObject);
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
-        this.orbitObject.scaling(0.3, 0.3, 0.3);	// We use this function to scale planet objects, so they're scaled in each shading
         let t = 0;
         this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.scene.add(this.orbitObject);
@@ -577,11 +599,16 @@ export class GameManager {
          */
     }
 
-    addPlanetToScene() {
-        /** TODO
-         * Generate new planet with given positions and textures
-         * Add the Planet to the scene
-         */
+    addPlanetToScene( position ) {
+        // TODO: Give random textures each time
+        
+        const planet = new Planet( 0xffffff, this.makemakeTexture );
+        planet.position.copy( position );
+
+        if (this.shaderManager.inPhongShading) planet.switchToPhong();
+        if (this.shaderManager.inToonShading) planet.switchToToon();
+
+        this.scene.add( planet );
     }
 
     addAmbientLight() {
@@ -687,6 +714,19 @@ export class GameManager {
                     else {
                         this.editMode();
                     }
+                    break;
+                case 'p':
+                    if (this.inEditMode) {
+                        if (this.inPlacementMode) {
+                            this.inPlacementMode = false;
+                            this.scene.remove( this.wireframePlanet );
+                        }
+                        else {
+                            this.inPlacementMode = true;
+                            this.scene.add( this.wireframePlanet );
+                        }
+                    }
+                    
             }
         } );
     }
@@ -698,5 +738,25 @@ export class GameManager {
     // Our scene will start in edit mode
     initMode() {
         this.editMode();
+    }
+
+    initWireframePlanet() {
+        let wireframe = new THREE.WireframeGeometry( new THREE.SphereGeometry( 0.3, 10, 6 ) );
+
+        this.wireframePlanet = new THREE.LineSegments( wireframe );
+    }
+
+    addPlacementEventListeners() {
+        document.addEventListener( 'click', () => {
+            if (this.inPlacementMode) {
+                this.inPlacementMode = false;
+                this.addPlanetToScene( this.wireframePlanet.position );
+                this.scene.remove( this.wireframePlanet );
+            }
+        } )
+    }
+
+    initShaderManager() {
+        this.shaderManager = new ShaderManager( this.scene );
     }
 }
