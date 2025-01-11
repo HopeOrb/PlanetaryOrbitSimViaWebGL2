@@ -82,6 +82,12 @@ export class GameManager {
     spaceBackgroundBloom;
 
 
+    // Audio
+    listener;
+    audioLoader;
+    backgroundSound;
+
+
     constructor(canvas) {
         this.canvas = canvas;
         this.scene = null;
@@ -140,6 +146,8 @@ export class GameManager {
 
         // Add EventListeners
         this.addEventListeners();
+
+        //this.initAudio();
     }
 
     // Initialize the Game Loop
@@ -355,6 +363,8 @@ export class GameManager {
         });
 
         window.addEventListener('click', () => {
+            this.initAudio();
+
             console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
             this.camManager.updateCameraView();
@@ -624,6 +634,23 @@ export class GameManager {
         this.scene.add(this.spaceBackgroundBloom);
 
 
+    }
+
+
+    initAudio()  {
+        this.listener = new THREE.AudioListener();
+        this.camManager.camera.add(this.listener);
+
+        this.audioLoader = new THREE.AudioLoader();
+
+        this.backgroundSound = new THREE.Audio(this.listener);
+
+        this.audioLoader.load('sounds/emotional-guitar-loop-v13-275455.ogg', (buffer) => {
+            this.backgroundSound.setBuffer(buffer);
+            this.backgroundSound.setLoop(true);
+            this.backgroundSound.setVolume(0.5);
+            this.backgroundSound.play();
+        });
     }
 
     // We will darken the objects which are "non-bloomed" before the first pass
