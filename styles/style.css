@@ -48,6 +48,7 @@ html {
   cursor: pointer;
   z-index: 10;
 
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -58,6 +59,12 @@ html {
   background-color: #2980b9;
 }
 
+
+/* Görsel için stil */
+#keplerImage {
+  border-radius: 10px;
+  margin-top: 20px; /* Görsel ile üst eleman arasındaki boşluk */
+}
 
 #musicButton {
   position: absolute;
