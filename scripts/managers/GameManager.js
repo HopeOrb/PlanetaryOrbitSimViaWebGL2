@@ -361,9 +361,12 @@ export class GameManager {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
-
+        let audioStarted = false;
         window.addEventListener('click', () => {
-            this.initAudio();
+            if (!(audioStarted)){
+                this.initAudio();
+                audioStarted = true;
+            }
 
             console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
