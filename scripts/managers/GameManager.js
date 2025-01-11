@@ -22,6 +22,7 @@ import {selectiveFragment, selectiveVertex} from './../post_processing/selective
 import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
 import {DebugManager} from "./DebugManager.js";
+import {CreditsManager} from "./CreditsManager.js";
 
 export class GameManager {
     // fields
@@ -29,6 +30,7 @@ export class GameManager {
     scene;
     camManager;
     debugManager;
+    creditsManager;
     renderer;
     transformControls;
     stats;
@@ -89,6 +91,7 @@ export class GameManager {
         this.scene = null;
         this.camManager = null;
         this.debugManager = null;
+        this.creditsManager = null;
         this.renderer = null;
         this.transformControls = null;
         this.stats = null;
@@ -144,6 +147,8 @@ export class GameManager {
         // Initialize DebugManager
         this.initDebugManager();
 
+        // Initialize CreditsManager
+        this.initCreditsManager();
         // Add EventListeners
         this.addEventListeners();
 
@@ -301,6 +306,9 @@ export class GameManager {
         // DebugManager Event Listener
         this.debugManager.addDebugEventListeners();
 
+        // CreditsManager Event Listener
+        this.creditsManager.addCreditsEventListeners();
+
         // TransformControls Event Listener
         this.addTransformControlEventListeners();
 
@@ -310,6 +318,7 @@ export class GameManager {
         this.addTestShadersEventListeners();
 
     }
+
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
@@ -651,5 +660,10 @@ export class GameManager {
     initDebugManager() {
         this.debugManager = new DebugManager(this.renderer, this.scene);
         this.debugManager.initRaycaster(this.raycaster);
+    }
+
+    initCreditsManager() {
+        this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager.camera);
+        this.creditsManager.init();
     }
 }

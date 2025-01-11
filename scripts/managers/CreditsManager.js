@@ -4,10 +4,12 @@ export class CreditsManager {
 
     letterMap;
     creatorNames;
-
-    constructor(scene,renderer) {
+    isCreditsMode = false;
+    constructor(scene,renderer,camera) {
         this.scene = scene;
         this.renderer = renderer;
+        this.camera = camera;
+
     }
 
     //
@@ -25,12 +27,31 @@ export class CreditsManager {
             this.creators.add(this.createSentence(this.creatorNames[i], i + offsetY));
         }
     }
-    addCreditsRelativeToPosition(camera, offset = {x:0,y:0,z:-10}) {
+
+    addCreditsEventListeners(){
+        window.addEventListener("keypress", (event) =>{
+            switch (event.key) {
+                case 'j':
+                    this.isCreditsMode = !this.isCreditsMode;
+                    // Animate camera
+
+                    // Draw - Add Creator Names on Scene
+                    if(this.isCreditsMode)
+                        this.addCreditsRelativeToPosition(this.camera);
+                    else this.removeCredits();
+                    break;
+            }
+        });
+    }
+    addCreditsRelativeToPosition(camera, offset = {x:0,y:0,z:-50}) {
+        console.log("-- addCreditsRelativeToPosition START --")
+        this.initCreators();
         // Determine the position relative to the camera
         const cameraPosition = camera.position.clone();
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion); // Forward vector
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);   // Right vector
         const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);      // Up vector
+        console.log("Camera Position: ", cameraPosition);
 
         // Compute the target position relative to the camera
         const targetPosition = cameraPosition
@@ -38,7 +59,11 @@ export class CreditsManager {
             .add(right.multiplyScalar(offset.x))
             .add(up.multiplyScalar(offset.y));
 
+        console.log("Target Position: ", targetPosition)
         // Set the position of the sentence group
+        console.log("this.creators: ",this.creators);
+
+
         this.creators.position.copy(targetPosition);
 
         // Align the sentence group to face the camera
@@ -46,6 +71,8 @@ export class CreditsManager {
 
         // Add the sentence to the scene
         this.scene.add(this.creators);
+        console.log("-- addCreditsRelativeToPosition END --")
+
     }
     createLetter(letter){
         const vertices = this.letterMap[letter];
@@ -75,10 +102,6 @@ export class CreditsManager {
         return sentenceGroup;
     }
 
-    addSentenceToScene(scene, sentence) {
-        const sentenceGroup = this.createSentence(sentence);
-        scene.add(sentenceGroup);
-    }
     createLetterMap() {
         // Line coordinates from i to i+1
         const unit = 1;
@@ -181,5 +204,9 @@ export class CreditsManager {
                 new THREE.Vector3(1, 1, 0), new THREE.Vector3(1, -1, 0),
             ],
         };
+    }
+
+    removeCredits() {
+        this.scene.remove(this.creators);
     }
 }

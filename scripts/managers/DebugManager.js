@@ -17,7 +17,7 @@ export class DebugManager {
         this.debuggingObjects = new THREE.Group();
     }
     addDebugEventListeners(){
-        window.addEventListener("keydown", (event) =>{
+        window.addEventListener("keypress", (event) =>{
             switch (event.key) {
                 case 'ş':
                     this.isDebugMode = !this.isDebugMode;
@@ -36,6 +36,7 @@ export class DebugManager {
                 this.scene.remove(obj);
             }
         });
+
         this.debuggingObjects.clear();
     }
     initRaycaster(raycaster){
