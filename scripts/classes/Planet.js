@@ -7,6 +7,9 @@ import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import {GameObject} from "./GameObject.js";
 
 export class Planet extends GameObject {
+
+    trail;
+    trailPoints;
     
     constructor(color, texture, texture2 = texture) {
         super();
@@ -29,6 +32,12 @@ export class Planet extends GameObject {
 
         this.mass = 1000;   // TODO: We'll be able to change this in application
         this.velocity = new THREE.Vector3( 0, 2, -5 );  // TODO: We'll be able to change this in application
+
+        this.trailPoints = [];
+        this.trail = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints( this.trailPoints ),
+            new THREE.LineBasicMaterial( {color: 0x555555} )
+        );
 
         this.switchToTest();    // Will start in Phong shading in delivery
     }
@@ -84,6 +93,15 @@ export class Planet extends GameObject {
         this.clear();
         this.isPhong = false;
         this.isToon = false;
+    }
+
+    updateTrail( new_point ) {
+        if ( !( this.trailPoints.includes( new_point ) ) ) {
+            this.trailPoints.push( new_point );
+        }
+
+        this.trail.geometry.dispose();  // Free the GPU related resources
+        this.trail.geometry = new THREE.BufferGeometry().setFromPoints( this.trailPoints ); 
     }
 
 }

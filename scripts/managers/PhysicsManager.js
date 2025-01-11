@@ -7,7 +7,7 @@ export class PhysicsManager {
     scene;
 
     refreshRate;
-    
+
     constructor( scene ) {
         this.scene = scene;
 
@@ -31,6 +31,8 @@ export class PhysicsManager {
         const position = obj.position;
         const velocity = obj.velocity;
         const mass = obj.mass;
+
+        obj.updateTrail( position.clone() );
 
         const force = new THREE.Vector3( 0, 0, 0 );
 

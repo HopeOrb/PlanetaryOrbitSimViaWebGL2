@@ -6,6 +6,7 @@ import { toonFragment } from "./shaders/toon_shading";
 import { outlineVertex } from "./shaders/toon_shading_outline";
 import { outlineFragment } from "./shaders/toon_shading_outline";
 
+// TODO: MASSIVE!!!!!! FPS drop when in toon shading, learn why
 export class ShaderToonMaterial extends THREE.ShaderMaterial {
 
     constructor( parameters ) {

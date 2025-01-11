@@ -649,6 +649,8 @@ export class GameManager {
         this.inSimulationMode = false;
 
         this.scene.add( this.grid );
+
+        this.trailsOff();
     }
 
     // Switch to simulation mode
@@ -661,6 +663,8 @@ export class GameManager {
         this.scene.remove(this.transformControls.getHelper());
 
         this.scene.remove( this.grid );
+
+        this.trailsOn();
     }
 
     addSwitchModeEventListeners() {
@@ -726,5 +730,23 @@ export class GameManager {
     initDebugManager() {
         this.debugManager = new DebugManager(this.renderer, this.scene);
         this.debugManager.initRaycaster(this.raycaster);
+    }
+
+    // Enable trails for all planets
+    trailsOn() {
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet) {
+                this.scene.add( obj.trail );
+            }
+        } );
+    }
+
+    // Disable trails for all planets
+    trailsOff() {
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet) {
+                this.scene.remove( obj.trail );
+            }
+        } );
     }
 }
