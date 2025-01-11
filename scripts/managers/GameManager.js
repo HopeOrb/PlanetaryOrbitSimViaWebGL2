@@ -219,9 +219,6 @@ export class GameManager {
             this.centerObject.rotation.y = t + centerData.userRotation.y;
             this.centerObject.rotation.x = centerData.userRotation.x;
         }
-        // Reset camera
-        this.camManager.camera.updateProjectionMatrix();
-        this.camManager.orbitControls.update();
 
         //userPosition = { x: 0, y: 0, z: 0 };
         if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
@@ -251,8 +248,9 @@ export class GameManager {
         this.scene.add(this.transformControls.getHelper());	// Restore transformControls
         this.renderer.setClearColor(this.backgroundColor);	// Restore background
 
-        // to update world-matrix for camera
-        this.camManager.updateCameraView();
+        // Update Camera
+        this.camManager.updateCameraManager();
+
         this.finalComposer.render();
 
     }

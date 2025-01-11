@@ -21,7 +21,11 @@ export class CameraManager {
         this.initOrbitControls();
 
     }
-
+    updateCameraManager(){
+        this.updateCameraView();
+        this.camera.updateProjectionMatrix();
+        this.orbitControls.update();
+    }
     setCamPosition(x,y,z){
         this.camera.position.set(x,y,z);
     }
