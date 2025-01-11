@@ -183,7 +183,7 @@ export class GameManager {
         window.onresize = this.resize;
     }
 
-    animate(timestamp) {
+    gameLoop(timestamp) {
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
         }
