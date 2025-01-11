@@ -10,7 +10,7 @@ export class StarPhongMaterial extends ShaderPhongMaterial{
         this.uniforms.texture2.value = lavaTexture;
 
         this.uniforms.isStar.value = true;
-        this.uniforms.uvScale.value = new THREE.Vector2( 3.0, 1.5 );
+        this.uniforms.uvScale.value = new THREE.Vector2( 2.0, 1.0 );
     }
 
 }

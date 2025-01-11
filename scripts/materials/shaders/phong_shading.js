@@ -14,6 +14,16 @@ uniform struct PointLight {
     float distance;
 } pointLights[NUM_POINT_LIGHTS];
 
+uniform struct SpotLight {
+    vec3 color;
+    vec3 position;
+    vec3 direction;
+    float distance;
+    float coneCos;
+    float penumbraCos;
+    float decay;
+} spotLights[NUM_SPOT_LIGHTS];
+
 uniform vec2 uvScale;
 
 void main() {   

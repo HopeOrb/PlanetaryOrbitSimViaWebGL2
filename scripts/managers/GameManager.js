@@ -72,6 +72,8 @@ export class GameManager {
 
     // light
     alight;
+    spotlight;
+    spotlightIntensity;
 
     // Background
     background_stars;
@@ -230,6 +232,10 @@ export class GameManager {
         this.camManager.camera.updateProjectionMatrix();
         this.camManager.orbitControls.update();
 
+        // Move spotlight to camera's position and point it to the camera's target
+        this.spotlight.position.copy( this.camManager.camera.position );
+        this.spotlight.target.position.copy( this.camManager.orbitControls.target );
+
         //userPosition = { x: 0, y: 0, z: 0 };
         if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
         if (this.inToonShading) this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
@@ -313,6 +319,8 @@ export class GameManager {
         this.addTestShadersEventListeners();
 
         this.addSwitchModeEventListeners();
+
+        this.addSpotlightEventListeners();
 
     }
 
@@ -562,7 +570,7 @@ export class GameManager {
         //this.scene.add( new THREE.BoxHelper( this.centerObject, 0xffffff ) );
 
         // Add Light
-        this.addAmbientLight();
+        this.addLights();
 
         // Add Background Objects
         this.addBackgroundObjects();
@@ -583,9 +591,18 @@ export class GameManager {
          */
     }
 
-    addAmbientLight() {
+    addLights() {
         this.alight = new THREE.AmbientLight(0x777777, 0.25);
         this.scene.add(this.alight);
+
+        this.spotlight = new THREE.SpotLight( 0xffffff, 0 );
+        this.spotlight.angle = Math.PI / 18;
+
+        this.spotlightIntensity = 10;
+
+        // We will start with the spotlight off
+        this.scene.add( this.spotlight );
+        this.scene.add( this.spotlight.target );
     }
 
 
@@ -656,6 +673,8 @@ export class GameManager {
         }
     }
 
+    // TODO: MOVE ALL THE FUNCTIONS BELOW TO THEIR RESPECTIVE PLACES BEFORE MERGING WITH TEST
+
     // Switch to edit mode
     editMode() {
         this.inEditMode = true;
@@ -697,5 +716,20 @@ export class GameManager {
     // Our scene will start in edit mode
     initMode() {
         this.editMode();
+    }
+
+    addSpotlightEventListeners() {
+        document.addEventListener( 'keydown', (event) => {
+            switch (event.key) {
+                case 's':
+                    if (this.spotlight.intensity == 0) {
+                        this.spotlight.intensity = this.spotlightIntensity;
+                    }
+                    else {
+                        this.spotlight.intensity = 0;
+                    }
+                    break;
+            }
+        } )
     }
 }
