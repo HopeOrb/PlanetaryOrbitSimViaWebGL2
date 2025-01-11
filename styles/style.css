@@ -10,3 +10,70 @@ html {
   padding: 0;
   overflow: hidden;
 }
+
+
+#mainMenu {
+  position: absolute;
+  text-align: center;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10; /* Menü canvas'ın üstünde olacak */
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#projectTitle {
+  font-size: 36px;
+  margin-bottom: 20px; /* Başlık ile buton arasında boşluk */
+}
+
+
+#myButton {
+  padding: 20px 20px;
+  font-size: 24px;
+  width: 200px;
+  height: 60px;
+  background-color: #DC143C;
+  color: white;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 70px;
+}
+
+#myButton:hover {
+  background-color: #2980b9;
+}
+
+
+#musicButton {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-size: 46px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 100; /
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#musicButton:hover {
+  color: #DC143C; /* Hover efekti: renk değişimi */
+}
+

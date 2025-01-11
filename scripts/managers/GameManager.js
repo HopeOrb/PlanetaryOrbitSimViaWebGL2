@@ -31,6 +31,8 @@ export class GameManager {
     transformControls;
     stats;
     objects;
+    mainMenu;
+    musicButton;
     helpMenu;
     raycaster;
     mouse;
@@ -86,6 +88,7 @@ export class GameManager {
     listener;
     audioLoader;
     backgroundSound;
+    audioStarted;
 
 
     constructor(canvas) {
@@ -96,7 +99,9 @@ export class GameManager {
         this.transformControls = null;
         this.stats = null;
         this.objects = {}; // Object registry
+        this.mainMenu = null;
         this.helpMenu = null;
+        this.musicButton = document.getElementById('musicButton');
         this.raycaster = null;
         this.mouse = null;
         this.selectedObject = null;
@@ -109,6 +114,8 @@ export class GameManager {
         this.userPosition = {x: 0, y: 0, z: 0};
 
         this.inPhongShading = true;
+
+        this.audioStarted = false;
     }
 
     // Will initialize the Scene / Game
@@ -137,6 +144,9 @@ export class GameManager {
 
         // Add performance stats
         this.initStats();
+
+        // Initialize the main menu
+        this.initMainMenu();
 
         // Initialize the help menu
         this.initHelpMenu();
@@ -288,13 +298,21 @@ export class GameManager {
         document.body.appendChild(this.stats.dom);
     }
 
+    initMainMenu() {
+        this.mainMenu = document.getElementById("mainMenu");
+    }
+
     initHelpMenu() {
         this.helpMenu = document.getElementById("helpMenu");
     }
 
     addEventListeners() {
+        this.addMainMenuEventListeners();
+
         // HelpMenu Event Listener
         this.addHelpMenuEventListeners();
+
+        this.addMusicButtonEventListeners();
 
         // OrbitControls Event Listener
         this.camManager.addEventListeners();
@@ -307,6 +325,20 @@ export class GameManager {
 
         this.addTestShadersEventListeners();
 
+    }
+
+    addMusicButtonEventListeners() {
+        document.getElementById('musicButton').addEventListener('click', () => {
+            if (!(this.audioStarted)){
+                this.initAudio();
+                this.audioStarted = true;
+                this.musicButton.textContent = '🔊';
+            } else {
+                this.backgroundSound.stop();
+                this.audioStarted = false;
+                this.musicButton.textContent = '🔈';
+            }
+        });
     }
 
     addTransformControlEventListeners() {
@@ -343,6 +375,13 @@ export class GameManager {
         });
     }
 
+    addMainMenuEventListeners() {
+        const button = document.getElementById('myButton');  // Butonun seçilmesi
+        button.addEventListener('click', () => {
+            this.mainMenu.style.display = 'none';  // Menü gizlendi
+        });
+    }
+
     addHelpMenuEventListeners() {
         window.addEventListener('keydown', (event) => {
             if (event.key === 'h') {
@@ -356,17 +395,15 @@ export class GameManager {
         });
     }
 
+
+
     addRayCastingEventListeners() {
         window.addEventListener('pointermove', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
-        let audioStarted = false;
         window.addEventListener('click', () => {
-            if (!(audioStarted)){
-                this.initAudio();
-                audioStarted = true;
-            }
+
 
             console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
