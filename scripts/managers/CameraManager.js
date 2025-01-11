@@ -29,13 +29,16 @@ export class CameraManager {
     lookAt(x,y,z) {
         this.camera.lookAt(x,y,z);
     }
-
+    updateCameraView(){
+        this.camera.updateWorldMatrix();
+    }
     resetCamera(){
         this.orbitControls.reset();
         this.camera.position.set(4, 4, 8);
         // this.camera.lookAt(0, 0, 0); // unnecessary
         this.camera.updateProjectionMatrix();
         // this.controls.update(); // need to update whenever OrbitControls or camera get updates
+        this.updateCameraView();
 
     }
     initCamera(){
@@ -50,7 +53,7 @@ export class CameraManager {
         this.orbitControls.panSpeed = 2;
         this.orbitControls.rotateSpeed = 2;
         this.orbitControls.zoomSpeed = 2;
-        this.orbitControls.maxDistance = 30;
+        this.orbitControls.maxDistance = 50;
         this.orbitControls.minDistance = 5;
     }
     addEventListeners(){

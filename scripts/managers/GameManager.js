@@ -23,12 +23,14 @@ import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
 import { ShaderManager } from './ShaderManager.js';
 import { PhysicsManager } from './PhysicsManager.js';
+import {DebugManager} from "./DebugManager.js";
 
 export class GameManager {
     // fields
     canvas;
     scene;
     camManager;
+    debugManager;
     renderer;
     transformControls;
     stats;
@@ -99,6 +101,7 @@ export class GameManager {
         this.canvas = canvas;
         this.scene = null;
         this.camManager = null;
+        this.debugManager = null;
         this.renderer = null;
         this.transformControls = null;
         this.stats = null;
@@ -151,6 +154,9 @@ export class GameManager {
         // Init Scene
         this.initScene();
 
+        // Initialize DebugManager
+        this.initDebugManager();
+
         // Add EventListeners
         this.addEventListeners();
 
@@ -168,12 +174,12 @@ export class GameManager {
     // Initialize the Game Loop
     update() {
 
-        const animate = (timestamp) => {
-            this.animate(timestamp); // Call the actual animation frame
+        const updateLoop = (timestamp) => {
+            this.gameLoop(timestamp); // Call the actual animation frame
             this.stats.update(); // Needs to be updated in order to show the FPS count
-            requestAnimationFrame(animate); // Request to be called again
+            requestAnimationFrame(updateLoop); // Request to be called again
         }
-        requestAnimationFrame(animate);
+        requestAnimationFrame(updateLoop);
         window.onresize = this.resize;
     }
 
@@ -206,10 +212,14 @@ export class GameManager {
         this.scene.traverse((child) => {
             // Arrow function ensures `this` refers to the class instance
             this.restoreMaterial(child);
+            // to update world-matrix
+            child.updateWorldMatrix();
         });
         this.scene.add(this.transformControls.getHelper());	// Restore transformControls
         this.renderer.setClearColor(this.backgroundColor);	// Restore background
 
+        // to update world-matrix for camera
+        this.camManager.updateCameraView();
         this.finalComposer.render();
 
     }
@@ -260,6 +270,9 @@ export class GameManager {
         // OrbitControls Event Listener
         this.camManager.addEventListeners();
 
+        // DebugManager Event Listener
+        this.debugManager.addDebugEventListeners();
+
         // TransformControls Event Listener
         this.addTransformControlEventListeners();
 
@@ -276,13 +289,14 @@ export class GameManager {
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
+            console.log("in dragging-changed");
             this.isDragging = event.value; // Sürükleme başlatıldığında isDragging true olacak
             if (!this.isDragging) {
                 // Sürükleme tamamlandığında tıklamayı tekrar engellemeyi kaldır
                 this.isClickBlocked = true;
                 setTimeout(() => {
                     this.isClickBlocked = false; // Tıklama engellemeyi kaldır
-                }, 100); // Sürükleme tamamlandıktan sonra bir süre tıklama engellenir
+                }, 1000); // Sürükleme tamamlandıktan sonra bir süre tıklama engellenir
             }
         });
 
@@ -321,42 +335,36 @@ export class GameManager {
     }
 
     addRayCastingEventListeners() {
-        window.addEventListener('mousemove', (event) => {
+        window.addEventListener('pointermove', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
 
         window.addEventListener('click', () => {
             console.log(this.isClickBlocked.valueOf());
-            if (this.isClickBlocked) {
-                return;
-            }
+            // ensure camera view - world view matrices are synch before raycasting
+            this.camManager.updateCameraView();
+
+
             if (this.isDragging) {
                 this.isClickBlocked = true;
                 return; // Sürükleme işlemi devam ediyorsa tıklama işlemi yapma
             }
+            if (this.isClickBlocked) {
+                return;
+            }
+
 
             if (event.target.closest('.lil-gui')) {
                 return; // GUI'ye tıklanırsa işlem yapma
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
-            const intersects = this.raycaster.intersectObjects( this.scene.children, true );
-
-            if (intersects.length > 0 && this.inEditMode) {
-                console.log(intersects);
+            
+            const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+            if (intersects.length > 0) {
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
 
-                //for (let i=0; i<intersects.length; i++) {
-                //    if (intersects[i].object instanceof Star || intersects[i].object instanceof Planet) {
-                //        this.selectedObject = intersects[i].object;
-                //        console.log(intersects[i]);
-                //        console.log(i);
-                //        break;
-                //    }
-                //}
-
-                console.log(this.selectedObject);
 
                 if (!(this.selectedObject instanceof Star || this.selectedObject instanceof Planet)) {
                     this.selectedObject = null; // Hiçbir şey seçilmediyse
@@ -385,6 +393,9 @@ export class GameManager {
                 }
 
                 this.previousSelectedObject = this.selectedObject; // Şu anki objeyi önceki objeye aktar
+
+                // Debug
+                if(this.debugManager.isDebugMode) this.debugManager.debugRaycaster();
 
                 console.log("Selected Object:", this.selectedObject);
 
@@ -710,5 +721,10 @@ export class GameManager {
 
     initPhysicsManager() {
         this.physicsManager = new PhysicsManager( this.scene );
+    }
+    
+    initDebugManager() {
+        this.debugManager = new DebugManager(this.renderer, this.scene);
+        this.debugManager.initRaycaster(this.raycaster);
     }
 }
