@@ -1,3 +1,5 @@
+// TODO: Spotlight, multiple point lights, star
+
 export const toonVertex = `
 // All uniforms and attributes not explicitly declared here are handled by three.js (See WebGLProgram in three docs)
 
@@ -29,12 +31,11 @@ in mediump vec3 fL;
 
 in vec2 vUv;
 
-uniform vec3 color;
 uniform vec3 ambientLightColor;
 uniform float shininess;
 
-uniform sampler2D dayTexture;
-uniform sampler2D nightTexture;
+uniform sampler2D texture1;
+uniform sampler2D texture2;
 
 uniform struct PointLight {
     vec3 position;
@@ -58,8 +59,8 @@ void main() {
 
     light = floor( light * 5.0 ) / 5.0; // This is a better approach than hand-picking the light values for each interval
 
-    vec4 dayTexColor = texture2D( dayTexture, vUv );
-    vec4 nightTexColor = texture2D( nightTexture, vUv );
+    vec4 dayTexColor = texture2D( texture1, vUv );
+    vec4 nightTexColor = texture2D( texture2, vUv );
 
     if (dayTexColor == nightTexColor) {
         nightTexColor = nightTexColor * 0.3;
@@ -73,15 +74,15 @@ void main() {
 
     // EDGE DETECTION
 
-    ivec2 texSize = textureSize( dayTexture, 0 );
+    ivec2 texSize = textureSize( texture1, 0 );
 
     float offsetX = 1.0 / float(texSize.x);
     float offsetY = 1.0 / float(texSize.y);
 
-    vec4 texColorRight = texture2D( dayTexture, vUv + offsetX );
-    vec4 texColorLeft = texture2D( dayTexture, vUv - offsetX );
-    vec4 texColorUp = texture2D( dayTexture, vUv + offsetY );
-    vec4 texColorDown = texture2D( dayTexture, vUv - offsetY );
+    vec4 texColorRight = texture2D( texture1, vUv + offsetX );
+    vec4 texColorLeft = texture2D( texture1, vUv - offsetX );
+    vec4 texColorUp = texture2D( texture1, vUv + offsetY );
+    vec4 texColorDown = texture2D( texture1, vUv - offsetY );
 
     vec4 horizontalGradient = texColorRight - texColorLeft;
     vec4 verticalGradient = texColorUp - texColorDown;

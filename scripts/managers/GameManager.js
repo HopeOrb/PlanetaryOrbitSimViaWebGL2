@@ -76,6 +76,8 @@ export class GameManager {
 
     // light
     alight;
+    spotlight;
+    spotlightIntensity;
 
     // Background
     background_stars;
@@ -192,6 +194,10 @@ export class GameManager {
         this.camManager.camera.updateProjectionMatrix();
         this.camManager.orbitControls.update();
 
+        // Move spotlight to camera's position and point it to the camera's target
+        this.spotlight.position.copy( this.camManager.camera.position );
+        this.spotlight.target.position.copy( this.camManager.orbitControls.target );
+
         //userPosition = { x: 0, y: 0, z: 0 };
         if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
         if (this.inToonShading) this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
@@ -284,6 +290,7 @@ export class GameManager {
         this.addSwitchModeEventListeners();
 
         this.addPlacementEventListeners();
+        this.addSpotlightEventListeners();
 
     }
 
@@ -518,12 +525,11 @@ export class GameManager {
 
     initTextureLoader() {
         this.textureLoader = new THREE.TextureLoader();
-        this.earthDayTexture = this.textureLoader.load("/resources/textures/2k_earth_daymap.jpg");
-        this.earthNightTexture = this.textureLoader.load("/resources/textures/2k_earth_nightmap.jpg");
-        this.ceresTexture = this.textureLoader.load("/resources/textures/2k_ceres_fictional.jpg");
-        this.makemakeTexture = this.textureLoader.load("/resources/textures/2k_makemake_fictional.jpg");
-        // Background stars
-        this.starSprite = new THREE.TextureLoader().load('/resources/textures/star.png');
+        this.earthDayTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_daymap.jpg");
+        this.earthNightTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_nightmap.jpg");
+        this.ceresTexture = this.textureLoader.load("/resources/textures/ceres/2k_ceres_fictional.jpg");
+        this.makemakeTexture = this.textureLoader.load("/resources/textures/makemake/2k_makemake_fictional.jpg");
+        this.starSprite = this.textureLoader.load('/resources/textures/star_sprite/star.png');
         //this.starSprite.colorSpace = THREE.SRGBColorSpace;    // I don't think we have to define its color space, because it's completely white
     }
 
@@ -541,7 +547,7 @@ export class GameManager {
         this.scene.add(this.orbitObject);
 
         // Add Light
-        this.addAmbientLight();
+        this.addLights();
 
         // Add Background Objects
         this.addBackgroundObjects();
@@ -567,9 +573,18 @@ export class GameManager {
         this.scene.add( planet );
     }
 
-    addAmbientLight() {
-        this.alight = new THREE.AmbientLight(0xffffff, 0.25);
+    addLights() {
+        this.alight = new THREE.AmbientLight(0x777777, 0.25);
         this.scene.add(this.alight);
+
+        this.spotlight = new THREE.SpotLight( 0xffffff, 0 );
+        this.spotlight.angle = Math.PI / 18;
+
+        this.spotlightIntensity = 10;
+
+        // We will start with the spotlight off
+        this.scene.add( this.spotlight );
+        this.scene.add( this.spotlight.target );
     }
 
 
@@ -747,5 +762,19 @@ export class GameManager {
                 this.scene.remove( obj.trail );
             }
         } );
+    }
+    addSpotlightEventListeners() {
+        document.addEventListener( 'keydown', (event) => {
+            switch (event.key) {
+                case 's':
+                    if (this.spotlight.intensity == 0) {
+                        this.spotlight.intensity = this.spotlightIntensity;
+                    }
+                    else {
+                        this.spotlight.intensity = 0;
+                    }
+                    break;
+            }
+        } )
     }
 }
