@@ -31,12 +31,7 @@ export class DebugManager {
 
     clearDebuggingObjects() {
         console.log(this.debuggingObjects);
-        this.scene.traverse((obj)=> {
-            if (obj instanceof DebuggingObject){
-                this.scene.remove(obj);
-            }
-        });
-
+        this.scene.remove(this.debuggingObjects);
         this.debuggingObjects.clear();
     }
     initRaycaster(raycaster){
