@@ -56,31 +56,38 @@ export class CreditsManager {
                     else {
                         const lastPos = this.cameraManager.getLastCameraPosition();
                         console.log("Returning to last position: ", lastPos);
-
+                        const duration = 2.0;
                         // Animate camera to previous position
-                        this.returnCameraToOriginal(lastPos, 2.0);
+                        this.returnCameraToOriginal(lastPos, duration);
 
                         // Remove credits from the scene
                         this.removeCredits();
-                        if(!this.cameraManager.orbitControls.enabled) this.cameraManager.enableOrbitControls();
 
+                        setTimeout(()=>{
+                            this.cameraManager.enableOrbitControls();
+                        }, duration * 1000);
                     }
                     break;
             }
         });
     }
-    smoothCameraAnimation(target = {x:0,y:0, z:0}, duration = 1.5){
-        this.cameraManager.orbitControls.saveState();
+    smoothCameraAnimation(target = { x: 0, y: 0, z: 0 }, duration = 2.0) {
+        // Disable OrbitControls
+        this.cameraManager.disableOrbitControls();
+
+        // Animate the camera's position
         gsap.to(this.camera.position, {
-            x : target.x + 20,
-            y : target.y,
-            z : target.z + 50,
-            duration : duration,
-            onComplete: function(){
-            }
+            x: target.x + 20,
+            y: target.y,
+            z: target.z + 50,
+            duration: duration,
+            onComplete: () => {
+                // Re-enable OrbitControls after animation
+                this.cameraManager.enableOrbitControls();
+            },
         });
     }
-    returnCameraToOriginal(target = {x:4, y:4, z:8}, duration = 1.5){
+    returnCameraToOriginal(target = {x:4, y:4, z:8}, duration = 2.0){
         gsap.to(this.camera.position, {
             x : target.x,
             y : target.y,
@@ -91,7 +98,7 @@ export class CreditsManager {
 
         });
     }
-    addCreditsRelativeToPosition(camera, offset = {x:-20,y:80,z:-50}) {
+    addCreditsRelativeToPosition(camera, offset = this.creditsPosition) {
         // console.log("-- addCreditsRelativeToPosition START --")
         this.initCreators();
         // Determine the position relative to the camera
