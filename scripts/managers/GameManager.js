@@ -563,7 +563,7 @@ export class GameManager {
         this.addAmbientLight();
 
         // Add Background Objects
-        //this.addBackgroundObjects();
+        this.addBackgroundObjects();
 
     }
 

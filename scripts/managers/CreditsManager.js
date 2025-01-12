@@ -39,22 +39,31 @@ export class CreditsManager {
                     this.isCreditsMode = !this.isCreditsMode;
 
                     if(this.isCreditsMode){
+                        const lastPos = this.cameraManager.getLastCameraPosition()
+                        console.log("Last camera position: ",lastPos);
+
+                        this.cameraManager.updatePreviousCameraPosition(lastPos);
+
                         // disable orbit controls
                         this.cameraManager.disableOrbitControls();
                         // move camera
-                        this.smoothCameraAnimation(this.creditsPosition);
+                        this.smoothCameraAnimation(this.creditsPosition, 2.0);
 
                         // Draw - Add Creator Names on Scene
                         this.addCreditsRelativeToPosition(this.camera, this.creditsPosition);
 
                     }
                     else {
+                        const lastPos = this.cameraManager.getLastCameraPosition();
+                        console.log("Returning to last position: ", lastPos);
+
                         // Animate camera to previous position
-                        this.returnCameraToOriginal(this.cameraManager.getLastCameraPosition());
+                        this.returnCameraToOriginal(lastPos, 2.0);
 
                         // Remove credits from the scene
                         this.removeCredits();
-                        this.cameraManager.enableOrbitControls();
+                        if(!this.cameraManager.orbitControls.enabled) this.cameraManager.enableOrbitControls();
+
                     }
                     break;
             }
@@ -62,12 +71,15 @@ export class CreditsManager {
     }
     smoothCameraAnimation(target = {x:0,y:0, z:0}, duration = 1.5){
         this.cameraManager.updatePreviousCameraPosition(this.cameraManager.getLastCameraPosition());
+        this.cameraManager.orbitControls.saveState();
         gsap.to(this.camera.position, {
             x : target.x + 20,
             y : target.y,
             z : target.z + 50,
             duration : duration,
-
+            onComplete: function(){
+                this.cameraManager.enableOrbitControls();
+            }
         });
     }
     returnCameraToOriginal(target = {x:4, y:4, z:8}, duration = 1.5){
@@ -76,6 +88,8 @@ export class CreditsManager {
             y : target.y,
             z : target.z,
             duration : duration,
+            onComplete: function(){
+            }
 
         });
     }
