@@ -1,3 +1,5 @@
+// TODO: Spotlight
+
 export const phongVertex = `
 // All uniforms and attributes not explicitly declared here are handled by three.js (See WebGLProgram in three docs)
 
@@ -56,6 +58,16 @@ uniform struct PointLight {
     float decay;
     float distance;
 } pointLights[NUM_POINT_LIGHTS];
+
+uniform struct SpotLight {
+    vec3 color;
+    vec3 position;
+    vec3 direction;
+    float distance;
+    float coneCos;
+    float penumbraCos;
+    float decay;
+} spotLights[NUM_SPOT_LIGHTS];
 
 uniform sampler2D texture1;
 uniform sampler2D texture2;
@@ -133,6 +145,14 @@ void main() {
         texColor = mix(nightTexColor, dayTexColor, dayNightSlider);
     }
 
-    gl_FragColor = vec4(lightIntensity, 1.0) * texColor;
+    vec3 spotlight;
+
+    // Spotlight calculations
+    for (int i=0; i<NUM_SPOT_LIGHTS; i++) {
+        
+    }
+
+    gl_FragColor = vec4( lightIntensity, 1.0 ) * texColor;
+    //gl_FragColor = vec4( spotlight, 1.0 );
 }
 `;

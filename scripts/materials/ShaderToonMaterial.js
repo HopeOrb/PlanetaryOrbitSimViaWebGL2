@@ -8,7 +8,7 @@ import { outlineFragment } from "./shaders/toon_shading_outline";
 
 export class ShaderToonMaterial extends THREE.ShaderMaterial {
 
-    constructor( parameters ) {
+    constructor() {
         super();
 
         this.vertexShader = toonVertex;
@@ -18,7 +18,11 @@ export class ShaderToonMaterial extends THREE.ShaderMaterial {
 
         this.uniforms = THREE.UniformsUtils.merge([
             THREE.UniformsLib['lights'],
-            parameters
+            {
+                'shininess': {value: 10.0},
+                'texture1': {value: null},
+                'texture2': {value: null}
+            }
         ]);
     }
 }

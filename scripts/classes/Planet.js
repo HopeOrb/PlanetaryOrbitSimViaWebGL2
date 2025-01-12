@@ -1,11 +1,9 @@
 import * as THREE from './../../node_modules/three/build/three.module.js';
 
-import { ShaderPhongMaterial } from '../materials/ShaderPhongMaterial.js';
-import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
-
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
-import {GameObject} from "./GameObject.js";
+import { GameObject } from "./GameObject.js";
 import { PlanetPhongMaterial } from '../materials/PlanetPhongMaterial.js';
+import { PlanetToonMaterial } from '../materials/PlanetToonMaterial.js';
 
 export class Planet extends GameObject {
     
@@ -56,7 +54,7 @@ export class Planet extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        this.material = new ShaderToonMaterial( {color: {value: this.color}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+        this.material = new PlanetToonMaterial( this.dayTexture, this.nightTexture );
 
         const outline = new ShaderToonOutline( this, 0, this.outlineThickness );
         this.attach( outline );
@@ -74,7 +72,8 @@ export class Planet extends GameObject {
 
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
 
-        if (this.isToon) this.children.at(2).material.uniforms.thickness = this.outline;
+        // I guess we won't need this
+        //if (this.isToon) this.children.at(2).material.uniforms.thickness = this.outlineThickness;
     }
 
     reset() {

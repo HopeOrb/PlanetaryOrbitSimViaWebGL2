@@ -1,7 +1,7 @@
 import * as THREE from './../../node_modules/three/build/three.module.js';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
-import {GameObject} from "./GameObject.js";
+import { GameObject } from "./GameObject.js";
 import { StarPhongMaterial } from '../materials/StarPhongMaterial.js';
 
 export class Star extends GameObject {
