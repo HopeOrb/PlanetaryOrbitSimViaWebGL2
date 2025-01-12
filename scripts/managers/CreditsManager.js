@@ -39,7 +39,7 @@ export class CreditsManager {
                     this.isCreditsMode = !this.isCreditsMode;
 
                     if(this.isCreditsMode){
-                        const lastPos = this.cameraManager.getLastCameraPosition()
+                        const lastPos = this.cameraManager.camera.position.clone();
                         console.log("Last camera position: ",lastPos);
 
                         this.cameraManager.updatePreviousCameraPosition(lastPos);
@@ -70,7 +70,6 @@ export class CreditsManager {
         });
     }
     smoothCameraAnimation(target = {x:0,y:0, z:0}, duration = 1.5){
-        this.cameraManager.updatePreviousCameraPosition(this.cameraManager.getLastCameraPosition());
         this.cameraManager.orbitControls.saveState();
         gsap.to(this.camera.position, {
             x : target.x + 20,
@@ -78,7 +77,6 @@ export class CreditsManager {
             z : target.z + 50,
             duration : duration,
             onComplete: function(){
-                this.cameraManager.enableOrbitControls();
             }
         });
     }
@@ -94,14 +92,14 @@ export class CreditsManager {
         });
     }
     addCreditsRelativeToPosition(camera, offset = {x:-20,y:80,z:-50}) {
-        console.log("-- addCreditsRelativeToPosition START --")
+        // console.log("-- addCreditsRelativeToPosition START --")
         this.initCreators();
         // Determine the position relative to the camera
         const cameraPosition = camera.position.clone();
         const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion); // Forward vector
         const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);   // Right vector
         const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);      // Up vector
-        console.log("Camera Position: ", cameraPosition);
+        // console.log("Camera Position: ", cameraPosition);
 
         // Compute the target position relative to the camera
         const targetPosition = cameraPosition
@@ -109,9 +107,11 @@ export class CreditsManager {
             .add(right.multiplyScalar(offset.x))
             .add(up.multiplyScalar(offset.y));
 
-        console.log("Target Position: ", targetPosition)
+        // console.log("Target Position: ", targetPosition)
+
         // Set the position of the sentence group
-        console.log("this.creators: ",this.creators);
+
+        // console.log("this.creators: ",this.creators);
 
 
         this.creators.position.copy(targetPosition);
@@ -121,7 +121,7 @@ export class CreditsManager {
 
         // Add the sentence to the scene
         this.scene.add(this.creators);
-        console.log("-- addCreditsRelativeToPosition END --")
+        // console.log("-- addCreditsRelativeToPosition END --")
 
     }
     createLetter(letter){
