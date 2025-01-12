@@ -861,7 +861,7 @@ export class GameManager {
 
     // Our scene will start in edit mode
     initMode() {
-        this.simulationMode();
+        this.editMode();
     }
 
     initWireframePlanet() {

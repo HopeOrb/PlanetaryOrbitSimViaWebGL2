@@ -67,7 +67,9 @@ html {
   background-color: #2980b9;
 }
 
-
+#newButton:hover {
+  background-color: #2980b9;
+}
 /* Görsel için stil */
 #keplerImage {
   border-radius: 1px;
@@ -139,8 +141,8 @@ h1{
 }
 
 @keyframes scroll {
-  from{ top: 0; transform: translateZ(0) rotateX(20deg) }
-  to { top: -5000px; transform: translateZ(-500px) rotateX(21deg) }
+  from{ top: 0; transform: translateZ(0) rotateX(40deg) }
+  to { top: -5000px; transform: translateZ(-2500px) rotateX(40deg) }
 }
 
 

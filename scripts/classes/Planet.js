@@ -12,7 +12,7 @@ export class Planet extends GameObject {
     
     constructor(color, dayTexture, nightTexture = dayTexture) {
         super();
-
+        this.planetProps = Planet.randomizeProperties();
         this.dayTexture = dayTexture;
         this.nightTexture = nightTexture;
 
@@ -27,10 +27,10 @@ export class Planet extends GameObject {
         this.isPhong = false;
         this.isToon = false;
 
-        this.scaling( 0.3, 0.3, 0.3 );
+        this.scaling( this.planetProps.scale, this.planetProps.scale, this.planetProps.scale );
 
-        this.mass = 1000;   // TODO: We'll be able to change this in application
-        this.velocity = new THREE.Vector3( 0, 2, -5 );  // TODO: We'll be able to change this in application
+        this.mass = this.planetProps.mass;   // TODO: We'll be able to change this in application
+        this.velocity = this.planetProps.velocity;  // TODO: We'll be able to change this in application
 
         this.trailPoints = [];
         this.trail = new THREE.Line(
@@ -104,5 +104,18 @@ export class Planet extends GameObject {
         this.trail.geometry.dispose();  // Free the GPU related resources
         this.trail.geometry = new THREE.BufferGeometry().setFromPoints( this.trailPoints ); 
     }
-
+    static randomizeProperties() {
+        const getRandomSign = () => (Math.random() < 0.5 ? -1 : 1);
+        const properties = {
+            scale: Math.random() * (0.6 - 0.2) + 0.2,
+            mass: Math.random() * (10000 - 500) + 500,
+            velocity: new THREE.Vector3(
+                (Math.random() * (5 - 1) + 1) * getRandomSign(),
+                (Math.random() * (5 - 1) + 1) * getRandomSign(),
+                (Math.random() * (5 - 1) + 1) * getRandomSign()
+            ),
+        };
+        console.log("Generated Properties:", properties);
+        return properties;
+    }
 }
