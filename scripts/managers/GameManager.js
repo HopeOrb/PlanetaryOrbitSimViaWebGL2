@@ -667,10 +667,11 @@ export class GameManager {
     addPlanetToScene( position ) {
         // TODO: Give random textures each time
         let planet;
-        if (this.textures[Math.floor(Math.random()*this.textures.length)] === (this.earthNightTexture || this.earthDayTexture)){
+        let texture = this.textures[Math.floor(Math.random() * this.textures.length)];
+        if (texture === (this.earthNightTexture || this.earthDayTexture)){
             planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
         } else {
-            planet = new Planet(0xffffff, this.textures[Math.floor(Math.random() * this.textures.length)]);
+            planet = new Planet(0xffffff, texture);
         }
 
         planet.position.copy( position );
