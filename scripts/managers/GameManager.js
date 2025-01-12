@@ -484,6 +484,7 @@ export class GameManager {
         this.finalComposer.setSize(width, height);
     }
 
+    /*
     addTestShadersEventListeners() {
         const self = this; // Need to differ instance referencing between this => document and this => class object
         // To see the difference between shaders (only for testing)
@@ -522,6 +523,7 @@ export class GameManager {
             }
         });
     }
+    */
 
     initTextureLoader() {
         this.textureLoader = new THREE.TextureLoader();
