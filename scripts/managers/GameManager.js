@@ -35,6 +35,9 @@ export class GameManager {
     transformControls;
     stats;
     objects;
+    mainMenu;
+    wrapper;
+    musicButton;
     helpMenu;
     raycaster;
     mouse;
@@ -86,6 +89,13 @@ export class GameManager {
     spaceBackgroundBloom;
 
 
+    // Audio
+    listener;
+    audioLoader;
+    backgroundSound;
+    audioStarted;
+
+
     constructor(canvas) {
         this.canvas = canvas;
         this.scene = null;
@@ -96,7 +106,10 @@ export class GameManager {
         this.transformControls = null;
         this.stats = null;
         this.objects = {}; // Object registry
+        this.mainMenu = null;
+        this.wrapper = null;
         this.helpMenu = null;
+        this.musicButton = document.getElementById('musicButton');
         this.raycaster = null;
         this.mouse = null;
         this.selectedObject = null;
@@ -109,6 +122,8 @@ export class GameManager {
         this.userPosition = {x: 0, y: 0, z: 0};
 
         this.inPhongShading = true;
+
+        this.audioStarted = false;
     }
 
     // Will initialize the Scene / Game
@@ -137,6 +152,11 @@ export class GameManager {
 
         // Add performance stats
         this.initStats();
+
+        // Initialize the main menu
+        this.initMainMenu();
+
+        this.initWrapper();
 
         // Initialize the help menu
         this.initHelpMenu();
@@ -290,13 +310,25 @@ export class GameManager {
         document.body.appendChild(this.stats.dom);
     }
 
+    initMainMenu() {
+        this.mainMenu = document.getElementById("mainMenu");
+    }
+
+    initWrapper() {
+        this.wrapper = document.getElementById("wrapper");
+    }
+
     initHelpMenu() {
         this.helpMenu = document.getElementById("helpMenu");
     }
 
     addEventListeners() {
+        this.addMainMenuEventListeners();
+
         // HelpMenu Event Listener
         this.addHelpMenuEventListeners();
+
+        this.addMusicButtonEventListeners();
 
         // OrbitControls Event Listener
         this.camManager.addEventListeners();
@@ -317,6 +349,19 @@ export class GameManager {
 
     }
 
+    addMusicButtonEventListeners() {
+        document.getElementById('musicButton').addEventListener('click', () => {
+            if (!(this.audioStarted)){
+                this.initAudio();
+                this.audioStarted = true;
+                this.musicButton.textContent = '🔊';
+            } else {
+                this.backgroundSound.stop();
+                this.audioStarted = false;
+                this.musicButton.textContent = '🔈';
+            }
+        });
+    }
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
@@ -352,6 +397,30 @@ export class GameManager {
         });
     }
 
+    addMainMenuEventListeners() {
+        const button = document.getElementById('myButton');  // Butonun seçilmesi
+        const backTo = document.getElementById('backTo');
+        const playButton = document.getElementById('newButton');
+        button.addEventListener('click', () => {
+            this.mainMenu.style.display = 'none';  // Menü gizlendi
+            this.wrapper.style.display = 'block';
+            backTo.style.display = 'block';
+        });
+
+        playButton.addEventListener('click', () => {
+            this.mainMenu.style.display = 'none';  // Menü gizlendi
+        });
+
+
+        backTo.addEventListener('click', () => {
+            this.wrapper.style.display = 'none';
+            backTo.style.display = 'none';
+            this.mainMenu.style.display = 'block';
+        })
+
+
+    }
+
     addHelpMenuEventListeners() {
         window.addEventListener('keydown', (event) => {
             if (event.key === 'h') {
@@ -365,13 +434,16 @@ export class GameManager {
         });
     }
 
+
+
     addRayCastingEventListeners() {
         window.addEventListener('pointermove', (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         });
-
         window.addEventListener('click', () => {
+
+
             console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
             this.camManager.updateCameraView();
@@ -636,6 +708,23 @@ export class GameManager {
         this.scene.add(this.spaceBackgroundBloom);
 
 
+    }
+
+
+    initAudio()  {
+        this.listener = new THREE.AudioListener();
+        this.camManager.camera.add(this.listener);
+
+        this.audioLoader = new THREE.AudioLoader();
+
+        this.backgroundSound = new THREE.Audio(this.listener);
+
+        this.audioLoader.load('sounds/emotional-guitar-loop-v13-275455.ogg', (buffer) => {
+            this.backgroundSound.setBuffer(buffer);
+            this.backgroundSound.setLoop(true);
+            this.backgroundSound.setVolume(0.5);
+            this.backgroundSound.play();
+        });
     }
 
     // We will darken the objects which are "non-bloomed" before the first pass
