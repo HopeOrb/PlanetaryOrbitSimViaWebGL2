@@ -1,14 +1,17 @@
 import * as THREE from "three";
+import gsap from 'gsap';
 
 export class CreditsManager {
 
     letterMap;
     creatorNames;
     isCreditsMode = false;
-    constructor(scene,renderer,camera) {
+    creditsPosition;
+    constructor(scene,renderer,cameraManager) {
         this.scene = scene;
         this.renderer = renderer;
-        this.camera = camera;
+        this.cameraManager = cameraManager;
+        this.camera = this.cameraManager.camera;
 
     }
 
@@ -16,6 +19,7 @@ export class CreditsManager {
     init(){
         this.letterMap = this.createLetterMap();
         this.creators = new THREE.Group();
+        this.creditsPosition = {x:-20, y:80, z:-50}
     }
     initCreators(){
         this.creatorNames = ["EKIN DOGA TASKIN",
@@ -33,17 +37,46 @@ export class CreditsManager {
             switch (event.key) {
                 case 'j':
                     this.isCreditsMode = !this.isCreditsMode;
-                    // Animate camera
 
-                    // Draw - Add Creator Names on Scene
                     if(this.isCreditsMode){
-                        this.addCreditsRelativeToPosition(this.camera);
+                        // disable orbit controls
+                        this.cameraManager.disableOrbitControls();
+                        // move camera
+                        this.smoothCameraAnimation(this.creditsPosition);
+
+                        // Draw - Add Creator Names on Scene
+                        this.addCreditsRelativeToPosition(this.camera, this.creditsPosition);
+
                     }
                     else {
+                        // Animate camera to previous position
+                        this.returnCameraToOriginal(this.cameraManager.getLastCameraPosition());
+
+                        // Remove credits from the scene
                         this.removeCredits();
+                        this.cameraManager.enableOrbitControls();
                     }
                     break;
             }
+        });
+    }
+    smoothCameraAnimation(target = {x:0,y:0, z:0}, duration = 1.5){
+        this.cameraManager.updatePreviousCameraPosition(this.cameraManager.getLastCameraPosition());
+        gsap.to(this.camera.position, {
+            x : target.x + 20,
+            y : target.y,
+            z : target.z + 50,
+            duration : duration,
+
+        });
+    }
+    returnCameraToOriginal(target = {x:4, y:4, z:8}, duration = 1.5){
+        gsap.to(this.camera.position, {
+            x : target.x,
+            y : target.y,
+            z : target.z,
+            duration : duration,
+
         });
     }
     addCreditsRelativeToPosition(camera, offset = {x:-20,y:80,z:-50}) {

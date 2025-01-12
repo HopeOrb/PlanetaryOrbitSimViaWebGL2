@@ -661,7 +661,7 @@ export class GameManager {
     }
 
     initCreditsManager() {
-        this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager.camera);
+        this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager);
         this.creditsManager.init();
     }
 }

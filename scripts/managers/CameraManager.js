@@ -11,6 +11,10 @@ export class CameraManager {
         this.renderer = renderer;
         this.camera = null;
         this.orbitControls = null;
+
+        this.prevCamPosition = null;
+
+        this.isEnableOrbitControls = false;
     }
 
     init() {
@@ -24,7 +28,13 @@ export class CameraManager {
     updateCameraManager(){
         this.updateCameraView();
         this.camera.updateProjectionMatrix();
-        this.orbitControls.update();
+        if(){
+
+        }
+        else{
+            this.orbitControls.update();
+        }
+
     }
     setCamPosition(x,y,z){
         this.camera.position.set(x,y,z);
@@ -39,6 +49,8 @@ export class CameraManager {
     resetCamera(){
         this.orbitControls.reset();
         this.camera.position.set(4, 4, 8);
+        this.updatePreviousCameraPosition(this.camera.position);
+
         // this.camera.lookAt(0, 0, 0); // unnecessary
         this.camera.updateProjectionMatrix();
         // this.controls.update(); // need to update whenever OrbitControls or camera get updates
@@ -49,6 +61,7 @@ export class CameraManager {
         this.camera = new THREE.PerspectiveCamera(this.fov,this.aspect,this.zNear, this.zFar);
         this.setCamPosition(4,4,8);
         this.lookAt(0,0,0);
+        this.prevCamPosition = this.camera.position.clone();
     }
     initOrbitControls() {
         // Init OrbitControls
@@ -59,6 +72,7 @@ export class CameraManager {
         this.orbitControls.zoomSpeed = 2;
         this.orbitControls.maxDistance = 50;
         this.orbitControls.minDistance = 5;
+        this.isEnableOrbitControls = true;
     }
     addEventListeners(){
         // Reset Camera
@@ -80,5 +94,11 @@ export class CameraManager {
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize( width, height );
+    }
+    updatePreviousCameraPosition(position){
+        this.prevCamPosition = position;
+    }
+    getLastCameraPosition(){
+        return this.prevCamPosition;
     }
 }
