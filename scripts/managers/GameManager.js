@@ -563,7 +563,7 @@ export class GameManager {
         this.addAmbientLight();
 
         // Add Background Objects
-        //this.addBackgroundObjects();
+        this.addBackgroundObjects();
 
     }
 
@@ -599,6 +599,7 @@ export class GameManager {
                 this.background_stars.push(x, y, z);
             }
         }
+
 
         this.background_bloom = [];
         for (let i = 0; i < 500; i++) {

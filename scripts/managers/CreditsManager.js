@@ -46,7 +46,7 @@ export class CreditsManager {
             }
         });
     }
-    addCreditsRelativeToPosition(camera, offset = {x:-20,y:80,z:-50}) {
+    addCreditsRelativeToPosition(camera, offset = {x:0,y:0,z:-20}) {
         console.log("-- addCreditsRelativeToPosition START --")
         this.initCreators();
         // Determine the position relative to the camera
@@ -79,17 +79,40 @@ export class CreditsManager {
     }
     createLetter(letter){
         const vertices = this.letterMap[letter];
+
         if (!vertices || vertices.length === 0) return new THREE.Group();
+
+
 
         const group = new THREE.Group();
         for (let i = 0; i < vertices.length; i += 2) {
+            const startSphere = new THREE.Mesh(
+                new THREE.SphereGeometry(0.1, 16, 16), // Küre geometrisi
+                new THREE.MeshBasicMaterial({ color: 0xff0000 }) // Materyal
+            );
+
+            const endSphere = new THREE.Mesh(
+                new THREE.SphereGeometry(0.1, 16, 16),
+                new THREE.MeshBasicMaterial({ color: 0x0000ff })
+            );
             const geometry = new THREE.BufferGeometry().setFromPoints([vertices[i], vertices[i + 1]]);
+            console.log("for letter" + letter);
+            console.log(vertices[i], vertices[i+1]);
+            //console.log(geometry);
             const material = new THREE.LineBasicMaterial({ color: 0xffffff });
             const line = new THREE.Line(geometry, material);
+            startSphere.position.copy(vertices[i]);
+            endSphere.position.copy(vertices[i+1]);
+            group.add(startSphere);
             group.add(line);
+            group.add(endSphere);
         }
+        console.log("group for letter" + letter + ": ");
+        console.log(group);
+
         return group;
     }
+
     createSentence(sentence, offsetY = 0) {
         const sentenceGroup = new THREE.Group();
         let offsetX = 0;
