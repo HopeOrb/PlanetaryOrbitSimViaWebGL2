@@ -46,7 +46,7 @@ export class CreditsManager {
             }
         });
     }
-    addCreditsRelativeToPosition(camera, offset = {x:0,y:0,z:-50}) {
+    addCreditsRelativeToPosition(camera, offset = {x:-20,y:80,z:-50}) {
         console.log("-- addCreditsRelativeToPosition START --")
         this.initCreators();
         // Determine the position relative to the camera
