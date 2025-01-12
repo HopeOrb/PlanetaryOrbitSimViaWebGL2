@@ -262,7 +262,7 @@ export class GameManager {
             child.updateWorldMatrix();
         });
         this.scene.add(this.transformControls.getHelper());	// Restore transformControls
-        this.renderer.setClearColor(this.backgroundColor);	// Restore background
+        this.renderer.setClearColor(this.shaderManager.backgroundColor);	// Restore background
 
         // Update Camera
         this.camManager.updateCameraManager();

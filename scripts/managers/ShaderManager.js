@@ -7,6 +7,7 @@ export class ShaderManager{
 
     inPhongShading;
     inToonShading;
+    backgroundColor;
 
     constructor( scene ) {
         this.scene = scene;
@@ -33,8 +34,8 @@ export class ShaderManager{
                 obj.switchToPhong();
             }
         } );
-
-        this.scene.background = 0x000000;
+        this.backgroundColor = new THREE.Color(0x000000);
+        this.scene.background = this.backgroundColor;
 
         this.inPhongShading = true;
         this.inToonShading = false;
@@ -46,8 +47,8 @@ export class ShaderManager{
                 obj.switchToToon();
             }
         } );
-
-        this.scene.background = new THREE.Color(0x030207);
+        this.backgroundColor = new THREE.Color(0x000000);
+        this.scene.background = this.backgroundColor;
 
         this.inPhongShading = false;
         this.inToonShading = true;
