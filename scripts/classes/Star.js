@@ -1,16 +1,27 @@
 import * as THREE from './../../node_modules/three/build/three.module.js';
 
-import { StarMaterial } from '../materials/StarMaterial.js';
-
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
-import {GameObject} from "./GameObject.js";
+import { GameObject } from "./GameObject.js";
+import { StarPhongMaterial } from '../materials/StarPhongMaterial.js';
 
+// TODO: Will make the stars bigger
 export class Star extends GameObject {
     
-    constructor(color) {
+    constructor() {
         super();
 
         this.light = new THREE.PointLight( 0xffffff, 25 );
+        this.light.decay = 3.0; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
+
+        let textureLoader = new THREE.TextureLoader();
+        this.lavaTexture = textureLoader.load( '/resources/textures/lava/lavatile.jpg' );
+        this.cloudTexture = textureLoader.load( '/resources/textures/lava/cloud.png' );
+        this.lavaTexture.colorSpace = THREE.SRGBColorSpace;
+        this.cloudTexture.wrapS = this.cloudTexture.wrapT = THREE.RepeatWrapping;
+        this.lavaTexture.wrapS = this.lavaTexture.wrapT = THREE.RepeatWrapping;
+
+        this.mass = 360000; // TODO: We'll be able to change this in application
+        this.velocity = new THREE.Vector3( 0, 0, 0 );   // TODO: We'll be able to change this in application 
 
         this.switchToPhong();
     }
@@ -19,8 +30,7 @@ export class Star extends GameObject {
         this.reset()
 
         this.geometry = new THREE.SphereGeometry();
-        this.material = new StarMaterial();
-
+        this.material = new StarPhongMaterial( this.lavaTexture, this.cloudTexture );
     }
 
     switchToToon() {

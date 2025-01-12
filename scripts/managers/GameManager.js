@@ -21,6 +21,8 @@ import {Planet} from './../classes/Planet.js';
 import {selectiveFragment, selectiveVertex} from './../post_processing/selective_bloom.js';
 import {ShaderToonOutline} from './../materials/ShaderToonMaterial.js';
 import {CameraManager} from "./CameraManager.js";
+import { ShaderManager } from './ShaderManager.js';
+import { PhysicsManager } from './PhysicsManager.js';
 import {DebugManager} from "./DebugManager.js";
 import {CreditsManager} from "./CreditsManager.js";
 
@@ -57,6 +59,7 @@ export class GameManager {
 
     // shading and postprocessing
     inPhongShading;
+    inToonShading;
     bloomComposer;
     finalComposer;
     renderScene;
@@ -78,6 +81,8 @@ export class GameManager {
 
     // light
     alight;
+    spotlight;
+    spotlightIntensity;
 
     // Background
     background_stars;
@@ -88,6 +93,16 @@ export class GameManager {
     bloomStarsGeometry;
     spaceBackgroundBloom;
 
+    inEditMode;
+    inSimulationMode;
+    inPlacementMode;
+
+    grid;
+
+    wireframePlanet;
+
+    shaderManager;
+    physicsManager;
 
     // Audio
     listener;
@@ -121,9 +136,8 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
-        this.inPhongShading = true;
-
         this.audioStarted = false;
+        //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
     }
 
     // Will initialize the Scene / Game
@@ -172,6 +186,15 @@ export class GameManager {
         // Add EventListeners
         this.addEventListeners();
 
+        this.initGrid();
+
+        this.initMode();
+
+        this.initWireframePlanet();
+
+        this.initShaderManager();
+
+        this.initPhysicsManager();
     }
 
     // Initialize the Game Loop
@@ -187,47 +210,11 @@ export class GameManager {
     }
 
     gameLoop(timestamp) {
-        {
-            // Move the orbit cube
-            const t = timestamp / 1000;
-            const a = 4, b = 5;
-            const focusDistance = (b ** 2 - a ** 2) ** 0.5;
-            let x = a * Math.cos(t);
-            let y = 0;
-            let z = b * Math.sin(t);
-            z = z - focusDistance; // Move the orbit so that one of its focuses align into the center cube that is also at (0, 0, 0)
-            {
-                const th = -60 * (Math.PI / 180); // Tilt the orbit around (0, 0, 0) by some degrees
-                // Too me like hours to fix it!!! The second param should not be calcullated based on the
-                // modified version of the first version!!!!!!
-                const xNew = x * Math.cos(th) + z * Math.sin(th);
-                const zNew = -x * Math.sin(th) + z * Math.cos(th);
-                x = xNew;
-                z = zNew;
-            }
-            {
-                const th = -15 * (Math.PI / 180); // Tilt the orbit around (0, 0, 0) by some degrees
-                const xNew = x * Math.cos(th) + y * Math.sin(th);
-                const yNew = -x * Math.sin(th) + y * Math.cos(th);
-                x = xNew;
-                y = yNew;
-            }
-            const orbitData = this.objectDataMap.get(this.orbitObject) || {
-                userPosition: {x: 0, y: 0, z: 0},
-                userRotation: {x: 0, y: 0}
-            };
-            x += orbitData.userPosition.x;
-            y += orbitData.userPosition.y;
-            z += orbitData.userPosition.z;
-
-            this.orbitObject.position.set(x, y, z);
-
-            // OrbitCube için kullanıcı rotasyonunu uygula
-            const tRotation = timestamp / 1000 * 2;
-            this.orbitObject.rotation.y = tRotation + orbitData.userRotation.y;
-            this.orbitObject.rotation.x = -1.3 * tRotation + orbitData.userRotation.x;
+        if (this.inSimulationMode) {
+            this.physicsManager.updateObjects();
         }
 
+        /*
         { // Rotate the center cube
             const centerData = this.objectDataMap.get(this.centerObject) || {
                 userPosition: {x: 0, y: 0, z: 0},
@@ -239,12 +226,19 @@ export class GameManager {
             this.centerObject.rotation.y = t + centerData.userRotation.y;
             this.centerObject.rotation.x = centerData.userRotation.x;
         }
+        */
+        
+        // Reset camera
+        //this.camManager.camera.updateProjectionMatrix();
+        //this.camManager.orbitControls.update();
+
+        // Move spotlight to camera's position and point it to the camera's target
+        this.spotlight.position.copy( this.camManager.camera.position );
+        this.spotlight.target.position.copy( this.camManager.orbitControls.target );
 
         //userPosition = { x: 0, y: 0, z: 0 };
         if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
-        if (this.inToonShading) {
-            this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
-        }
+        if (this.inToonShading) this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
 
         this.scene.remove(this.transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
         //this.scene.traverse(this.nonBloomed);	// Darken the objects which are not bloomed
@@ -297,7 +291,7 @@ export class GameManager {
         this.raycaster = new THREE.Raycaster();
         this.raycaster.near = 0.1;
         this.raycaster.far = 1000;
-
+        this.raycaster.layers.set(2);   // Raycasting layer
 
     }
 
@@ -345,7 +339,12 @@ export class GameManager {
         // Raycasting Event Listener
         this.addRayCastingEventListeners();
 
-        this.addTestShadersEventListeners();
+        //this.addTestShadersEventListeners();
+
+        this.addSwitchModeEventListeners();
+
+        this.addPlacementEventListeners();
+        this.addSpotlightEventListeners();
 
     }
 
@@ -471,7 +470,6 @@ export class GameManager {
 
                 if (!(this.selectedObject instanceof Star || this.selectedObject instanceof Planet)) {
                     this.selectedObject = null; // Hiçbir şey seçilmediyse
-                    console.log("heree");
 
                     this.transformControls.detach();
                     this.scene.remove(this.transformControls.getHelper());
@@ -505,7 +503,7 @@ export class GameManager {
             } else {
                 console.log("Selected : Null");
                 this.selectedObject = null; // Hiçbir şey seçilmediyse
-
+                this.previousSelectedObject = null;
                 this.transformControls.detach();
                 this.scene.remove(this.transformControls.getHelper());
 
@@ -513,6 +511,17 @@ export class GameManager {
                 setupGUI(this.selectedObject);
             }
         });
+
+        window.addEventListener( 'mousemove', () => {
+            this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
+
+            let intersectingPosition = new THREE.Vector3();
+            const intersects = this.raycaster.ray.intersectPlane( new THREE.Plane( new THREE.Vector3( 0, 1, 0 ) ), intersectingPosition );
+
+            if ( intersects && this.inPlacementMode ) {
+                this.wireframePlanet.position.copy( intersectingPosition );
+            }
+        } )
     }
 
     initPostProcessing() {
@@ -570,13 +579,14 @@ export class GameManager {
         this.finalComposer.setSize(width, height);
     }
 
+    /*
     addTestShadersEventListeners() {
         const self = this; // Need to differ instance referencing between this => document and this => class object
         // To see the difference between shaders (only for testing)
         document.addEventListener('keydown', function (event) {
             switch (event.key) {
                 case "1":
-                    self.inPhongShading = true;
+                    self.inPhongShading = false;
                     self.inToonShading = false;
 
                     self.backgroundColor = 0x000000;
@@ -585,6 +595,7 @@ export class GameManager {
                     self.orbitObject.switchToTest();
                     break;
                 case "2":
+                    if (self.inPhongShading) break; // Without this the game slows down when we hold the key
                     self.inPhongShading = true;
                     self.inToonShading = false;
 
@@ -594,6 +605,7 @@ export class GameManager {
                     self.orbitObject.switchToPhong();
                     break;
                 case "3":
+                    if (self.inToonShading) break;  // Without this the game slows down when we hold the key
                     self.inPhongShading = false;
                     self.inToonShading = true;
 
@@ -606,33 +618,33 @@ export class GameManager {
             }
         });
     }
+    */
 
     initTextureLoader() {
         this.textureLoader = new THREE.TextureLoader();
-        this.earthDayTexture = this.textureLoader.load("/resources/textures/2k_earth_daymap.jpg");
-        this.earthNightTexture = this.textureLoader.load("/resources/textures/2k_earth_nightmap.jpg");
-        this.ceresTexture = this.textureLoader.load("/resources/textures/2k_ceres_fictional.jpg");
-        this.makemakeTexture = this.textureLoader.load("/resources/textures/2k_makemake_fictional.jpg");
-        // background stars
-        this.starSprite = new THREE.TextureLoader().load('/resources/textures/star.png');
-        this.starSprite.colorSpace = THREE.SRGBColorSpace;
+        this.earthDayTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_daymap.jpg");
+        this.earthNightTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_nightmap.jpg");
+        this.ceresTexture = this.textureLoader.load("/resources/textures/ceres/2k_ceres_fictional.jpg");
+        this.makemakeTexture = this.textureLoader.load("/resources/textures/makemake/2k_makemake_fictional.jpg");
+        this.starSprite = this.textureLoader.load('/resources/textures/star_sprite/star.png');
+        //this.starSprite.colorSpace = THREE.SRGBColorSpace;    // I don't think we have to define its color space, because it's completely white
     }
 
     initScene() {
         // Init star
-        this.centerObject = new Star(new THREE.Color(0xbb5500));	// We have to pass only color now, may change later
+        this.centerObject = new Star();
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
         this.scene.add(this.centerObject);
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
-        this.orbitObject.scaling(0.3, 0.3, 0.3);	// We use this function to scale planet objects, so they're scaled in each shading
         let t = 0;
-        this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
+        //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
+        this.orbitObject.position.set( 10, 0, 10 );
         this.scene.add(this.orbitObject);
 
         // Add Light
-        this.addAmbientLight();
+        this.addLights();
 
         // Add Background Objects
         this.addBackgroundObjects();
@@ -646,16 +658,30 @@ export class GameManager {
          */
     }
 
-    addPlanetToScene() {
-        /** TODO
-         * Generate new planet with given positions and textures
-         * Add the Planet to the scene
-         */
+    addPlanetToScene( position ) {
+        // TODO: Give random textures each time
+        
+        const planet = new Planet( 0xffffff, this.makemakeTexture );
+        planet.position.copy( position );
+
+        if (this.shaderManager.inPhongShading) planet.switchToPhong();
+        if (this.shaderManager.inToonShading) planet.switchToToon();
+
+        this.scene.add( planet );
     }
 
-    addAmbientLight() {
-        this.alight = new THREE.AmbientLight(0xffffff, 0.25);
+    addLights() {
+        this.alight = new THREE.AmbientLight(0x777777, 0.25);
         this.scene.add(this.alight);
+
+        this.spotlight = new THREE.SpotLight( 0xffffff, 0 );
+        this.spotlight.angle = Math.PI / 18;
+
+        this.spotlightIntensity = 10;
+
+        // We will start with the spotlight off
+        this.scene.add( this.spotlight );
+        this.scene.add( this.spotlight.target );
     }
 
 
@@ -730,7 +756,6 @@ export class GameManager {
     // We will darken the objects which are "non-bloomed" before the first pass
     nonBloomed(obj) {
         if (this.bloomLayer.test(obj.layers) === false) {
-            //console.log(obj);
             this.materials[obj.uuid] = obj.material;
             obj.material = this.darkMaterial;
         }
@@ -744,6 +769,92 @@ export class GameManager {
         }
     }
 
+    // TODO: Move everything below to their corresponding places before merging with test
+
+    // Switch to edit mode
+    editMode() {
+        this.inEditMode = true;
+        this.inSimulationMode = false;
+
+        this.scene.add( this.grid );
+
+        this.trailsOff();
+    }
+
+    // Switch to simulation mode
+    simulationMode() {
+        this.inEditMode = false;
+        this.inSimulationMode = true;
+
+        // Remove transformControls from the scene if it exists
+        this.transformControls.detach();
+        this.scene.remove(this.transformControls.getHelper());
+
+        this.scene.remove( this.grid );
+
+        this.trailsOn();
+    }
+
+    addSwitchModeEventListeners() {
+        document.addEventListener( 'keydown', (event) => {
+            switch (event.key) {
+                case ' ':
+                    if (this.inEditMode) {
+                        this.simulationMode();
+                    }
+                    else {
+                        this.editMode();
+                    }
+                    break;
+                case 'p':
+                    if (this.inEditMode) {
+                        if (this.inPlacementMode) {
+                            this.inPlacementMode = false;
+                            this.scene.remove( this.wireframePlanet );
+                        }
+                        else {
+                            this.inPlacementMode = true;
+                            this.scene.add( this.wireframePlanet );
+                        }
+                    }
+                    
+            }
+        } );
+    }
+
+    initGrid() {
+        this.grid = new THREE.GridHelper( 100, 50, 0x888888, 0x444444 );
+    }
+
+    // Our scene will start in edit mode
+    initMode() {
+        this.editMode();
+    }
+
+    initWireframePlanet() {
+        let wireframe = new THREE.WireframeGeometry( new THREE.SphereGeometry( 0.3, 10, 6 ) );
+
+        this.wireframePlanet = new THREE.LineSegments( wireframe );
+    }
+
+    addPlacementEventListeners() {
+        document.addEventListener( 'click', () => {
+            if (this.inPlacementMode) {
+                this.inPlacementMode = false;
+                this.addPlanetToScene( this.wireframePlanet.position );
+                this.scene.remove( this.wireframePlanet );
+            }
+        } )
+    }
+
+    initShaderManager() {
+        this.shaderManager = new ShaderManager( this.scene );
+    }
+
+    initPhysicsManager() {
+        this.physicsManager = new PhysicsManager( this.scene );
+    }
+    
     initDebugManager() {
         this.debugManager = new DebugManager(this.renderer, this.scene);
         this.debugManager.initRaycaster(this.raycaster);
@@ -752,5 +863,37 @@ export class GameManager {
     initCreditsManager() {
         this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager);
         this.creditsManager.init();
+    }
+    
+    // Enable trails for all planets
+    trailsOn() {
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet) {
+                this.scene.add( obj.trail );
+            }
+        } );
+    }
+
+    // Disable trails for all planets
+    trailsOff() {
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet) {
+                this.scene.remove( obj.trail );
+            }
+        } );
+    }
+    addSpotlightEventListeners() {
+        document.addEventListener( 'keydown', (event) => {
+            switch (event.key) {
+                case 's':
+                    if (this.spotlight.intensity == 0) {
+                        this.spotlight.intensity = this.spotlightIntensity;
+                    }
+                    else {
+                        this.spotlight.intensity = 0;
+                    }
+                    break;
+            }
+        } )
     }
 }

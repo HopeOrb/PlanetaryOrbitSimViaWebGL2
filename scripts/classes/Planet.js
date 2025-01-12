@@ -1,18 +1,20 @@
 import * as THREE from './../../node_modules/three/build/three.module.js';
 
-import { ShaderPhongMaterial } from '../materials/ShaderPhongMaterial.js';
-import { ShaderToonMaterial } from '../materials/ShaderToonMaterial.js';
-
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
-import {GameObject} from "./GameObject.js";
+import { GameObject } from "./GameObject.js";
+import { PlanetPhongMaterial } from '../materials/PlanetPhongMaterial.js';
+import { PlanetToonMaterial } from '../materials/PlanetToonMaterial.js';
 
 export class Planet extends GameObject {
+
+    trail;
+    trailPoints;
     
-    constructor(color, texture, texture2 = texture) {
+    constructor(color, dayTexture, nightTexture = dayTexture) {
         super();
 
-        this.dayTexture = texture;
-        this.nightTexture = texture2;
+        this.dayTexture = dayTexture;
+        this.nightTexture = nightTexture;
 
         this.color = color; // Probably won't need in delivery as it's only used in test shading
 
@@ -24,6 +26,17 @@ export class Planet extends GameObject {
 
         this.isPhong = false;
         this.isToon = false;
+
+        this.scaling( 0.3, 0.3, 0.3 );
+
+        this.mass = 1000;   // TODO: We'll be able to change this in application
+        this.velocity = new THREE.Vector3( 0, 2, -5 );  // TODO: We'll be able to change this in application
+
+        this.trailPoints = [];
+        this.trail = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints( this.trailPoints ),
+            new THREE.LineBasicMaterial( {color: 0x555555} )
+        );
 
         this.switchToTest();    // Will start in Phong shading in delivery
     }
@@ -44,7 +57,8 @@ export class Planet extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+        //this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+        this.material = new PlanetPhongMaterial( this.dayTexture, this.nightTexture );
     }
 
     switchToToon() {
@@ -54,7 +68,7 @@ export class Planet extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        this.material = new ShaderToonMaterial( {color: {value: this.color}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
+        this.material = new PlanetToonMaterial( this.dayTexture, this.nightTexture );
 
         const outline = new ShaderToonOutline( this, 0, this.outlineThickness );
         this.attach( outline );
@@ -72,13 +86,23 @@ export class Planet extends GameObject {
 
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
 
-        if (this.isToon) this.children.at(2).material.uniforms.thickness = this.outline;
+        // I guess we won't need this
+        //if (this.isToon) this.children.at(2).material.uniforms.thickness = this.outlineThickness;
     }
 
     reset() {
         this.clear();
         this.isPhong = false;
         this.isToon = false;
+    }
+
+    updateTrail( new_point ) {
+        if ( !( this.trailPoints.includes( new_point ) ) ) {
+            this.trailPoints.push( new_point );
+        }
+
+        this.trail.geometry.dispose();  // Free the GPU related resources
+        this.trail.geometry = new THREE.BufferGeometry().setFromPoints( this.trailPoints ); 
     }
 
 }
