@@ -10,9 +10,9 @@ export class Planet extends GameObject {
     trail;
     trailPoints;
     
-    constructor(color, dayTexture, nightTexture = dayTexture, props) {
+    constructor(color, dayTexture, nightTexture = dayTexture) {
         super();
-
+        this.planetProps = Planet.randomizeProperties();
         this.dayTexture = dayTexture;
         this.nightTexture = nightTexture;
 
@@ -27,10 +27,10 @@ export class Planet extends GameObject {
         this.isPhong = false;
         this.isToon = false;
 
-        this.scaling( props.scale, props.scale, props.scale );
+        this.scaling( this.planetProps.scale, this.planetProps.scale, this.planetProps.scale );
 
-        this.mass = props.mass;   // TODO: We'll be able to change this in application
-        this.velocity = props.velocity;  // TODO: We'll be able to change this in application
+        this.mass = this.planetProps.mass;   // TODO: We'll be able to change this in application
+        this.velocity = this.planetProps.velocity;  // TODO: We'll be able to change this in application
 
         this.trailPoints = [];
         this.trail = new THREE.Line(
