@@ -43,7 +43,7 @@ export function setupGUI(selectedObject) {
         velocityFolder.open();
 
         lowerMass = 500;
-        upperMass = 2000;
+        upperMass = 10000;
     } else {
         lowerMass = 300000;
         upperMass = 500000;
