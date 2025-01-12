@@ -77,8 +77,9 @@ export class CreditsManager {
     }
     smoothCameraAnimation(target = { x: 0, y: 0, z: 0 }, duration = 2.0, target_oc) {
         // Disable OrbitControls
-        this.cameraManager.disableOrbitControls();
-        this.cameraManager.orbitControls.saveState();
+        // this.cameraManager.disableOrbitControls();
+        this.cameraManager.enableOrbitControls();
+        this.cameraManager.orbitControls.target = new THREE.Vector3(target.x - 4,target.y - 4, target.y - 8);
 
         // Animate the camera's position
         gsap.to(this.camera.position, {
@@ -95,7 +96,9 @@ export class CreditsManager {
         });
     }
     returnCameraToOriginal(target = {x:4, y:4, z:8}, duration = 2.0, target_oc){
-        this.cameraManager.disableOrbitControls();
+        // this.cameraManager.disableOrbitControls();
+        this.cameraManager.enableOrbitControls();
+        this.cameraManager.orbitControls.target = target_oc;
         gsap.to(this.camera.position, {
             x : target.x,
             y : target.y,
@@ -103,9 +106,8 @@ export class CreditsManager {
             duration : duration,
             onComplete: () => {
                 this.cameraManager.updateCameraManager();
-                this.cameraManager.orbitControls.target = target_oc;
                 this.cameraManager.orbitControls.update();
-                this.cameraManager.enableOrbitControls();
+                //this.cameraManager.enableOrbitControls();
             }
 
         });
