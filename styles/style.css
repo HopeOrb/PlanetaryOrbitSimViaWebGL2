@@ -84,3 +84,41 @@ html {
   color: #DC143C; /* Hover efekti: renk değişimi */
 }
 
+
+#wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  perspective: 1000px;
+  z-index: 20; /* Menü canvas'ın üstünde olacak */
+
+  overflow: hidden;
+}
+
+#scroll-text {
+  color: #ffc909;
+  font-size: 2vw;
+  line-height: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  position: relative;
+  animation: scroll 90s linear forwards;
+
+  padding: 20px;
+}
+
+h1{
+  text-align: center;
+}
+
+@keyframes scroll {
+  from{ top: 0; transform: translateZ(0) rotateX(20deg) }
+  to { top: -5000px; transform: translateZ(-500px) rotateX(21deg) }
+}
+
+
+
+

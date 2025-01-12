@@ -32,6 +32,7 @@ export class GameManager {
     stats;
     objects;
     mainMenu;
+    wrapper;
     musicButton;
     helpMenu;
     raycaster;
@@ -100,6 +101,7 @@ export class GameManager {
         this.stats = null;
         this.objects = {}; // Object registry
         this.mainMenu = null;
+        this.wrapper = null;
         this.helpMenu = null;
         this.musicButton = document.getElementById('musicButton');
         this.raycaster = null;
@@ -147,6 +149,8 @@ export class GameManager {
 
         // Initialize the main menu
         this.initMainMenu();
+
+        this.initWrapper();
 
         // Initialize the help menu
         this.initHelpMenu();
@@ -302,6 +306,10 @@ export class GameManager {
         this.mainMenu = document.getElementById("mainMenu");
     }
 
+    initWrapper() {
+        this.wrapper = document.getElementById("wrapper");
+    }
+
     initHelpMenu() {
         this.helpMenu = document.getElementById("helpMenu");
     }
@@ -379,6 +387,7 @@ export class GameManager {
         const button = document.getElementById('myButton');  // Butonun seçilmesi
         button.addEventListener('click', () => {
             this.mainMenu.style.display = 'none';  // Menü gizlendi
+            this.wrapper.style.display = 'block';
         });
     }
 
