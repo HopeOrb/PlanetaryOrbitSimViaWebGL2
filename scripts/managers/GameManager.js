@@ -136,7 +136,7 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
-        this.audioStarted = false;
+        this.audioStarted = null;
         //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
     }
 
