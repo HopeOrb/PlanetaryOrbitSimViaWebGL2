@@ -643,7 +643,8 @@ export class GameManager {
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
         this.scene.add(this.centerObject);
         // Init planets
-        this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
+        const props = Planet.randomizeProperties();
+        this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture, props);	// If there are separate day/night textures
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.orbitObject.position.set( 10, 0, 10 );
@@ -667,10 +668,13 @@ export class GameManager {
     addPlanetToScene( position ) {
         // TODO: Give random textures each time
         let planet;
+        let props = Planet.randomizeProperties();
+        console.log("props: ", props);
+
         if (this.textures[Math.floor(Math.random()*this.textures.length)] === (this.earthNightTexture || this.earthDayTexture)){
-            planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
+            planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture, props);
         } else {
-            planet = new Planet(0xffffff, this.textures[Math.floor(Math.random() * this.textures.length)]);
+            planet = new Planet(0xffffff, this.textures[Math.floor(Math.random() * this.textures.length)], props);
         }
 
         planet.position.copy( position );
