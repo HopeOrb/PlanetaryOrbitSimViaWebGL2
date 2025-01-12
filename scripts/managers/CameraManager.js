@@ -28,12 +28,6 @@ export class CameraManager {
     updateCameraManager(){
         this.updateCameraView();
         this.camera.updateProjectionMatrix();
-        if(){
-
-        }
-        else{
-            this.orbitControls.update();
-        }
 
     }
     setCamPosition(x,y,z){
