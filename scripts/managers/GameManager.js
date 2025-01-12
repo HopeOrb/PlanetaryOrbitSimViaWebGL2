@@ -110,6 +110,8 @@ export class GameManager {
     backgroundSound;
     audioStarted;
 
+    textures;
+
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -627,6 +629,10 @@ export class GameManager {
         this.ceresTexture = this.textureLoader.load("/resources/textures/ceres/2k_ceres_fictional.jpg");
         this.makemakeTexture = this.textureLoader.load("/resources/textures/makemake/2k_makemake_fictional.jpg");
         this.starSprite = this.textureLoader.load('/resources/textures/star_sprite/star.png');
+
+        this.textures = [];
+        this.textures.push(this.earthDayTexture, this.earthNightTexture, this.ceresTexture, this.makemakeTexture);
+
         //this.starSprite.colorSpace = THREE.SRGBColorSpace;    // I don't think we have to define its color space, because it's completely white
     }
 
@@ -660,8 +666,9 @@ export class GameManager {
 
     addPlanetToScene( position ) {
         // TODO: Give random textures each time
-        
-        const planet = new Planet( 0xffffff, this.makemakeTexture );
+
+        const planet = new Planet( 0xffffff, this.textures[Math.floor(Math.random()*this.textures.length)]);
+
         planet.position.copy( position );
 
         if (this.shaderManager.inPhongShading) planet.switchToPhong();
