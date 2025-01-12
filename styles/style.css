@@ -36,12 +36,18 @@ html {
   margin-bottom: 20px; /* Başlık ile buton arasında boşluk */
 }
 
-
-#myButton {
+.button-container {
+  display: flex;
+  justify-content: center;  /* Butonları ortalar */
+  align-items: center;
+  gap: 20px;  /* Butonlar arasında mesafe */
   position: fixed;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#myButton, #newButton {
   padding: 20px 20px;
   font-size: 24px;
   width: 200px;
@@ -51,12 +57,11 @@ html {
   border: none;
   cursor: pointer;
   z-index: 10;
-
-  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 
 #myButton:hover {
   background-color: #2980b9;

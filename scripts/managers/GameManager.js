@@ -386,11 +386,17 @@ export class GameManager {
     addMainMenuEventListeners() {
         const button = document.getElementById('myButton');  // Butonun seçilmesi
         const backTo = document.getElementById('backTo');
+        const playButton = document.getElementById('newButton');
         button.addEventListener('click', () => {
             this.mainMenu.style.display = 'none';  // Menü gizlendi
             this.wrapper.style.display = 'block';
             backTo.style.display = 'block';
         });
+
+        playButton.addEventListener('click', () => {
+            this.mainMenu.style.display = 'none';  // Menü gizlendi
+        });
+
 
         backTo.addEventListener('click', () => {
             this.wrapper.style.display = 'none';
