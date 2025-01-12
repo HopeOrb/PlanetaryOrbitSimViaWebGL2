@@ -385,10 +385,20 @@ export class GameManager {
 
     addMainMenuEventListeners() {
         const button = document.getElementById('myButton');  // Butonun seçilmesi
+        const backTo = document.getElementById('backTo');
         button.addEventListener('click', () => {
             this.mainMenu.style.display = 'none';  // Menü gizlendi
             this.wrapper.style.display = 'block';
+            backTo.style.display = 'block';
         });
+
+        backTo.addEventListener('click', () => {
+            this.wrapper.style.display = 'none';
+            backTo.style.display = 'none';
+            this.mainMenu.style.display = 'block';
+        })
+
+
     }
 
     addHelpMenuEventListeners() {

@@ -27,7 +27,7 @@ html {
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -38,6 +38,10 @@ html {
 
 
 #myButton {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 20px 20px;
   font-size: 24px;
   width: 200px;
@@ -52,7 +56,6 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 70px;
 }
 
 #myButton:hover {
@@ -62,7 +65,7 @@ html {
 
 /* Görsel için stil */
 #keplerImage {
-  border-radius: 10px;
+  border-radius: 1px;
   margin-top: 20px; /* Görsel ile üst eleman arasındaki boşluk */
 }
 
@@ -83,6 +86,22 @@ html {
 #musicButton:hover {
   color: #DC143C; /* Hover efekti: renk değişimi */
 }
+
+#backTo {
+  display: none;
+  position: absolute;
+  bottom: 30px;
+  left: 100px;
+  font-size: 26px;
+  background-color: #ffc909;
+  border: none;
+  cursor: pointer;
+  z-index: 100; /
+display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 
 #wrapper {
