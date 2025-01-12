@@ -60,7 +60,7 @@ export class CreditsManager {
                         console.log("Returning to last position: ", lastPos);
                         const duration = 2.0;
                         // Animate camera to previous position
-                        this.returnCameraToOriginal(lastPos, duration, targetOfOrbitControls);
+                        this.returnToInitialCameraPosition(lastPos, duration, targetOfOrbitControls);
 
                         // Remove credits from the scene
                         this.removeCredits();
@@ -79,7 +79,7 @@ export class CreditsManager {
         // Disable OrbitControls
         // this.cameraManager.disableOrbitControls();
         this.cameraManager.enableOrbitControls();
-        this.cameraManager.orbitControls.target = new THREE.Vector3(target.x - 4,target.y - 4, target.y - 8);
+        this.cameraManager.orbitControls.target = new THREE.Vector3(target.x,target.y, target.y);
 
         // Animate the camera's position
         gsap.to(this.camera.position, {
@@ -95,7 +95,7 @@ export class CreditsManager {
             },
         });
     }
-    returnCameraToOriginal(target = {x:4, y:4, z:8}, duration = 2.0, target_oc){
+    returnToInitialCameraPosition(target = {x:4, y:4, z:8}, duration = 2.0, target_oc){
         // this.cameraManager.disableOrbitControls();
         this.cameraManager.enableOrbitControls();
         this.cameraManager.orbitControls.target = target_oc;
@@ -105,7 +105,7 @@ export class CreditsManager {
             z : target.z,
             duration : duration,
             onComplete: () => {
-                this.cameraManager.updateCameraManager();
+                // this.cameraManager.updateCameraManager();
                 this.cameraManager.orbitControls.update();
                 //this.cameraManager.enableOrbitControls();
             }
