@@ -5,8 +5,6 @@ import {GLTFLoader} from './../node_modules/three/examples/jsm/loaders/GLTFLoade
 import {BloomPass, EffectComposer, OrbitControls, OutputPass, RenderPass, ShaderPass, TransformControls, UnrealBloomPass} from "three/addons";
 import Stats from './../node_modules/three/examples/jsm/libs/stats.module.js';
 
-import { setupGUI } from './gui.js';
-
 import { Star } from './classes/Star.js';
 import { Planet } from './classes/Planet.js';
 import { selectiveFragment, selectiveVertex } from './post_processing/selective_bloom.js';

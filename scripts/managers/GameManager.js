@@ -14,8 +14,6 @@ import {
 } from "three/addons";
 import Stats from './../../node_modules/three/examples/jsm/libs/stats.module.js';
 
-import {setupGUI} from './../gui.js';
-
 import {Star} from './../classes/Star.js';
 import {Planet} from './../classes/Planet.js';
 import {selectiveFragment, selectiveVertex} from './../post_processing/selective_bloom.js';
@@ -25,6 +23,7 @@ import { ShaderManager } from './ShaderManager.js';
 import { PhysicsManager } from './PhysicsManager.js';
 import {DebugManager} from "./DebugManager.js";
 import {CreditsManager} from "./CreditsManager.js";
+import { UserInterfaceManager } from './UserInterfaceManager.js';
 
 export class GameManager {
     // fields
@@ -197,6 +196,10 @@ export class GameManager {
         this.initShaderManager();
 
         this.initPhysicsManager();
+
+        this.initUserInterfaceManager();
+
+        this.initRenderManager();
     }
 
     // Initialize the Game Loop
@@ -492,7 +495,7 @@ export class GameManager {
                     this.userPosition = data.userPosition;
                     this.userRotation = data.userRotation;
 
-                    setupGUI(this.selectedObject);
+                    this.uiManager.addObjectInterface(this.selectedObject);
                 }
 
                 this.previousSelectedObject = this.selectedObject; // Şu anki objeyi önceki objeye aktar
@@ -510,7 +513,8 @@ export class GameManager {
                 this.scene.remove(this.transformControls.getHelper());
 
                 //updateAxisHelper(null);
-                setupGUI(this.selectedObject);
+                //setupGUI(this.selectedObject);
+                this.uiManager.removeObjectInterface();
             }
         });
 
@@ -907,5 +911,15 @@ export class GameManager {
                     break;
             }
         } )
+    }
+
+    initUserInterfaceManager() {
+        this.uiManager = new UserInterfaceManager();
+
+        this.uiManager.initSpotlightInterface( this.spotlight );
+    }
+
+    initRenderManager() {
+
     }
 }
