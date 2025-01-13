@@ -230,6 +230,7 @@ export class GameManager {
     }
 
     gameLoop(timestamp) {
+
         if (this.isGameover) {
             console.log("STOP");
             this.projectTitle.textContent = "GAME OVER YOUR SCORE IS  " + this.planetNum;
@@ -243,6 +244,7 @@ export class GameManager {
             document.getElementById("txt").textContent="your current score is " + this.planetNum;
             this.gameoverCheck();
         }
+
 
 
         // Move spotlight to camera's position and point it to the camera's target
@@ -287,11 +289,11 @@ export class GameManager {
             if (obj instanceof Planet && this.inSimulationMode) {
                 if (
                     ((this.centerObject.position.x - this.centerObject.sizeX) <= obj.position.x) &&
-                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.sizeX)) &&
+                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.scale.x)) &&
                     ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
-                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.sizeY)) &&
+                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.scale.y)) &&
                     ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
-                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.sizeZ))  ) {
+                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z))  ) {
                     this.isGameover=true;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
