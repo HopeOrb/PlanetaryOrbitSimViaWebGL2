@@ -4,6 +4,7 @@ import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import { GameObject } from "./GameObject.js";
 import { PlanetPhongMaterial } from '../materials/PlanetPhongMaterial.js';
 import { PlanetToonMaterial } from '../materials/PlanetToonMaterial.js';
+import {Vector3} from "three";
 
 export class Planet extends GameObject {
 
@@ -110,9 +111,14 @@ export class Planet extends GameObject {
     }
 
     updateBoundingBox() {
+        console.log("updateBoundingBox start *Planet*");
+        console.log("geometry: ",this.geometry);
+        console.log("boundingBox: ",this.boundingBox);
+
+        this.boundingBox.setFromCenterAndSize(this.position ,new Vector3(this.sizeX, this.sizeY, this.sizeZ) );
         if (this.geometry) {
             this.geometry.computeBoundingBox();
-            this.boundingBox.copy(this.geometry.boundingBox);
+            this.boundingBox.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
         }
     }
 

@@ -286,7 +286,7 @@ export class GameManager {
     gameoverCheck(){
         this.scene.traverse( (obj) => {
             if (obj instanceof Planet && this.inSimulationMode) {
-                if (obj.boundingBox.intersectsBox(this.centerObject.boundingBox) ) {
+                if (GameManager.isColliding(this.centerObject, obj)) {
                     console.log("in sun");
                     this.isGameover=true;
                     this.inSimulationMode=false;
@@ -723,16 +723,27 @@ export class GameManager {
         this.centerObject = new Star();
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
-        const helper = new THREE.Box3Helper(this.centerObject.boundingBox, 0xff0000); // Kırmızı bir çerçeve
+
         this.scene.add(this.centerObject);
-        this.scene.add(helper);
+
+        // const helper = new THREE.Box3Helper(this.centerObject.boundingBox, 0xff0000); // Kırmızı bir çerçeve
+        // this.scene.add(helper);
+        // this.centerObject.attach(helper);
+
 
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.orbitObject.position.set( 10, 0, 10 );
+
+
+
+
         this.scene.add(this.orbitObject);
+        // const helper2 = new THREE.Box3Helper(this.orbitObject.boundingBox, 0x00ff00); // Yeşil bir çerçeve
+        // this.scene.add(helper2);
+        // this.orbitObject.attach(helper2);
 
         // Add Light
         this.addLights();
@@ -1000,5 +1011,14 @@ export class GameManager {
                     break;
             }
         } )
+    }
+
+    static isColliding(obj1, obj2){
+        return ((this.obj1.position.x - this.obj1.boundingBox.getSize().x) <= obj2.position.x) &&
+            (obj2.position.x <= (this.obj1.position.x + this.obj1.boundingBox.getSize().x)) &&
+            ((this.obj1.position.y - this.obj1.boundingBox.getSize().y) <= obj2.position.y) &&
+            (obj2.position.y <= (this.obj1.position.y + this.obj1.boundingBox.getSize().y)) &&
+            ((this.obj1.position.z - this.obj1.boundingBox.getSize().z) <= obj2.position.z ) &&
+            (obj2.position.z <= (this.obj1.position.z + this.obj1.boundingBox.getSize().z));
     }
 }

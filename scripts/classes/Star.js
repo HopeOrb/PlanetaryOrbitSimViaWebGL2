@@ -3,6 +3,7 @@ import * as THREE from './../../node_modules/three/build/three.module.js';
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import { GameObject } from "./GameObject.js";
 import { StarPhongMaterial } from '../materials/StarPhongMaterial.js';
+import {Vector3} from "three";
 
 // TODO: Will make the stars bigger
 export class Star extends GameObject {
@@ -91,8 +92,12 @@ export class Star extends GameObject {
     }
 
     updateBoundingBox() {
+        console.log("updateBoundingBox start *Star*");
+        console.log("geometry: ",this.geometry);
+        console.log("boundingBox: ",this.boundingBox);
+
+        this.boundingBox.setFromCenterAndSize(this.position ,new Vector3(this.sizeX, this.sizeY, this.sizeZ) );
         if (this.geometry) {
-            // Create and attach the bounding box helper
             this.geometry.computeBoundingBox();
             this.boundingBox.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
         }
