@@ -110,6 +110,8 @@ export class GameManager {
     backgroundSound;
     audioStarted;
 
+    textures;
+
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -136,7 +138,7 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
-        this.audioStarted = false;
+        this.audioStarted = null;
         //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
     }
 
@@ -260,7 +262,7 @@ export class GameManager {
             child.updateWorldMatrix();
         });
         this.scene.add(this.transformControls.getHelper());	// Restore transformControls
-        this.renderer.setClearColor(this.backgroundColor);	// Restore background
+        this.renderer.setClearColor(this.shaderManager.backgroundColor);	// Restore background
 
         // Update Camera
         this.camManager.updateCameraManager();
@@ -627,6 +629,10 @@ export class GameManager {
         this.ceresTexture = this.textureLoader.load("/resources/textures/ceres/2k_ceres_fictional.jpg");
         this.makemakeTexture = this.textureLoader.load("/resources/textures/makemake/2k_makemake_fictional.jpg");
         this.starSprite = this.textureLoader.load('/resources/textures/star_sprite/star.png');
+
+        this.textures = [];
+        this.textures.push(this.earthDayTexture, this.earthNightTexture, this.ceresTexture, this.makemakeTexture);
+
         //this.starSprite.colorSpace = THREE.SRGBColorSpace;    // I don't think we have to define its color space, because it's completely white
     }
 
@@ -660,8 +666,14 @@ export class GameManager {
 
     addPlanetToScene( position ) {
         // TODO: Give random textures each time
-        
-        const planet = new Planet( 0xffffff, this.makemakeTexture );
+        let planet;
+        let texture = this.textures[Math.floor(Math.random() * this.textures.length)];
+        if (texture === (this.earthNightTexture || this.earthDayTexture)){
+            planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
+        } else {
+            planet = new Planet(0xffffff, texture);
+        }
+
         planet.position.copy( position );
 
         if (this.shaderManager.inPhongShading) planet.switchToPhong();
