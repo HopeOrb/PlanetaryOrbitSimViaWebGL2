@@ -233,7 +233,6 @@ export class GameManager {
 
         if (this.isGameover) {
             console.log("STOP");
-            this.projectTitle.textContent = "GAME OVER YOUR SCORE IS  " + this.planetNum;
             this.inSimulationMode = false;
             this.isGameover = false;
             this.deleteScene();
@@ -293,7 +292,8 @@ export class GameManager {
                     ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
                     (obj.position.y <= (this.centerObject.position.y + this.centerObject.scale.y)) &&
                     ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
-                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z))  ) {
+                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z)) ) {
+                    console.log("in sun");
                     this.isGameover=true;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
@@ -310,7 +310,6 @@ export class GameManager {
                     this.isGameover=true;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
-
                 }
                 if(!this.isGameover){
                     this.planetNum+=1;
@@ -323,6 +322,8 @@ export class GameManager {
     }
 
     deleteScene() {
+        document.getElementById("currentScore").style.display='none';
+        this.projectTitle.textContent = "GAME OVER YOUR SCORE IS  " + this.planetNum;
         this.mainMenu.style='block';
         let Arr = [];
         this.scene.traverse( (obj) => {
@@ -728,6 +729,7 @@ export class GameManager {
         this.centerObject = new Star();
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
+
         this.scene.add(this.centerObject);
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
