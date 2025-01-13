@@ -79,6 +79,9 @@ uniform sampler2D texture1;
 uniform sampler2D texture2;
 
 uniform bool isStar;
+uniform bool isPlanet;
+uniform bool isDisk;
+
 uniform float time;
 
 void main() {
@@ -88,6 +91,59 @@ void main() {
     vec3 lightIntensity;
     vec4 texColor;
 
+    vec3 ambient = ambientLightColor;
+    lightIntensity += ambient;
+
+    // Point light calculations
+    for (int i=0; i<NUM_POINT_LIGHTS; i++) {
+        vec3 L = normalize( fLp[i] );
+        vec3 H = normalize( L+V );  // The half vector
+        float d = length( fLp[i] );  // Distance between light and point
+        float attenuation = 1.0 / (pointLights[i].decay * d * d);
+        float Kd = max( dot( L, N ), 0.0 );
+        vec3 diffuse = Kd * pointLights[i].color * attenuation;
+        float Ks = pow( max( dot( N, H ), 0.0 ), shininess );
+        vec3 specular = vec3( Ks ) * attenuation;
+        if ( dot( L, N ) < 0.0 ) {
+            specular = vec3( 0.0, 0.0, 0.0 );    
+        }
+        lightIntensity += diffuse + specular;
+    }
+
+
+    // Spotlight calculations
+    // TODO: Still need to calculate the penumbra
+    vec3 spotlight = vec3( 0.0 );
+    for (int i=0; i<NUM_SPOT_LIGHTS; i++) {
+        vec3 L = normalize( fLs[i] );
+        vec3 direction = normalize( spotLights[i].direction );
+        float d = length( fLs[i] );
+        float attenuation = 1.0 / (spotLights[i].decay * d * d);
+        float angle = max( dot( L, direction ), 0.0 );
+        if ( angle > spotLights[i].coneCos ) {
+            float intensity = max( dot( L, N ), 0.0 );
+            spotlight += intensity * spotLights[i].color * attenuation;
+        }
+    }
+    lightIntensity += spotlight;
+
+
+    // Texture
+    if (isPlanet) {
+        vec4 dayTexColor = texture2D(texture1, vUv);
+        vec4 nightTexColor = texture2D(texture2, vUv);
+        
+        if (dayTexColor == nightTexColor) {
+            nightTexColor = nightTexColor * 0.3;
+        }
+        vec3 temp = lightIntensity - ambient;
+        float temp2 = (temp.x + temp.y + temp.z) / 3.0;
+        float dayNightSlider = min( temp2, 1.0 );
+        
+        texColor = mix(nightTexColor, dayTexColor, dayNightSlider);
+    }
+
+    // Stars are not affected by external light sources
     if (isStar) {    
         vec2 position = -1.0 + (2.0 * vUv);
 
@@ -111,67 +167,18 @@ void main() {
 
         lightIntensity = vec3( 1.0 );
     }
+    
+    if (isDisk) {
+        vec2 newUv = vec2( vUv.y, vUv.x );
+        
+        vec4 texture = texture2D( texture1, newUv );
+        texColor = texture * 0.1;
 
-    else {
-        vec3 ambient = ambientLightColor;
-        lightIntensity += ambient;
-
-        for (int i=0; i<NUM_POINT_LIGHTS; i++) {
-            vec3 L = normalize( fLp[i] );
-            vec3 H = normalize( L+V );  // The half vector
-
-            float d = length( fLp[i] );  // Distance between light and point
-            float attenuation = 1.0 / (pointLights[i].decay * d * d);
-
-            float Kd = max( dot( L, N ), 0.0 );
-            vec3 diffuse = Kd * pointLights[i].color * attenuation;
-
-            float Ks = pow( max( dot( N, H ), 0.0 ), shininess );
-            vec3 specular = vec3( Ks ) * attenuation;
-
-            if ( dot( L, N ) < 0.0 ) {
-                specular = vec3( 0.0, 0.0, 0.0 );    
-            }
-
-            lightIntensity += diffuse + specular;
-        }
-
-        vec4 dayTexColor = texture2D(texture1, vUv);
-        vec4 nightTexColor = texture2D(texture2, vUv);
-
-        if (dayTexColor == nightTexColor) {
-            nightTexColor = nightTexColor * 0.3;
-        }
-
-        vec3 temp = lightIntensity - ambient;
-        float temp2 = (temp.x + temp.y + temp.z) / 3.0;
-
-        float dayNightSlider = min( temp2, 1.0 );
-
-        texColor = mix(nightTexColor, dayTexColor, dayNightSlider);
+        lightIntensity = vec3( 1.0 );
     }
 
-    vec3 spotlight = vec3( 0.0 );
+    
 
-    // TODO: Still need to calculate the penumbra
-    // Spotlight calculations
-    for (int i=0; i<NUM_SPOT_LIGHTS; i++) {
-        vec3 L = normalize( fLs[i] );
-        vec3 direction = normalize( spotLights[i].direction );
-
-        float d = length( fLs[i] );
-
-        float attenuation = 1.0 / (spotLights[i].decay * d * d);
-
-        float Kd = max( dot( L, direction ), 0.0 );
-
-        if ( Kd > spotLights[i].coneCos ) {
-            spotlight += Kd * spotLights[i].color * attenuation;
-        }
-    }
-
-    lightIntensity += spotlight;
-
-    gl_FragColor = vec4( lightIntensity, 1.0 ) * texColor;
+    gl_FragColor = vec4( lightIntensity, 0.0 ) * texColor;
 }
 `;

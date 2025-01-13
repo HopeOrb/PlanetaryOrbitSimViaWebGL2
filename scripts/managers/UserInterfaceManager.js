@@ -18,7 +18,7 @@ export class UserInterfaceManager {
     initSpotlightInterface( spotlight ) {
         this.spotlightFolder = this.gui.addFolder( 'Spotlight' );
         
-        this.spotlightFolder.add( spotlight, 'intensity', 0, 10 );
+        this.spotlightFolder.add( spotlight, 'intensity', 0, 50 );
         this.spotlightFolder.add( spotlight, 'angle', 0, (Math.PI / 2) );
     }
 

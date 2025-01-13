@@ -24,6 +24,7 @@ import { PhysicsManager } from './PhysicsManager.js';
 import {DebugManager} from "./DebugManager.js";
 import {CreditsManager} from "./CreditsManager.js";
 import { UserInterfaceManager } from './UserInterfaceManager.js';
+import { DiskPlanet } from '../classes/DiskPlanet.js';
 
 export class GameManager {
     // fields
@@ -650,7 +651,7 @@ export class GameManager {
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
-        this.orbitObject.position.set( 10, 0, 10 );
+        this.orbitObject.position.set( 20, 0, 10 );
         this.scene.add(this.orbitObject);
 
         // Add Light

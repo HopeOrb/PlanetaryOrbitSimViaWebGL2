@@ -11,7 +11,7 @@ export class Star extends GameObject {
         super();
 
         this.light = new THREE.PointLight( 0xffffff, 25 );
-        this.light.decay = 3.0; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
+        this.light.decay = 0.5; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
 
         let textureLoader = new THREE.TextureLoader();
         this.lavaTexture = textureLoader.load( '/resources/textures/lava/lavatile.jpg' );
