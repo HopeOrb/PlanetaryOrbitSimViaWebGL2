@@ -230,42 +230,20 @@ export class GameManager {
     }
 
     gameLoop(timestamp) {
-        if (this.inSimulationMode) {
-            this.physicsManager.updateObjects();
-        }
-        if(!this.isGameover && this.inSimulationMode){
-            document.getElementById("txt").textContent="your current score is " + this.planetNum;
-            this.gameoverCheck();
-
-        }
-
         if (this.isGameover) {
             console.log("STOP");
             this.projectTitle.textContent = "GAME OVER YOUR SCORE IS  " + this.planetNum;
-
-
             this.inSimulationMode = false;
             this.isGameover = false;
             this.deleteScene();
         }
 
-        /*
-        { // Rotate the center cube
-            const centerData = this.objectDataMap.get(this.centerObject) || {
-                userPosition: {x: 0, y: 0, z: 0},
-                userRotation: {x: 0, y: 0}
-            };
-            const t = timestamp / (1000 * 3);
-
-            // Pozisyon ve rotasyonu uygula
-            this.centerObject.rotation.y = t + centerData.userRotation.y;
-            this.centerObject.rotation.x = centerData.userRotation.x;
+        if (this.inSimulationMode) {
+            this.physicsManager.updateObjects();
+            document.getElementById("txt").textContent="your current score is " + this.planetNum;
+            this.gameoverCheck();
         }
-        */
-        
-        // Reset camera
-        //this.camManager.camera.updateProjectionMatrix();
-        //this.camManager.orbitControls.update();
+
 
         // Move spotlight to camera's position and point it to the camera's target
         this.spotlight.position.copy( this.camManager.camera.position );
