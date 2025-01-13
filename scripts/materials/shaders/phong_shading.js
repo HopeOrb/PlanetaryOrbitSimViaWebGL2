@@ -5,7 +5,8 @@ export const phongVertex = `
 
 out mediump vec3 fN;
 out mediump vec3 fV;
-out mediump vec3 fL[NUM_POINT_LIGHTS];
+out mediump vec3 fLp[NUM_POINT_LIGHTS]; // Light vectors for point lights
+out mediump vec3 fLs[NUM_SPOT_LIGHTS];  // Light vectors for spotlights
 
 out vec2 vUv;
 
@@ -35,7 +36,11 @@ void main() {
     
     // Array of vectors from the point to the lights (also in eye coordinates)
     for (int i=0; i<NUM_POINT_LIGHTS; i++) {
-        fL[i] = pointLights[i].position - ((modelViewMatrix * vec4( position, 1.0 )).xyz);
+        fLp[i] = pointLights[i].position - ((modelViewMatrix * vec4( position, 1.0 )).xyz);
+    }
+
+    for (int i=0; i<NUM_SPOT_LIGHTS; i++) {
+        fLs[i] = spotLights[i].position - (modelViewMatrix * vec4( position, 1.0 )).xyz;
     }
     
     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
@@ -45,7 +50,8 @@ void main() {
 export const phongFragment = `
 in mediump vec3 fN;
 in mediump vec3 fV;
-in mediump vec3 fL[NUM_POINT_LIGHTS];
+in mediump vec3 fLp[NUM_POINT_LIGHTS];
+in mediump vec3 fLs[NUM_SPOT_LIGHTS];
 
 in vec2 vUv;
 
@@ -111,10 +117,10 @@ void main() {
         lightIntensity += ambient;
 
         for (int i=0; i<NUM_POINT_LIGHTS; i++) {
-            vec3 L = normalize( fL[i] );
+            vec3 L = normalize( fLp[i] );
             vec3 H = normalize( L+V );  // The half vector
 
-            float d = length( fL[i] );  // Distance between light and point
+            float d = length( fLp[i] );  // Distance between light and point
             float attenuation = 1.0 / (pointLights[i].decay * d * d);
 
             float Kd = max( dot( L, N ), 0.0 );
@@ -145,14 +151,27 @@ void main() {
         texColor = mix(nightTexColor, dayTexColor, dayNightSlider);
     }
 
-    vec3 spotlight;
+    vec3 spotlight = vec3( 0.0 );
 
+    // TODO: Still need to calculate the penumbra
     // Spotlight calculations
     for (int i=0; i<NUM_SPOT_LIGHTS; i++) {
-        
+        vec3 L = normalize( fLs[i] );
+        vec3 direction = normalize( spotLights[i].direction );
+
+        float d = length( fLs[i] );
+
+        float attenuation = 1.0 / (spotLights[i].decay * d * d);
+
+        float Kd = max( dot( L, direction ), 0.0 );
+
+        if ( Kd > spotLights[i].coneCos ) {
+            spotlight += Kd * spotLights[i].color * attenuation;
+        }
     }
 
+    lightIntensity += spotlight;
+
     gl_FragColor = vec4( lightIntensity, 1.0 ) * texColor;
-    //gl_FragColor = vec4( spotlight, 1.0 );
 }
 `;
