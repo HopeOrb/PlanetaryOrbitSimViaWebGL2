@@ -232,8 +232,10 @@ export class GameManager {
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
         }
-        if(!this.isGameover){
+        if(!this.isGameover && this.inSimulationMode){
+            document.getElementById("txt").textContent="your current score is " + this.planetNum;
             this.gameoverCheck();
+
         }
 
         if (this.isGameover) {
@@ -312,6 +314,7 @@ export class GameManager {
                     ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
                     (obj.position.z <= (this.centerObject.position.z + this.centerObject.sizeZ))  ) {
                     this.isGameover=true;
+                    this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
                 }
                 else if (
@@ -323,11 +326,18 @@ export class GameManager {
                 )
                 {
                     this.isGameover=true;
+                    this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
 
                 }
+                if(!this.isGameover){
+                    this.planetNum+=1;
+                }
             }
-        } )
+
+        }
+
+        )
     }
 
     deleteScene() {
@@ -776,7 +786,7 @@ export class GameManager {
 
         this.scene.add( planet );
 
-        this.planetNum=this.planetNum+1;
+        //this.planetNum=this.planetNum+1;
     }
 
     addLights() {
