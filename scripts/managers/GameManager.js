@@ -236,12 +236,12 @@ export class GameManager {
         this.scene.traverse( (obj) => {
             if (obj instanceof Planet && this.inSimulationMode) {
                 if (
-                    ((this.centerObject.position.x - this.centerObject.scale.x) <= obj.position.x) &&
-                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.scale.x)) &&
-                    ((this.centerObject.position.y - this.centerObject.scale.y) <= obj.position.y) &&
-                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.scale.y)) &&
-                        ((this.centerObject.position.z - this.centerObject.scale.z) <= obj.position.z ) &&
-                        (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z))  ) {
+                    ((this.centerObject.position.x - this.centerObject.sizeX) <= obj.position.x) &&
+                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.sizeX)) &&
+                    ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
+                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.sizeY)) &&
+                        ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
+                        (obj.position.z <= (this.centerObject.position.z + this.centerObject.sizeZ))  ) {
                     this.isGameover=true;
 
                 }
