@@ -864,7 +864,7 @@ export class GameManager {
 
         this.backgroundSound = new THREE.Audio(this.listener);
 
-        this.audioLoader.load('sounds/emotional-guitar-loop-v13-275455.ogg', (buffer) => {
+        this.audioLoader.load('sounds/Dont Bother Theyre Here.ogg', (buffer) => {
             this.backgroundSound.setBuffer(buffer);
             this.backgroundSound.setLoop(true);
             this.backgroundSound.setVolume(0.5);
