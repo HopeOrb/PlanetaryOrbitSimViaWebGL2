@@ -13,6 +13,8 @@ export class Planet extends GameObject {
     constructor(color, dayTexture, nightTexture = dayTexture) {
         super();
 
+        this.boundingBox = new THREE.Box3();
+
         this.dayTexture = dayTexture;
         this.nightTexture = nightTexture;
 
@@ -48,6 +50,8 @@ export class Planet extends GameObject {
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         this.material = new THREE.MeshPhongMaterial( {color: this.color} );
+
+        this.updateBoundingBox();
     }
 
     switchToPhong() {
@@ -59,6 +63,9 @@ export class Planet extends GameObject {
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         //this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
         this.material = new PlanetPhongMaterial( this.dayTexture, this.nightTexture );
+
+        this.updateBoundingBox();
+
     }
 
     switchToToon() {
@@ -74,6 +81,9 @@ export class Planet extends GameObject {
         this.attach( outline );
         outline.position.set( 0, 0, 0 );
         outline.scale.set( 1, 1, 1 );
+
+        this.updateBoundingBox();
+
     }
 
     // For some reason it doesn't work when we call it scale
@@ -85,6 +95,8 @@ export class Planet extends GameObject {
         this.sizeZ = z;
 
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
+        this.updateBoundingBox();
+
 
         // I guess we won't need this
         //if (this.isToon) this.children.at(2).material.uniforms.thickness = this.outlineThickness;
@@ -94,6 +106,14 @@ export class Planet extends GameObject {
         this.clear();
         this.isPhong = false;
         this.isToon = false;
+        this.boundingBox = new THREE.Box3();
+    }
+
+    updateBoundingBox() {
+        if (this.geometry) {
+            this.geometry.computeBoundingBox();
+            this.boundingBox.copy(this.geometry.boundingBox);
+        }
     }
 
     updateTrail( new_point ) {

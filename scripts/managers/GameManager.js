@@ -286,13 +286,7 @@ export class GameManager {
     gameoverCheck(){
         this.scene.traverse( (obj) => {
             if (obj instanceof Planet && this.inSimulationMode) {
-                if (
-                    ((this.centerObject.position.x - this.centerObject.sizeX) <= obj.position.x) &&
-                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.scale.x)) &&
-                    ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
-                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.scale.y)) &&
-                    ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
-                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z)) ) {
+                if (obj.boundingBox.intersectsBox(this.centerObject.boundingBox) ) {
                     console.log("in sun");
                     this.isGameover=true;
                     this.inSimulationMode=false;
@@ -729,8 +723,10 @@ export class GameManager {
         this.centerObject = new Star();
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
-
+        const helper = new THREE.Box3Helper(this.centerObject.boundingBox, 0xff0000); // Kırmızı bir çerçeve
         this.scene.add(this.centerObject);
+        this.scene.add(helper);
+
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
         let t = 0;
@@ -757,12 +753,13 @@ export class GameManager {
         // TODO: Give random textures each time
         let planet;
         let texture = this.textures[Math.floor(Math.random() * this.textures.length)];
-        console.log(texture);
+
         if (texture === (this.earthNightTexture || this.earthDayTexture)){
             planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
         } else {
             planet = new Planet(0xffffff, texture);
         }
+
 
         planet.position.copy( position );
 
@@ -770,6 +767,9 @@ export class GameManager {
         if (this.shaderManager.inToonShading) planet.switchToToon();
 
         this.scene.add( planet );
+        let helper1;
+        helper1 = new THREE.Box3Helper(planet.boundingBox, 0xff0000); // Kırmızı bir çerçeve
+        this.scene.add(helper1);
 
         //this.planetNum=this.planetNum+1;
     }

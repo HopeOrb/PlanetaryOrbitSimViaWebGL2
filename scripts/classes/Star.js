@@ -10,6 +10,8 @@ export class Star extends GameObject {
     constructor() {
         super();
 
+        this.boundingBox = new THREE.Box3();
+
         this.light = new THREE.PointLight( 0xffffff, 25 );
         this.light.decay = 3.0; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
 
@@ -31,6 +33,9 @@ export class Star extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.material = new StarPhongMaterial( this.lavaTexture, this.cloudTexture );
+
+        this.updateBoundingBox(); // Update bounding box
+
     }
 
     switchToToon() {
@@ -68,7 +73,10 @@ export class Star extends GameObject {
         middleSphere.renderOrder = 1;
         this.renderOrder = 2;
 
+        this.updateBoundingBox(); // Update bounding box
+
     }
+
 
     reset() {
         this.clear();
@@ -78,6 +86,16 @@ export class Star extends GameObject {
 
         this.geometry = null;
         this.material = null;
+
+        this.boundingBox = new THREE.Box3();
+    }
+
+    updateBoundingBox() {
+        if (this.geometry) {
+            // Create and attach the bounding box helper
+            this.geometry.computeBoundingBox();
+            this.boundingBox.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
+        }
     }
 
 }
