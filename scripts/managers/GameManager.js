@@ -221,6 +221,7 @@ export class GameManager {
 
         const updateLoop = (timestamp) => {
             this.gameLoop(timestamp); // Call the actual animation frame
+            this.stats.dom.style.display = this.debugManager.isDebugMode ? 'block' : 'none';
             this.stats.update(); // Needs to be updated in order to show the FPS count
             requestAnimationFrame(updateLoop); // Request to be called again
         }
