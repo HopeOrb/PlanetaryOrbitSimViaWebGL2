@@ -233,31 +233,11 @@ export class GameManager {
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
         }
+        if(!this.isGameover && this.inSimulationMode){
+            document.getElementById("txt").textContent="your current score is " + this.planetNum;
+            this.gameoverCheck();
 
-        this.scene.traverse( (obj) => {
-            if (obj instanceof Planet && this.inSimulationMode) {
-                if (
-                    ((this.centerObject.position.x - this.centerObject.scale.x) <= obj.position.x) &&
-                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.scale.x)) &&
-                    ((this.centerObject.position.y - this.centerObject.scale.y) <= obj.position.y) &&
-                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.scale.y)) &&
-                        ((this.centerObject.position.z - this.centerObject.scale.z) <= obj.position.z ) &&
-                        (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z))  ) {
-                    this.isGameover=true;
-
-                }
-                else if (
-                    Math.sqrt(
-                    (obj.position.x - this.centerObject.position.x)**2
-                    + (obj.position.y - this.centerObject.position.y)**2
-                    + (obj.position.z - this.centerObject.position.z)**2 )
-                    >= 50
-                )
-                {
-                    this.isGameover=true;
-                }
-            }
-        } )
+        }
 
         if (this.isGameover) {
             console.log("STOP");
@@ -322,6 +302,43 @@ export class GameManager {
 
         this.finalComposer.render();
 
+    }
+
+    gameoverCheck(){
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet && this.inSimulationMode) {
+                if (
+                    ((this.centerObject.position.x - this.centerObject.sizeX) <= obj.position.x) &&
+                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.sizeX)) &&
+                    ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
+                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.sizeY)) &&
+                    ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
+                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.sizeZ))  ) {
+                    this.isGameover=true;
+                    this.inSimulationMode=false;
+                    this.mainMenu.style.display='block';
+                }
+                else if (
+                    Math.sqrt(
+                        (obj.position.x - this.centerObject.position.x)**2
+                        + (obj.position.y - this.centerObject.position.y)**2
+                        + (obj.position.z - this.centerObject.position.z)**2 )
+                    >= 50
+                )
+                {
+                    this.isGameover=true;
+                    this.inSimulationMode=false;
+                    this.mainMenu.style.display='block';
+
+                }
+                if(!this.isGameover){
+                    this.planetNum+=1;
+                }
+            }
+
+        }
+
+        )
     }
 
     deleteScene() {
@@ -484,6 +501,7 @@ export class GameManager {
 
         playButton.addEventListener('click', () => {
             console.log("PLAYBUTTON");
+            this.planetNum=0;
             currents.style.display = 'block';
             this.mainMenu.style.display = 'none';  // Menü gizlendi
         });
@@ -769,7 +787,7 @@ export class GameManager {
 
         this.scene.add( planet );
 
-        this.planetNum=this.planetNum+1;
+        //this.planetNum=this.planetNum+1;
     }
 
     addLights() {
@@ -847,7 +865,7 @@ export class GameManager {
 
         this.backgroundSound = new THREE.Audio(this.listener);
 
-        this.audioLoader.load('sounds/emotional-guitar-loop-v13-275455.ogg', (buffer) => {
+        this.audioLoader.load('sounds/Dont Bother Theyre Here.ogg', (buffer) => {
             this.backgroundSound.setBuffer(buffer);
             this.backgroundSound.setLoop(true);
             this.backgroundSound.setVolume(0.5);
