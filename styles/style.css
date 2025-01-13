@@ -12,6 +12,15 @@ html {
 }
 
 
+#currentScore {
+  position: absolute;
+  background-color: aquamarine;
+
+
+  display: flex;
+
+}
+
 #mainMenu {
   position: absolute;
   text-align: center;

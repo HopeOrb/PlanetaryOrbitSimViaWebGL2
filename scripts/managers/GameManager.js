@@ -38,6 +38,7 @@ export class GameManager {
     stats;
     objects;
     mainMenu;
+    projectTitle;
     wrapper;
     musicButton;
     helpMenu;
@@ -105,6 +106,10 @@ export class GameManager {
     inEditMode;
     inSimulationMode;
     inPlacementMode;
+    isGameover;
+
+    score;
+    planetNum;
 
     grid;
 
@@ -147,6 +152,7 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
+        this.planetNum=0;
         this.audioStarted = null;
         //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
     }
@@ -180,6 +186,8 @@ export class GameManager {
 
         // Initialize the main menu
         this.initMainMenu();
+
+        this.initGameover();
 
         this.initWrapper();
 
@@ -223,6 +231,41 @@ export class GameManager {
     gameLoop(timestamp) {
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
+        }
+
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet && this.inSimulationMode) {
+                if (
+                    ((this.centerObject.position.x - this.centerObject.scale.x) <= obj.position.x) &&
+                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.scale.x)) &&
+                    ((this.centerObject.position.y - this.centerObject.scale.y) <= obj.position.y) &&
+                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.scale.y)) &&
+                        ((this.centerObject.position.z - this.centerObject.scale.z) <= obj.position.z ) &&
+                        (obj.position.z <= (this.centerObject.position.z + this.centerObject.scale.z))  ) {
+                    this.isGameover=true;
+
+                }
+                else if (
+                    Math.sqrt(
+                    (obj.position.x - this.centerObject.position.x)**2
+                    + (obj.position.y - this.centerObject.position.y)**2
+                    + (obj.position.z - this.centerObject.position.z)**2 )
+                    >= 50
+                )
+                {
+                    this.isGameover=true;
+                }
+            }
+        } )
+
+        if (this.isGameover) {
+            console.log("STOP");
+            this.projectTitle.textContent = "GAME OVER YOUR SCORE IS  " + this.planetNum;
+
+
+            this.inSimulationMode = false;
+            this.isGameover = false;
+            this.deleteScene();
         }
 
         /*
@@ -280,6 +323,21 @@ export class GameManager {
 
     }
 
+    deleteScene() {
+        this.mainMenu.style='block';
+        let Arr = [];
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet){
+                Arr.push(obj);
+                Arr.push(obj.trail);
+            }
+        })
+        for (let i = 0; i < Arr.length; i++){
+            this.scene.remove(Arr[i]);
+
+        }
+    }
+
     initRenderer() {
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas});
         // Set the size of the canvas for best visual experience
@@ -317,10 +375,15 @@ export class GameManager {
 
     initMainMenu() {
         this.mainMenu = document.getElementById("mainMenu");
+        this.projectTitle = document.getElementById("projectTitle");
     }
 
     initWrapper() {
         this.wrapper = document.getElementById("wrapper");
+    }
+
+    initGameover() {
+        this.isGameover=false;
     }
 
     initHelpMenu() {
@@ -411,6 +474,7 @@ export class GameManager {
         const button = document.getElementById('myButton');  // Butonun seçilmesi
         const backTo = document.getElementById('backTo');
         const playButton = document.getElementById('newButton');
+        const currents = document.getElementById("currentScore");
         button.addEventListener('click', () => {
             this.mainMenu.style.display = 'none';  // Menü gizlendi
             this.wrapper.style.display = 'block';
@@ -418,6 +482,8 @@ export class GameManager {
         });
 
         playButton.addEventListener('click', () => {
+            console.log("PLAYBUTTON");
+            currents.style.display = 'block';
             this.mainMenu.style.display = 'none';  // Menü gizlendi
         });
 
@@ -701,6 +767,8 @@ export class GameManager {
         if (this.shaderManager.inToonShading) planet.switchToToon();
 
         this.scene.add( planet );
+
+        this.planetNum=this.planetNum+1;
     }
 
     addLights() {
@@ -910,6 +978,7 @@ export class GameManager {
     // Disable trails for all planets
     trailsOff() {
         this.scene.traverse( (obj) => {
+            console.log(obj);
             if (obj instanceof Planet) {
                 this.scene.remove( obj.trail );
             }
