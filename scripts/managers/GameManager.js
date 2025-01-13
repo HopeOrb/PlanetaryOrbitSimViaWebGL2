@@ -316,6 +316,8 @@ export class GameManager {
                     this.isGameover=true;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
+                    return;
+
                 }
                 else if (
                     Math.sqrt(
@@ -323,8 +325,7 @@ export class GameManager {
                         + (obj.position.y - this.centerObject.position.y)**2
                         + (obj.position.z - this.centerObject.position.z)**2 )
                     >= 50
-                )
-                {
+                ){
                     this.isGameover=true;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
@@ -502,6 +503,7 @@ export class GameManager {
             console.log("PLAYBUTTON");
             this.planetNum=0;
             currents.style.display = 'block';
+            this.inSimulationMode=true;
             this.mainMenu.style.display = 'none';  // Menü gizlendi
         });
 
