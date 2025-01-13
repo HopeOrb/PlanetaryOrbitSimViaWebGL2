@@ -232,31 +232,9 @@ export class GameManager {
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
         }
-
-        this.scene.traverse( (obj) => {
-            if (obj instanceof Planet && this.inSimulationMode) {
-                if (
-                    ((this.centerObject.position.x - this.centerObject.sizeX) <= obj.position.x) &&
-                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.sizeX)) &&
-                    ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
-                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.sizeY)) &&
-                        ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
-                        (obj.position.z <= (this.centerObject.position.z + this.centerObject.sizeZ))  ) {
-                    this.isGameover=true;
-
-                }
-                else if (
-                    Math.sqrt(
-                    (obj.position.x - this.centerObject.position.x)**2
-                    + (obj.position.y - this.centerObject.position.y)**2
-                    + (obj.position.z - this.centerObject.position.z)**2 )
-                    >= 50
-                )
-                {
-                    this.isGameover=true;
-                }
-            }
-        } )
+        if(!this.isGameover){
+            this.gameoverCheck();
+        }
 
         if (this.isGameover) {
             console.log("STOP");
@@ -321,6 +299,35 @@ export class GameManager {
 
         this.finalComposer.render();
 
+    }
+
+    gameoverCheck(){
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet && this.inSimulationMode) {
+                if (
+                    ((this.centerObject.position.x - this.centerObject.sizeX) <= obj.position.x) &&
+                    (obj.position.x <= (this.centerObject.position.x + this.centerObject.sizeX)) &&
+                    ((this.centerObject.position.y - this.centerObject.sizeY) <= obj.position.y) &&
+                    (obj.position.y <= (this.centerObject.position.y + this.centerObject.sizeY)) &&
+                    ((this.centerObject.position.z - this.centerObject.sizeZ) <= obj.position.z ) &&
+                    (obj.position.z <= (this.centerObject.position.z + this.centerObject.sizeZ))  ) {
+                    this.isGameover=true;
+                    this.mainMenu.style.display='block';
+                }
+                else if (
+                    Math.sqrt(
+                        (obj.position.x - this.centerObject.position.x)**2
+                        + (obj.position.y - this.centerObject.position.y)**2
+                        + (obj.position.z - this.centerObject.position.z)**2 )
+                    >= 50
+                )
+                {
+                    this.isGameover=true;
+                    this.mainMenu.style.display='block';
+
+                }
+            }
+        } )
     }
 
     deleteScene() {
@@ -483,6 +490,7 @@ export class GameManager {
 
         playButton.addEventListener('click', () => {
             console.log("PLAYBUTTON");
+            this.planetNum=0;
             currents.style.display = 'block';
             this.mainMenu.style.display = 'none';  // Menü gizlendi
         });
