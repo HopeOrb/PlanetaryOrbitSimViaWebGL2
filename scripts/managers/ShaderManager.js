@@ -47,7 +47,7 @@ export class ShaderManager{
                 obj.switchToToon();
             }
         } );
-        this.backgroundColor = new THREE.Color(0x000000);
+        this.backgroundColor = new THREE.Color(0x040208);
         this.scene.background = this.backgroundColor;
 
         this.inPhongShading = false;

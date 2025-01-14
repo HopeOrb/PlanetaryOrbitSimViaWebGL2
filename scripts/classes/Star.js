@@ -1,16 +1,19 @@
-import * as THREE from './../../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import { GameObject } from "./GameObject.js";
 import { StarPhongMaterial } from '../materials/StarPhongMaterial.js';
+import { StarToonMaterial } from '../materials/StarToonMaterial.js';
 
 // TODO: Will make the stars bigger
 export class Star extends GameObject {
+
+    color;
     
     constructor() {
         super();
 
-        this.light = new THREE.PointLight( 0xffffff, 25 );
+        this.light = new THREE.PointLight( 0xffffff, 50 );
         this.light.decay = 0.5; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
 
         let textureLoader = new THREE.TextureLoader();
@@ -36,37 +39,34 @@ export class Star extends GameObject {
     switchToToon() {
         this.reset();
 
-        this.geometry = new THREE.SphereGeometry( 1.40 );
-        this.material = new THREE.MeshBasicMaterial( {color: 0xfc2e00, transparent: true, opacity: 0.8} );
+        this.geometry = new THREE.SphereGeometry();
+        this.material = new StarToonMaterial( new THREE.Color( 0xfcd900 ), 1 );
 
         const sphere1 = new THREE.SphereGeometry( 1.25 );
-        const material1 = new THREE.MeshBasicMaterial( {color: 0xfc9100, transparent: true, opacity: 0.9} );
+        const material1 = new StarToonMaterial( new THREE.Color( 0xfc9100 ), 0.9 );
         material1.side = THREE.BackSide;
-        const middleSphere = new THREE.Mesh( sphere1, material1 );
-        
-        this.attach( middleSphere );
-        
-        middleSphere.position.set( 0, 0, 0 );
-        middleSphere.scale.set( 1, 1, 1 );
+        const middleLayer = new THREE.Mesh( sphere1, material1 );
 
-        const sphere2 = new THREE.SphereGeometry( 1.00 );
-        const material2 = new THREE.MeshBasicMaterial( {color: 0xfcd900} );
-        const innerSphere = new THREE.Mesh( sphere2, material2 );
-        
-        this.attach( innerSphere );
+        this.attach( middleLayer );
 
-        innerSphere.position.set( 0, 0, 0 );
-        innerSphere.scale.set( 1, 1, 1 );
+        middleLayer.position.set( 0, 0, 0 );
+        middleLayer.scale.set( 1, 1, 1 );
 
-        const outline = new ShaderToonOutline( innerSphere );
+        const sphere2 = new THREE.SphereGeometry( 1.40 );
+        const material2 = new StarToonMaterial( new THREE.Color( 0xfc2e00 ), 0.8 );
+        const outerLayer = new THREE.Mesh( sphere2, material2 );
+
+        this.attach( outerLayer );
+
+        outerLayer.position.set( 0, 0, 0 );
+        outerLayer.scale.set( 1, 1, 1 );
+        outerLayer.layers.toggle( 1 );
+
+        const outline = new ShaderToonOutline( this );
         this.attach( outline );
 
         outline.position.set( 0, 0, 0 );
         outline.scale.set( 1, 1, 1 );
-        
-        // This is needed as the two outer layers are both semi-transparent and the renderer renders them in the wrong order
-        middleSphere.renderOrder = 1;
-        this.renderOrder = 2;
 
     }
 

@@ -1,4 +1,4 @@
-import * as THREE from './../../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import { GameObject } from "./GameObject.js";
@@ -68,7 +68,7 @@ export class Planet extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        this.material = new PlanetToonMaterial( this.dayTexture, this.nightTexture );
+        this.material = new PlanetToonMaterial( this.dayTexture );
 
         const outline = new ShaderToonOutline( this, 0, this.outlineThickness );
         this.attach( outline );

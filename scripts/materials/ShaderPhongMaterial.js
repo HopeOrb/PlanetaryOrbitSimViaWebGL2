@@ -1,4 +1,4 @@
-import * as THREE from "./../../node_modules/three/build/three.module";
+import * as THREE from "three";
 
 import { phongVertex } from "./shaders/phong_shading";
 import { phongFragment } from "./shaders/phong_shading";
