@@ -25,6 +25,7 @@ import { ShaderManager } from './ShaderManager.js';
 import { PhysicsManager } from './PhysicsManager.js';
 import {DebugManager} from "./DebugManager.js";
 import {CreditsManager} from "./CreditsManager.js";
+import { Asteroid } from '../classes/Asteroid.js';
 
 export class GameManager {
     // fields
@@ -663,15 +664,19 @@ export class GameManager {
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
         this.scene.add(this.centerObject);
         // Init planets
-        this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
+        // this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
+        this.orbitObject = new Asteroid(new THREE.Color(0x0077cc));
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
-        this.orbitObject.position.set( 10, 0, 10 );
+        this.orbitObject.position.set( -2, 2, -2 );
+        
+        
         this.scene.add(this.orbitObject);
-
+        
+        
         // Add Light
         this.addLights();
-
+        
         // Add Background Objects
         this.addBackgroundObjects();
 
@@ -706,12 +711,12 @@ export class GameManager {
     addLights() {
         this.alight = new THREE.AmbientLight(0x777777, 0.25);
         this.scene.add(this.alight);
-
+        
         this.spotlight = new THREE.SpotLight( 0xffffff, 0 );
         this.spotlight.angle = Math.PI / 18;
-
+        
         this.spotlightIntensity = 10;
-
+        
         // We will start with the spotlight off
         this.scene.add( this.spotlight );
         this.scene.add( this.spotlight.target );
