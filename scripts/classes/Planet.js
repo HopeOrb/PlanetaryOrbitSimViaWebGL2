@@ -33,8 +33,8 @@ export class Planet extends GameObject {
 
         this.scaling( this.planetProps.scale, this.planetProps.scale, this.planetProps.scale );
 
-        this.mass = this.planetProps.mass;   // TODO: We'll be able to change this in application
-        this.velocity = this.planetProps.velocity;  // TODO: We'll be able to change this in application
+        this.mass = this.planetProps.mass;
+        this.velocity = this.planetProps.velocity;
 
         this.trailPoints = [];
         this.trail = new THREE.Line(

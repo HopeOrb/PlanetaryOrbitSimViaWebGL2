@@ -89,7 +89,7 @@ html {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  z-index: 100; /
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,7 +108,7 @@ html {
   background-color: #ffc909;
   border: none;
   cursor: pointer;
-  z-index: 100; /
+  z-index: 100;
 display: flex;
   align-items: center;
   justify-content: center;

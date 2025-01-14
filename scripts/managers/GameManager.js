@@ -230,7 +230,6 @@ export class GameManager {
 
         this.initUserInterfaceManager();
 
-        this.initRenderManager();
     }
 
     // Initialize the Game Loop
@@ -509,6 +508,7 @@ export class GameManager {
     addMainMenuEventListeners() {
         const button = document.getElementById('myButton');  // Butonun seçilmesi
         const backTo = document.getElementById('backTo');
+        backTo.style.display = 'none';
         const playButton = document.getElementById('newButton');
         const currents = document.getElementById("currentScore");
         button.addEventListener('click', () => {
@@ -772,10 +772,11 @@ export class GameManager {
 
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
+        this.orbitObject.velocity = new THREE.Vector3( 1.0, 1.0, -5.0 );
         //this.orbitObject = new Asteroid(new THREE.Color(0x0077cc));
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
-        this.orbitObject.position.set( 20, 0, 10 );
+        this.orbitObject.position.set( 10, 0, 10 );
         this.scene.add(this.orbitObject);
         
         
@@ -799,9 +800,14 @@ export class GameManager {
         let planet;
         let texture = this.textures[Math.floor(Math.random() * this.textures.length)];
 
-        if (texture === (this.earthNightTexture || this.earthDayTexture)){
+        if ( texture.source == this.earthNightTexture.source || texture.source == this.earthDayTexture.source ) {
             planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
-        } else {
+        } 
+        else if ( texture.source == this.saturnTexture.source || texture.source == this.uranusTexture.source ) {
+            planet = new DiskPlanet( new THREE.Color( 0xffffff ), texture );
+        }
+
+        else {
             planet = new Planet(0xffffff, texture);
         }
 
@@ -975,9 +981,9 @@ export class GameManager {
         this.grid = new THREE.GridHelper( 300, 150, 0x888888, 0x444444 );
     }
 
-    // Our scene will start in edit mode
+    // Our scene will start in simulation mode
     initMode() {
-        this.editMode();
+        this.simulationMode();
     }
 
     initWireframePlanet() {

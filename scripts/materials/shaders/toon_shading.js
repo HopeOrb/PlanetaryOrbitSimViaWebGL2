@@ -1,5 +1,3 @@
-// TODO: Spotlight, multiple point lights, star
-
 export const toonVertex = `
 // All uniforms and attributes not explicitly declared here are handled by three.js (See WebGLProgram in three docs)
 

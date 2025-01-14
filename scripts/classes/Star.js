@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import { GameObject } from "./GameObject.js";
 import { StarPhongMaterial } from '../materials/StarPhongMaterial.js';
+import { StarToonMaterial } from '../materials/StarToonMaterial.js';
 
 // TODO: Will make the stars bigger
 export class Star extends GameObject {
@@ -24,8 +25,8 @@ export class Star extends GameObject {
         this.cloudTexture.wrapS = this.cloudTexture.wrapT = THREE.RepeatWrapping;
         this.lavaTexture.wrapS = this.lavaTexture.wrapT = THREE.RepeatWrapping;
 
-        this.mass = 360000; // TODO: We'll be able to change this in application
-        this.velocity = new THREE.Vector3( 0, 0, 0 );   // TODO: We'll be able to change this in application 
+        this.mass = 360000;
+        this.velocity = new THREE.Vector3( 0, 0, 0 );
 
         this.switchToPhong();
     }
@@ -87,7 +88,7 @@ export class Star extends GameObject {
 
     updateBoundingBox() {
 
-        this.boundingBox.setFromCenterAndSize(this.position ,new Vector3(this.sizeX, this.sizeY, this.sizeZ) );
+        this.boundingBox.setFromCenterAndSize(this.position ,new THREE.Vector3(this.sizeX, this.sizeY, this.sizeZ) );
         if (this.geometry) {
             this.geometry.computeBoundingBox();
             this.boundingBox.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);

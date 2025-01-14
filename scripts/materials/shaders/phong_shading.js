@@ -1,5 +1,3 @@
-// TODO: Spotlight
-
 export const phongVertex = `
 // All uniforms and attributes not explicitly declared here are handled by three.js (See WebGLProgram in three docs)
 
