@@ -1,4 +1,4 @@
-import * as THREE from "./../../node_modules/three/build/three.module";
+import * as THREE from "three";
 
 import { phongVertex } from "./shaders/phong_shading";
 import { phongFragment } from "./shaders/phong_shading";
@@ -20,6 +20,8 @@ export class ShaderPhongMaterial extends THREE.ShaderMaterial {
                 'texture1': null,
                 'texture2': null,
                 'isStar': {value: false},
+                'isPlanet': {value: false},
+                'isDisk': {value: false},
                 'time': {value: 0.0},
                 'uvScale': {value: new THREE.Vector2( 1.0, 1.0 )}
             }

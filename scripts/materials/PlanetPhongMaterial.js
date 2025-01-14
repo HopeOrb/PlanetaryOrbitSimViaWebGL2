@@ -6,7 +6,7 @@ export class PlanetPhongMaterial extends ShaderPhongMaterial {
 
         this.uniforms.texture1.value = dayTexture;
         this.uniforms.texture2.value = nightTexture;
-        this.uniforms.isStar.value = false;
+        this.uniforms.isPlanet.value = true;
     }
 
 }

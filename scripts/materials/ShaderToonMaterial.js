@@ -1,4 +1,4 @@
-import * as THREE from "./../../node_modules/three/build/three.module";
+import * as THREE from "three";
 
 import { toonVertex } from "./shaders/toon_shading";
 import { toonFragment } from "./shaders/toon_shading";
@@ -6,7 +6,6 @@ import { toonFragment } from "./shaders/toon_shading";
 import { outlineVertex } from "./shaders/toon_shading_outline";
 import { outlineFragment } from "./shaders/toon_shading_outline";
 
-// TODO: MASSIVE!!!!!! FPS drop when in toon shading, learn why
 export class ShaderToonMaterial extends THREE.ShaderMaterial {
 
     constructor() {
@@ -22,7 +21,10 @@ export class ShaderToonMaterial extends THREE.ShaderMaterial {
             {
                 'shininess': {value: 10.0},
                 'texture1': {value: null},
-                'texture2': {value: null}
+                'isStar': {value: false},
+                'isDisk': {value: false},
+                'color': {value: new THREE.Color( 0x000000 )},
+                'opacity': {value: 0.0}            
             }
         ]);
     }

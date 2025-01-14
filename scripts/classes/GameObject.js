@@ -1,4 +1,4 @@
-import * as THREE from './../../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 
@@ -14,8 +14,8 @@ export class GameObject extends THREE.Mesh {
 
     constructor() {
         super();
-        this.light = new THREE.PointLight( 0xffffff, 25 );
-        this.switchToPhong();
+        //this.light = new THREE.PointLight( 0xffffff, 25 );
+        //this.switchToPhong();
 
         this.layers.toggle(2);  // Raycaster layer
         this.velocity = new THREE.Vector3();

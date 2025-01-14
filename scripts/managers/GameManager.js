@@ -1,5 +1,5 @@
 //import './../style/style.css'; # Done from the html page. I remember that css shouldn't be imported from script anyway.
-import * as THREE from './../../node_modules/three/build/three.module.js';
+import * as THREE from 'three';
 // importing orbital controls for the camera
 import {GLTFLoader} from 'three/addons';
 import {
@@ -14,8 +14,6 @@ import {
 } from "three/addons";
 import Stats from './../../node_modules/three/examples/jsm/libs/stats.module.js';
 
-import {setupGUI} from './../gui.js';
-
 import {Star} from './../classes/Star.js';
 import {Planet} from './../classes/Planet.js';
 import {selectiveFragment, selectiveVertex} from './../post_processing/selective_bloom.js';
@@ -26,6 +24,8 @@ import { PhysicsManager } from './PhysicsManager.js';
 import {DebugManager} from "./DebugManager.js";
 import {CreditsManager} from "./CreditsManager.js";
 import { Asteroid } from '../classes/Asteroid.js';
+import { UserInterfaceManager } from './UserInterfaceManager.js';
+import { DiskPlanet } from '../classes/DiskPlanet.js';
 
 export class GameManager {
     // fields
@@ -207,6 +207,10 @@ export class GameManager {
         this.initShaderManager();
 
         this.initPhysicsManager();
+
+        this.initUserInterfaceManager();
+
+        this.initRenderManager();
     }
 
     // Initialize the Game Loop
@@ -226,34 +230,14 @@ export class GameManager {
             this.physicsManager.updateObjects();
         }
 
-        /*
-        { // Rotate the center cube
-            const centerData = this.objectDataMap.get(this.centerObject) || {
-                userPosition: {x: 0, y: 0, z: 0},
-                userRotation: {x: 0, y: 0}
-            };
-            const t = timestamp / (1000 * 3);
-
-            // Pozisyon ve rotasyonu uygula
-            this.centerObject.rotation.y = t + centerData.userRotation.y;
-            this.centerObject.rotation.x = centerData.userRotation.x;
-        }
-        */
-        
-        // Reset camera
-        //this.camManager.camera.updateProjectionMatrix();
-        //this.camManager.orbitControls.update();
-
         // Move spotlight to camera's position and point it to the camera's target
         this.spotlight.position.copy( this.camManager.camera.position );
         this.spotlight.target.position.copy( this.camManager.orbitControls.target );
 
-        //userPosition = { x: 0, y: 0, z: 0 };
-        if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
-        if (this.inToonShading) this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
+        this.shaderManager.update( this.centerObject, timestamp );
 
         this.scene.remove(this.transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
-        //this.scene.traverse(this.nonBloomed);	// Darken the objects which are not bloomed
+    
         this.scene.traverse((child) => {
             // Arrow function ensures `this` refers to the class instance
             this.nonBloomed(child);
@@ -264,7 +248,6 @@ export class GameManager {
 
         this.mixPass.material.uniforms.bloomTexture.value = this.bloomComposer.readBuffer.texture;	// Pass the output of first pass to the final pass
 
-        //this.scene.traverse(this.restoreMaterial);	// Restore the darkened objects
         this.scene.traverse((child) => {
             // Arrow function ensures `this` refers to the class instance
             this.restoreMaterial(child);
@@ -474,7 +457,7 @@ export class GameManager {
             }
 
             this.raycaster.setFromCamera(this.mouse, this.camManager.camera);
-            
+                
             const intersects = this.raycaster.intersectObjects(this.scene.children, true);
             if (intersects.length > 0) {
                 this.selectedObject = intersects[0].object; // Yeni objeyi seç
@@ -502,7 +485,7 @@ export class GameManager {
                     this.userPosition = data.userPosition;
                     this.userRotation = data.userRotation;
 
-                    setupGUI(this.selectedObject);
+                    this.uiManager.addObjectInterface(this.selectedObject);
                 }
 
                 this.previousSelectedObject = this.selectedObject; // Şu anki objeyi önceki objeye aktar
@@ -520,7 +503,8 @@ export class GameManager {
                 this.scene.remove(this.transformControls.getHelper());
 
                 //updateAxisHelper(null);
-                setupGUI(this.selectedObject);
+                //setupGUI(this.selectedObject);
+                this.uiManager.removeObjectInterface();
             }
         });
 
@@ -668,9 +652,7 @@ export class GameManager {
         this.orbitObject = new Asteroid(new THREE.Color(0x0077cc));
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
-        this.orbitObject.position.set( -2, 2, -2 );
-        
-        
+        this.orbitObject.position.set( 20, 0, 10 );
         this.scene.add(this.orbitObject);
         
         
@@ -709,7 +691,7 @@ export class GameManager {
     }
 
     addLights() {
-        this.alight = new THREE.AmbientLight(0x777777, 0.25);
+        this.alight = new THREE.AmbientLight(0x777777, 3);
         this.scene.add(this.alight);
         
         this.spotlight = new THREE.SpotLight( 0xffffff, 0 );
@@ -861,7 +843,7 @@ export class GameManager {
     }
 
     initGrid() {
-        this.grid = new THREE.GridHelper( 100, 50, 0x888888, 0x444444 );
+        this.grid = new THREE.GridHelper( 300, 150, 0x888888, 0x444444 );
     }
 
     // Our scene will start in edit mode
@@ -887,12 +869,13 @@ export class GameManager {
 
     initShaderManager() {
         this.shaderManager = new ShaderManager( this.scene );
+        this.shaderManager.switchToPhong();
     }
 
     initPhysicsManager() {
         this.physicsManager = new PhysicsManager( this.scene );
     }
-    
+        
     initDebugManager() {
         this.debugManager = new DebugManager(this.renderer, this.scene);
         this.debugManager.initRaycaster(this.raycaster);
@@ -902,7 +885,7 @@ export class GameManager {
         this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager);
         this.creditsManager.init();
     }
-    
+        
     // Enable trails for all planets
     trailsOn() {
         this.scene.traverse( (obj) => {
@@ -933,5 +916,16 @@ export class GameManager {
                     break;
             }
         } )
+    }
+
+    initUserInterfaceManager() {
+        this.uiManager = new UserInterfaceManager();
+
+        this.uiManager.initSpotlightInterface( this.spotlight );
+        this.uiManager.initTrailInterface( this.scene );
+    }
+
+    initRenderManager() {
+
     }
 }
