@@ -35,7 +35,7 @@ export class Star extends GameObject {
         this.geometry = new THREE.SphereGeometry();
         this.material = new StarPhongMaterial( this.lavaTexture, this.cloudTexture );
 
-        this.updateBoundingBox(); // Update bounding box
+        //this.updateBoundingBox(); // Update bounding box
 
     }
 
@@ -74,7 +74,7 @@ export class Star extends GameObject {
         middleSphere.renderOrder = 1;
         this.renderOrder = 2;
 
-        this.updateBoundingBox(); // Update bounding box
+        //this.updateBoundingBox(); // Update bounding box
 
     }
 

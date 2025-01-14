@@ -251,7 +251,6 @@ export class GameManager {
         } )
 
 
-
         // Move spotlight to camera's position and point it to the camera's target
         this.spotlight.position.copy( this.camManager.camera.position );
         this.spotlight.target.position.copy( this.camManager.orbitControls.target );

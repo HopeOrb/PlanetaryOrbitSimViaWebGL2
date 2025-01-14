@@ -52,7 +52,7 @@ export class Planet extends GameObject {
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         this.material = new THREE.MeshPhongMaterial( {color: this.color} );
 
-        this.updateBoundingBox();
+        //this.updateBoundingBox();
     }
 
     switchToPhong() {
@@ -65,7 +65,7 @@ export class Planet extends GameObject {
         //this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
         this.material = new PlanetPhongMaterial( this.dayTexture, this.nightTexture );
 
-        this.updateBoundingBox();
+        //this.updateBoundingBox();
 
     }
 
@@ -83,7 +83,7 @@ export class Planet extends GameObject {
         outline.position.set( 0, 0, 0 );
         outline.scale.set( 1, 1, 1 );
 
-        this.updateBoundingBox();
+        //this.updateBoundingBox();
 
     }
 
