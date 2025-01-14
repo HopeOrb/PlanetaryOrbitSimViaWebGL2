@@ -22,6 +22,7 @@ export class ShaderToonMaterial extends THREE.ShaderMaterial {
                 'shininess': {value: 10.0},
                 'texture1': {value: null},
                 'isStar': {value: false},
+                'isDisk': {value: false},
                 'color': {value: new THREE.Color( 0x000000 )},
                 'opacity': {value: 0.0}            
             }

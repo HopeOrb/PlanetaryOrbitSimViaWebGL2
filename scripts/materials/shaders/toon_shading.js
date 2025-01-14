@@ -56,6 +56,8 @@ uniform float shininess;
 uniform sampler2D texture1;
 
 uniform bool isStar;
+uniform bool isDisk;
+
 uniform vec3 color;
 uniform float opacity;
 
@@ -81,6 +83,14 @@ void main() {
     if (isStar) {
         gl_FragColor = vec4( color, opacity );
     }
+
+    else if (isDisk) {
+        vec2 newUv = vec2( vUv.y, vUv.x );
+        vec4 texture = texture2D( texture1, newUv );
+        
+        gl_FragColor = texture;
+    }
+
     else {
         vec3 N = normalize(fN);
 

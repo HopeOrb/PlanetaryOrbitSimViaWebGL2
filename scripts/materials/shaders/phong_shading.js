@@ -145,7 +145,7 @@ void main() {
     }
 
     // Stars are not affected by external light sources
-    if (isStar) {    
+    else if (isStar) {    
         vec2 position = -1.0 + (2.0 * vUv);
 
         vec4 noise = texture2D( texture1, vUv );
@@ -169,7 +169,7 @@ void main() {
         lightIntensity = vec3( 1.0 );
     }
     
-    if (isDisk) {
+    else if (isDisk) {
         vec2 newUv = vec2( vUv.y, vUv.x );
         
         vec4 texture = texture2D( texture1, newUv );

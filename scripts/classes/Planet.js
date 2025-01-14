@@ -38,16 +38,7 @@ export class Planet extends GameObject {
             new THREE.LineBasicMaterial( {color: 0x555555} )
         );
 
-        this.switchToTest();    // Will start in Phong shading in delivery
-    }
-
-    // Shading only for test!!! Will be removed in delivery!!!
-    switchToTest() {
-        this.reset();
-
-        this.geometry = new THREE.SphereGeometry();
-        this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        this.material = new THREE.MeshPhongMaterial( {color: this.color} );
+        this.switchToPhong();
     }
 
     switchToPhong() {
@@ -57,7 +48,6 @@ export class Planet extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
-        //this.material = new ShaderPhongMaterial( {color: {value: this.color}, shininess: {value: 1.0}, dayTexture: {value: this.dayTexture}, nightTexture: {value: this.nightTexture}} );
         this.material = new PlanetPhongMaterial( this.dayTexture, this.nightTexture );
     }
 
