@@ -840,7 +840,7 @@
         }
 
         initGrid() {
-            this.grid = new THREE.GridHelper( 100, 50, 0x888888, 0x444444 );
+            this.grid = new THREE.GridHelper( 300, 150, 0x888888, 0x444444 );
         }
 
         // Our scene will start in edit mode
