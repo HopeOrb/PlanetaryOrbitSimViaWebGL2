@@ -244,6 +244,12 @@ export class GameManager {
             this.gameoverCheck();
         }
 
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet || obj instanceof Star) {
+                obj.updateBoundingBox();
+            }
+        } )
+
 
 
         // Move spotlight to camera's position and point it to the camera's target
@@ -286,7 +292,7 @@ export class GameManager {
     gameoverCheck(){
         this.scene.traverse( (obj) => {
             if (obj instanceof Planet && this.inSimulationMode) {
-                if (GameManager.isColliding(this.centerObject, obj)) {
+                if (this.isColliding(this.centerObject, obj)) {
                     console.log("in sun");
                     this.isGameover=true;
                     this.inSimulationMode=false;
@@ -778,9 +784,9 @@ export class GameManager {
         if (this.shaderManager.inToonShading) planet.switchToToon();
 
         this.scene.add( planet );
-        let helper1;
-        helper1 = new THREE.Box3Helper(planet.boundingBox, 0xff0000); // Kırmızı bir çerçeve
-        this.scene.add(helper1);
+        //let helper1;
+        //helper1 = new THREE.Box3Helper(planet.boundingBox, 0xff0000); // Kırmızı bir çerçeve
+        //this.scene.add(helper1);
 
         //this.planetNum=this.planetNum+1;
     }
@@ -1013,12 +1019,15 @@ export class GameManager {
         } )
     }
 
-    static isColliding(obj1, obj2){
-        return ((this.obj1.position.x - this.obj1.boundingBox.getSize().x) <= obj2.position.x) &&
-            (obj2.position.x <= (this.obj1.position.x + this.obj1.boundingBox.getSize().x)) &&
-            ((this.obj1.position.y - this.obj1.boundingBox.getSize().y) <= obj2.position.y) &&
-            (obj2.position.y <= (this.obj1.position.y + this.obj1.boundingBox.getSize().y)) &&
-            ((this.obj1.position.z - this.obj1.boundingBox.getSize().z) <= obj2.position.z ) &&
-            (obj2.position.z <= (this.obj1.position.z + this.obj1.boundingBox.getSize().z));
+    isColliding(obj1, obj2){
+        let boxSize = new THREE.Vector3();
+        obj1.boundingBox.getSize( boxSize );
+
+        return ((obj1.position.x - boxSize.x) <= obj2.position.x) &&
+            (obj2.position.x <= (obj1.position.x + boxSize.x)) &&
+            ((obj1.position.y - boxSize.y) <= obj2.position.y) &&
+            (obj2.position.y <= (obj1.position.y + boxSize.y)) &&
+            ((obj1.position.z - boxSize.z) <= obj2.position.z ) &&
+            (obj2.position.z <= (obj1.position.z + boxSize.z));
     }
 }
