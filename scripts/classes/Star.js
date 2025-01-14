@@ -35,8 +35,6 @@ export class Star extends GameObject {
         this.geometry = new THREE.SphereGeometry();
         this.material = new StarPhongMaterial( this.lavaTexture, this.cloudTexture );
 
-        //this.updateBoundingBox(); // Update bounding box
-
     }
 
     switchToToon() {
@@ -74,8 +72,6 @@ export class Star extends GameObject {
         middleSphere.renderOrder = 1;
         this.renderOrder = 2;
 
-        //this.updateBoundingBox(); // Update bounding box
-
     }
 
 
@@ -92,9 +88,6 @@ export class Star extends GameObject {
     }
 
     updateBoundingBox() {
-        // console.log("updateBoundingBox start *Star*");
-        // console.log("geometry: ",this.geometry);
-        // console.log("boundingBox: ",this.boundingBox);
 
         this.boundingBox.setFromCenterAndSize(this.position ,new Vector3(this.sizeX, this.sizeY, this.sizeZ) );
         if (this.geometry) {

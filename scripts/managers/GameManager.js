@@ -244,7 +244,6 @@ export class GameManager {
     gameLoop(timestamp) {
 
         if (this.isGameover) {
-            console.log("STOP");
             this.inSimulationMode = false;
             this.isGameover = false;
             this.deleteScene();
@@ -262,7 +261,6 @@ export class GameManager {
             }
         } );
 
-        console.log( this.planetNum );
 
         // Move spotlight to camera's position and point it to the camera's target
         this.spotlight.position.copy( this.camManager.camera.position );
@@ -305,7 +303,6 @@ export class GameManager {
         this.scene.traverse( (obj) => {
             if (obj instanceof Planet && this.inSimulationMode) {
                 if (this.isColliding(this.centerObject, obj)) {
-                    console.log("in sun");
                     this.isGameover=true;
                     this.hitSun=true;
                     this.outOfArea=false;
@@ -341,9 +338,9 @@ export class GameManager {
     deleteScene() {
         document.getElementById("currentScore").style.display='none';
         if (this.hitSun){
-            this.projectTitle.textContent = "YOU HIT SUN! GAME OVER YOUR SCORE IS  " + this.planetNum;
+            this.projectTitle.textContent = "YOU HIT SUN! GAME OVER YOUR SCORE IS  " + this.score;
         } else if (this.outOfArea){
-            this.projectTitle.textContent = "EXCEEDED THE DISTANCE LIMIT! GAME OVER YOUR SCORE IS  " + this.planetNum;
+            this.projectTitle.textContent = "EXCEEDED THE DISTANCE LIMIT! GAME OVER YOUR SCORE IS  " + this.score;
         }
         this.mainMenu.style='block';
         let Arr = [];
@@ -476,7 +473,6 @@ export class GameManager {
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
-            console.log("in dragging-changed");
             this.isDragging = event.value; // Sürükleme başlatıldığında isDragging true olacak
             if (!this.isDragging) {
                 // Sürükleme tamamlandığında tıklamayı tekrar engellemeyi kaldır
@@ -520,7 +516,6 @@ export class GameManager {
         });
 
         playButton.addEventListener('click', () => {
-            console.log("PLAYBUTTON");
             this.planetNum=1;
             currents.style.display = 'block';
             this.inSimulationMode=true;
@@ -543,10 +538,8 @@ export class GameManager {
             if (event.key === keyMap.helpMenuButton) {
                 // Toggle help menu visibility
                 if (this.helpMenu.style.display === 'none') {
-                    console.log("display help menu")
                     this.helpMenu.style.display = 'block';
                 } else {
-                    console.log("close help menu")
                     this.helpMenu.style.display = 'none';
                 }
             }
@@ -563,7 +556,6 @@ export class GameManager {
         window.addEventListener('click', () => {
 
 
-            console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
             this.camManager.updateCameraView();
 
@@ -597,7 +589,6 @@ export class GameManager {
                 } else if (this.selectedObject !== this.previousSelectedObject) {
                     this.transformControls.detach();
                     this.scene.remove(this.transformControls.getHelper());
-                    console.log("Object changed. Previous:", this.previousSelectedObject, "New:", this.selectedObject);
 
                     this.transformControls.attach(this.selectedObject);
                     this.scene.add(this.transformControls.getHelper());
@@ -618,10 +609,8 @@ export class GameManager {
                 // Debug
                 if(this.debugManager.isDebugMode) this.debugManager.debugRaycaster();
 
-                console.log("Selected Object:", this.selectedObject);
 
             } else {
-                console.log("Selected : Null");
                 this.selectedObject = null; // Hiçbir şey seçilmediyse
                 this.previousSelectedObject = null;
                 this.transformControls.detach();
@@ -1040,7 +1029,6 @@ export class GameManager {
     // Disable trails for all planets
     trailsOff() {
         this.scene.traverse( (obj) => {
-            console.log(obj);
             if (obj instanceof Planet) {
                 this.scene.remove( obj.trail );
             }
