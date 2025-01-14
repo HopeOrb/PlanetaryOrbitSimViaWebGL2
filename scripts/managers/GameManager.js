@@ -154,9 +154,14 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
+        this.score=0;
         this.planetNum=0;
         this.audioStarted = null;
         //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
+
+        setInterval( () => {
+            this.score += this.planetNum;
+        }, 1000 );
     }
 
     // Will initialize the Scene / Game
@@ -245,7 +250,7 @@ export class GameManager {
 
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
-            document.getElementById("txt").textContent="your current score is " + this.planetNum;
+            document.getElementById("txt").textContent="Score: " + this.score;
             this.gameoverCheck();
         }
 
@@ -253,8 +258,9 @@ export class GameManager {
             if (obj instanceof Planet || obj instanceof Star) {
                 obj.updateBoundingBox();
             }
-        } )
+        } );
 
+        console.log( this.planetNum );
 
         // Move spotlight to camera's position and point it to the camera's target
         this.spotlight.position.copy( this.camManager.camera.position );
@@ -316,7 +322,7 @@ export class GameManager {
                     this.mainMenu.style.display='block';
                 }
                 if(!this.isGameover){
-                    this.planetNum+=1;
+                    //this.planetNum+=1;
                 }
             }
 
@@ -502,7 +508,7 @@ export class GameManager {
 
         playButton.addEventListener('click', () => {
             console.log("PLAYBUTTON");
-            this.planetNum=0;
+            this.planetNum=1;
             currents.style.display = 'block';
             this.inSimulationMode=true;
             this.mainMenu.style.display = 'none';  // Menü gizlendi
@@ -761,7 +767,8 @@ export class GameManager {
 
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
-        let t = 0;
+        //let t = 0;
+        this.planetNum += 1;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.orbitObject.position.set( 10, 0, 10 );
 
@@ -810,7 +817,7 @@ export class GameManager {
         //helper1 = new THREE.Box3Helper(planet.boundingBox, 0xff0000); // Kırmızı bir çerçeve
         //this.scene.add(helper1);
 
-        //this.planetNum=this.planetNum+1;
+        this.planetNum += 1;
     }
 
     addLights() {
@@ -1051,5 +1058,9 @@ export class GameManager {
             (obj2.position.y <= (obj1.position.y + boxSize.y)) &&
             ((obj1.position.z - boxSize.z) <= obj2.position.z ) &&
             (obj2.position.z <= (obj1.position.z + boxSize.z));
+    }
+
+    updateScore() {
+        this.score += this.planetNum;
     }
 }
