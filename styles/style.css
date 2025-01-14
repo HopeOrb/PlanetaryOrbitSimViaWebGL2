@@ -77,11 +77,7 @@ html {
 }
 
 
-/* Görsel için stil */
-#keplerImage {
-  border-radius: 1px;
-  margin-top: 20px; /* Görsel ile üst eleman arasındaki boşluk */
-}
+
 
 #musicButton {
   position: absolute;

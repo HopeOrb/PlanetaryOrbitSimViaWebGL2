@@ -109,6 +109,8 @@ export class GameManager {
     inSimulationMode;
     inPlacementMode;
     isGameover;
+    hitSun;
+    outOfArea;
 
     score;
     planetNum;
@@ -305,8 +307,11 @@ export class GameManager {
                 if (this.isColliding(this.centerObject, obj)) {
                     console.log("in sun");
                     this.isGameover=true;
+                    this.hitSun=true;
+                    this.outOfArea=false;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
+
                     return;
 
                 }
@@ -318,6 +323,8 @@ export class GameManager {
                     >= 50
                 ){
                     this.isGameover=true;
+                    this.outOfArea=true;
+                    this.hitSun=false;
                     this.inSimulationMode=false;
                     this.mainMenu.style.display='block';
                 }
@@ -333,7 +340,11 @@ export class GameManager {
 
     deleteScene() {
         document.getElementById("currentScore").style.display='none';
-        this.projectTitle.textContent = "GAME OVER YOUR SCORE IS  " + this.planetNum;
+        if (this.hitSun){
+            this.projectTitle.textContent = "YOU HIT SUN! GAME OVER YOUR SCORE IS  " + this.planetNum;
+        } else if (this.outOfArea){
+            this.projectTitle.textContent = "EXCEEDED THE DISTANCE LIMIT! GAME OVER YOUR SCORE IS  " + this.planetNum;
+        }
         this.mainMenu.style='block';
         let Arr = [];
         this.scene.traverse( (obj) => {
@@ -394,6 +405,8 @@ export class GameManager {
 
     initGameover() {
         this.isGameover=false;
+        this.outOfArea=false;
+        this.hitSun=false;
     }
 
     initDynamicHelpMenu(){
