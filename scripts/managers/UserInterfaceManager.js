@@ -21,6 +21,7 @@ export class UserInterfaceManager {
         
         this.spotlightFolder.add( spotlight, 'intensity', 0, 50 ).name( 'Intensity' );
         this.spotlightFolder.add( spotlight, 'angle', 0, (Math.PI / 2) ).name( 'Cone Angle' );
+        this.spotlightFolder.add( spotlight, 'penumbra', 0, 1 ).name( 'Penumbra' );
     }
 
     initTrailInterface( scene ) {

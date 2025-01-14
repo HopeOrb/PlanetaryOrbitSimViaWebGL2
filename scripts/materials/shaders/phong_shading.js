@@ -112,7 +112,6 @@ void main() {
 
 
     // Spotlight calculations
-    // TODO: Still need to calculate the penumbra
     vec3 spotlight = vec3( 0.0 );
     for (int i=0; i<NUM_SPOT_LIGHTS; i++) {
         vec3 L = normalize( fLs[i] );
@@ -120,11 +119,13 @@ void main() {
         float d = length( fLs[i] );
         float attenuation = 1.0 / (spotLights[i].decay * d * d);
         float angle = max( dot( L, direction ), 0.0 );
-        if ( angle > spotLights[i].coneCos ) {
-            float intensity = max( dot( L, N ), 0.0 );
-            spotlight += intensity * spotLights[i].color * attenuation;
-        }
+
+        float intensity = smoothstep(spotLights[i].coneCos, spotLights[i].penumbraCos, angle);
+
+        float Kd = max(dot(L, N), 0.0);
+        spotlight += Kd * intensity * spotLights[i].color * attenuation;
     }
+    
     lightIntensity += spotlight;
 
 
@@ -136,7 +137,7 @@ void main() {
         if (dayTexColor == nightTexColor) {
             nightTexColor = nightTexColor * 0.3;
         }
-        vec3 temp = lightIntensity - ambient;
+        vec3 temp = lightIntensity - ambient - spotlight;
         float temp2 = (temp.x + temp.y + temp.z) / 3.0;
         float dayNightSlider = min( temp2, 1.0 );
         
