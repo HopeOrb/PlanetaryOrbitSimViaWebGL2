@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { ShaderToonOutline } from '../materials/ShaderToonMaterial.js';
 import { GameObject } from "./GameObject.js";
 import { StarPhongMaterial } from '../materials/StarPhongMaterial.js';
-import { StarToonMaterial } from '../materials/StarToonMaterial.js';
 
 // TODO: Will make the stars bigger
 export class Star extends GameObject {
@@ -12,6 +11,8 @@ export class Star extends GameObject {
     
     constructor() {
         super();
+
+        this.boundingBox = new THREE.Box3();
 
         this.light = new THREE.PointLight( 0xffffff, 50 );
         this.light.decay = 0.5; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
@@ -34,6 +35,7 @@ export class Star extends GameObject {
 
         this.geometry = new THREE.SphereGeometry();
         this.material = new StarPhongMaterial( this.lavaTexture, this.cloudTexture );
+
     }
 
     switchToToon() {
@@ -70,6 +72,7 @@ export class Star extends GameObject {
 
     }
 
+
     reset() {
         this.clear();
 
@@ -78,6 +81,17 @@ export class Star extends GameObject {
 
         this.geometry = null;
         this.material = null;
+
+        this.boundingBox = new THREE.Box3();
+    }
+
+    updateBoundingBox() {
+
+        this.boundingBox.setFromCenterAndSize(this.position ,new Vector3(this.sizeX, this.sizeY, this.sizeZ) );
+        if (this.geometry) {
+            this.geometry.computeBoundingBox();
+            this.boundingBox.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
+        }
     }
 
 }

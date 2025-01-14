@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import gsap from 'gsap';
+import {keyMap} from "./KeyManager.js";
 
 export class CreditsManager {
 
@@ -37,7 +38,7 @@ export class CreditsManager {
     addCreditsEventListeners(){
         window.addEventListener("keypress", (event) => {
             switch (event.key) {
-                case 'j':
+                case keyMap.creditsAnimationButton:
                     this.isCreditsMode = !this.isCreditsMode;
                     let targetOfOrbitControls = new THREE.Vector3(0,0,0);
                     if(this.isCreditsMode){

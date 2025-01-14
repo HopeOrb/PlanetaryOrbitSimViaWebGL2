@@ -26,6 +26,7 @@ import {CreditsManager} from "./CreditsManager.js";
 import { Asteroid } from '../classes/Asteroid.js';
 import { UserInterfaceManager } from './UserInterfaceManager.js';
 import { DiskPlanet } from '../classes/DiskPlanet.js';
+import {keyMap, descriptions} from "./KeyManager.js";
 
 export class GameManager {
     // fields
@@ -39,9 +40,11 @@ export class GameManager {
     stats;
     objects;
     mainMenu;
+    projectTitle;
     wrapper;
     musicButton;
     helpMenu;
+    dynamicHelpMenu;
     raycaster;
     mouse;
 
@@ -106,6 +109,12 @@ export class GameManager {
     inEditMode;
     inSimulationMode;
     inPlacementMode;
+    isGameover;
+    hitSun;
+    outOfArea;
+
+    score;
+    planetNum;
 
     grid;
 
@@ -148,8 +157,14 @@ export class GameManager {
         this.userRotation = {x: 0, y: 0};
         this.userPosition = {x: 0, y: 0, z: 0};
 
+        this.score=0;
+        this.planetNum=0;
         this.audioStarted = null;
         //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
+
+        setInterval( () => {
+            this.score += this.planetNum;
+        }, 1000 );
     }
 
     // Will initialize the Scene / Game
@@ -182,10 +197,15 @@ export class GameManager {
         // Initialize the main menu
         this.initMainMenu();
 
+        this.initGameover();
+
         this.initWrapper();
 
         // Initialize the help menu
-        this.initHelpMenu();
+        // this.initHelpMenu();
+
+        // Initialize the dynamic version of help menu
+        this.initDynamicHelpMenu();
 
         // Init Scene
         this.initScene();
@@ -218,6 +238,7 @@ export class GameManager {
 
         const updateLoop = (timestamp) => {
             this.gameLoop(timestamp); // Call the actual animation frame
+            this.stats.dom.style.display = this.debugManager.isDebugMode ? 'block' : 'none';
             this.stats.update(); // Needs to be updated in order to show the FPS count
             requestAnimationFrame(updateLoop); // Request to be called again
         }
@@ -226,9 +247,25 @@ export class GameManager {
     }
 
     gameLoop(timestamp) {
+
+        if (this.isGameover) {
+            this.inSimulationMode = false;
+            this.isGameover = false;
+            this.deleteScene();
+        }
+
         if (this.inSimulationMode) {
             this.physicsManager.updateObjects();
+            document.getElementById("txt").textContent="Score: " + this.score;
+            this.gameoverCheck();
         }
+
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet || obj instanceof Star) {
+                obj.updateBoundingBox();
+            }
+        } );
+
 
         // Move spotlight to camera's position and point it to the camera's target
         this.spotlight.position.copy( this.camManager.camera.position );
@@ -262,6 +299,63 @@ export class GameManager {
 
         this.finalComposer.render();
 
+    }
+
+    gameoverCheck(){
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet && this.inSimulationMode) {
+                if (this.isColliding(this.centerObject, obj)) {
+                    this.isGameover=true;
+                    this.hitSun=true;
+                    this.outOfArea=false;
+                    this.inSimulationMode=false;
+                    this.mainMenu.style.display='block';
+
+                    return;
+
+                }
+                else if (
+                    Math.sqrt(
+                        (obj.position.x - this.centerObject.position.x)**2
+                        + (obj.position.y - this.centerObject.position.y)**2
+                        + (obj.position.z - this.centerObject.position.z)**2 )
+                    >= 50
+                ){
+                    this.isGameover=true;
+                    this.outOfArea=true;
+                    this.hitSun=false;
+                    this.inSimulationMode=false;
+                    this.mainMenu.style.display='block';
+                }
+                if(!this.isGameover){
+                    //this.planetNum+=1;
+                }
+            }
+
+        }
+
+        )
+    }
+
+    deleteScene() {
+        document.getElementById("currentScore").style.display='none';
+        if (this.hitSun){
+            this.projectTitle.textContent = "YOU HIT SUN! GAME OVER YOUR SCORE IS  " + this.score;
+        } else if (this.outOfArea){
+            this.projectTitle.textContent = "EXCEEDED THE DISTANCE LIMIT! GAME OVER YOUR SCORE IS  " + this.score;
+        }
+        this.mainMenu.style='block';
+        let Arr = [];
+        this.scene.traverse( (obj) => {
+            if (obj instanceof Planet){
+                Arr.push(obj);
+                Arr.push(obj.trail);
+            }
+        })
+        for (let i = 0; i < Arr.length; i++){
+            this.scene.remove(Arr[i]);
+
+        }
     }
 
     initRenderer() {
@@ -301,14 +395,35 @@ export class GameManager {
 
     initMainMenu() {
         this.mainMenu = document.getElementById("mainMenu");
+        this.projectTitle = document.getElementById("projectTitle");
     }
 
     initWrapper() {
         this.wrapper = document.getElementById("wrapper");
     }
 
-    initHelpMenu() {
+    initGameover() {
+        this.isGameover=false;
+        this.outOfArea=false;
+        this.hitSun=false;
+    }
+
+    initDynamicHelpMenu(){
+        // New dynamic help menu
         this.helpMenu = document.getElementById("helpMenu");
+        this.dynamicHelpMenu = document.getElementById("dynamicHelpMenu");
+
+        Object.entries(keyMap).forEach(([key, value]) => {
+            const listItem = document.createElement('li');
+            const description = descriptions[key] || 'No description available';
+            listItem.innerHTML = `<b>${value.toUpperCase()}</b>: ${description}`;
+            this.helpMenu.appendChild(listItem);
+        });
+    }
+    initHelpMenu() {
+        // Old help menu
+        this.helpMenu = document.getElementById("helpMenu");
+
     }
 
     addEventListeners() {
@@ -339,6 +454,7 @@ export class GameManager {
         this.addSwitchModeEventListeners();
 
         this.addPlacementEventListeners();
+
         this.addSpotlightEventListeners();
 
     }
@@ -359,7 +475,6 @@ export class GameManager {
 
     addTransformControlEventListeners() {
         this.transformControls.addEventListener('dragging-changed', (event) => {
-            console.log("in dragging-changed");
             this.isDragging = event.value; // Sürükleme başlatıldığında isDragging true olacak
             if (!this.isDragging) {
                 // Sürükleme tamamlandığında tıklamayı tekrar engellemeyi kaldır
@@ -374,13 +489,13 @@ export class GameManager {
         this.transformControls.addEventListener('mouseUp', () => this.camManager.enableOrbitControls());
         window.addEventListener("keydown", (event) => {
             switch (event.key) {
-                case 'q':
+                case keyMap.rotateButton:
                     this.transformControls.setMode('rotate');
                     break;
-                case 'w':
+                case keyMap.translateButton:
                     this.transformControls.setMode('translate');
                     break;
-                case 'e':
+                case keyMap.scaleButton:
                     this.transformControls.setMode('scale');
                     break;
                 default:
@@ -395,6 +510,7 @@ export class GameManager {
         const button = document.getElementById('myButton');  // Butonun seçilmesi
         const backTo = document.getElementById('backTo');
         const playButton = document.getElementById('newButton');
+        const currents = document.getElementById("currentScore");
         button.addEventListener('click', () => {
             this.mainMenu.style.display = 'none';  // Menü gizlendi
             this.wrapper.style.display = 'block';
@@ -402,7 +518,11 @@ export class GameManager {
         });
 
         playButton.addEventListener('click', () => {
+            this.planetNum=1;
+            currents.style.display = 'block';
+            this.inSimulationMode=true;
             this.mainMenu.style.display = 'none';  // Menü gizlendi
+            this.helpMenu.style.display = 'block';
         });
 
 
@@ -417,7 +537,7 @@ export class GameManager {
 
     addHelpMenuEventListeners() {
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'h') {
+            if (event.key === keyMap.helpMenuButton) {
                 // Toggle help menu visibility
                 if (this.helpMenu.style.display === 'none') {
                     this.helpMenu.style.display = 'block';
@@ -438,7 +558,6 @@ export class GameManager {
         window.addEventListener('click', () => {
 
 
-            console.log(this.isClickBlocked.valueOf());
             // ensure camera view - world view matrices are synch before raycasting
             this.camManager.updateCameraView();
 
@@ -472,7 +591,6 @@ export class GameManager {
                 } else if (this.selectedObject !== this.previousSelectedObject) {
                     this.transformControls.detach();
                     this.scene.remove(this.transformControls.getHelper());
-                    console.log("Object changed. Previous:", this.previousSelectedObject, "New:", this.selectedObject);
 
                     this.transformControls.attach(this.selectedObject);
                     this.scene.add(this.transformControls.getHelper());
@@ -493,10 +611,8 @@ export class GameManager {
                 // Debug
                 if(this.debugManager.isDebugMode) this.debugManager.debugRaycaster();
 
-                console.log("Selected Object:", this.selectedObject);
 
             } else {
-                console.log("Selected : Null");
                 this.selectedObject = null; // Hiçbir şey seçilmediyse
                 this.previousSelectedObject = null;
                 this.transformControls.detach();
@@ -646,7 +762,14 @@ export class GameManager {
         this.centerObject = new Star();
         this.centerObject.position.set(0, 0, 0);
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
+
         this.scene.add(this.centerObject);
+
+        // const helper = new THREE.Box3Helper(this.centerObject.boundingBox, 0xff0000); // Kırmızı bir çerçeve
+        // this.scene.add(helper);
+        // this.centerObject.attach(helper);
+
+
         // Init planets
         this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
         //this.orbitObject = new Asteroid(new THREE.Color(0x0077cc));
@@ -675,12 +798,13 @@ export class GameManager {
         // TODO: Give random textures each time
         let planet;
         let texture = this.textures[Math.floor(Math.random() * this.textures.length)];
-        console.log(texture);
+
         if (texture === (this.earthNightTexture || this.earthDayTexture)){
             planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
         } else {
             planet = new Planet(0xffffff, texture);
         }
+
 
         planet.position.copy( position );
 
@@ -688,6 +812,11 @@ export class GameManager {
         if (this.shaderManager.inToonShading) planet.switchToToon();
 
         this.scene.add( planet );
+        //let helper1;
+        //helper1 = new THREE.Box3Helper(planet.boundingBox, 0xff0000); // Kırmızı bir çerçeve
+        //this.scene.add(helper1);
+
+        this.planetNum += 1;
     }
 
     addLights() {
@@ -765,7 +894,7 @@ export class GameManager {
 
         this.backgroundSound = new THREE.Audio(this.listener);
 
-        this.audioLoader.load('sounds/emotional-guitar-loop-v13-275455.ogg', (buffer) => {
+        this.audioLoader.load('sounds/Dont Bother Theyre Here.ogg', (buffer) => {
             this.backgroundSound.setBuffer(buffer);
             this.backgroundSound.setLoop(true);
             this.backgroundSound.setVolume(0.5);
@@ -818,7 +947,7 @@ export class GameManager {
     addSwitchModeEventListeners() {
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
-                case ' ':
+                case keyMap.editModeButton:
                     if (this.inEditMode) {
                         this.simulationMode();
                     }
@@ -826,7 +955,7 @@ export class GameManager {
                         this.editMode();
                     }
                     break;
-                case 'p':
+                case keyMap.addPlanetButton:
                     if (this.inEditMode) {
                         if (this.inPlacementMode) {
                             this.inPlacementMode = false;
@@ -906,7 +1035,7 @@ export class GameManager {
     addSpotlightEventListeners() {
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
-                case 's':
+                case keyMap.spotLightButton:
                     if (this.spotlight.intensity == 0) {
                         this.spotlight.intensity = this.spotlightIntensity;
                     }
@@ -925,7 +1054,19 @@ export class GameManager {
         this.uiManager.initTrailInterface( this.scene );
     }
 
-    initRenderManager() {
+    isColliding(obj1, obj2){
+        let boxSize = new THREE.Vector3();
+        obj1.boundingBox.getSize( boxSize );
 
+        return ((obj1.position.x - boxSize.x) <= obj2.position.x) &&
+            (obj2.position.x <= (obj1.position.x + boxSize.x)) &&
+            ((obj1.position.y - boxSize.y) <= obj2.position.y) &&
+            (obj2.position.y <= (obj1.position.y + boxSize.y)) &&
+            ((obj1.position.z - boxSize.z) <= obj2.position.z ) &&
+            (obj2.position.z <= (obj1.position.z + boxSize.z));
+    }
+
+    updateScore() {
+        this.score += this.planetNum;
     }
 }

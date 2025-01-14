@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {OrbitControls} from "three/addons";
+import {keyMap} from "./KeyManager.js";
 
 export class CameraManager {
     constructor(renderer) {
@@ -75,7 +76,7 @@ export class CameraManager {
         // Reset Camera
         window.addEventListener("keydown", (event) =>{
             switch (event.key) {
-                case ',':
+                case keyMap.resetCameraButton:
                     this.resetCamera();
                     break;
             }

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GameObject } from "../classes/GameObject";
+import {keyMap} from "./KeyManager.js";
 
 export class ShaderManager{
 
@@ -18,12 +19,10 @@ export class ShaderManager{
     addEventListeners() {
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
-                case '1':
-                    if (this.inPhongShading) break;
+                case keyMap.phongShaderButton:
                     this.switchToPhong();
                     break;
-                case '2':
-                    if (this.inToonShading) break;
+                case keyMap.toonShaderButton:
                     this.switchToToon();
                     break;
             }

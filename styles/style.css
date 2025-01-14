@@ -12,6 +12,15 @@ html {
 }
 
 
+#currentScore {
+  position: absolute;
+  background-color: aquamarine;
+
+
+  display: flex;
+
+}
+
 #mainMenu {
   position: absolute;
   text-align: center;
@@ -71,10 +80,6 @@ html {
   background-color: #2980b9;
 }
 /* Görsel için stil */
-#keplerImage {
-  border-radius: 1px;
-  margin-top: 20px; /* Görsel ile üst eleman arasındaki boşluk */
-}
 
 #musicButton {
   position: absolute;
