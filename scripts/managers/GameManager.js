@@ -648,8 +648,8 @@ export class GameManager {
         this.centerObject.layers.toggle(this.BLOOM_SCENE);	// To add our star to the bloom layer
         this.scene.add(this.centerObject);
         // Init planets
-        // this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
-        this.orbitObject = new Asteroid(new THREE.Color(0x0077cc));
+        this.orbitObject = new Planet(new THREE.Color(0x0077cc), this.earthDayTexture, this.earthNightTexture);	// If there are separate day/night textures
+        //this.orbitObject = new Asteroid(new THREE.Color(0x0077cc));
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.orbitObject.position.set( 20, 0, 10 );
