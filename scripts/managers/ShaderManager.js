@@ -19,9 +19,11 @@ export class ShaderManager{
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
                 case '1':
+                    if (this.inPhongShading) break;
                     this.switchToPhong();
                     break;
                 case '2':
+                    if (this.inToonShading) break;
                     this.switchToToon();
                     break;
             }
@@ -52,5 +54,10 @@ export class ShaderManager{
 
         this.inPhongShading = false;
         this.inToonShading = true;
+    }
+
+    update( obj, timestamp ) {
+        if (this.inPhongShading) obj.material.uniforms.time.value += 0.005;	// For moving the lava texture
+        //if (this.inToonShading) obj.material.uniforms.opacity.value = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
     }
 }

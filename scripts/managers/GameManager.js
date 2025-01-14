@@ -220,34 +220,14 @@
                 this.physicsManager.updateObjects();
             }
 
-            /*
-            { // Rotate the center cube
-                const centerData = this.objectDataMap.get(this.centerObject) || {
-                    userPosition: {x: 0, y: 0, z: 0},
-                    userRotation: {x: 0, y: 0}
-                };
-                const t = timestamp / (1000 * 3);
-
-                // Pozisyon ve rotasyonu uygula
-                this.centerObject.rotation.y = t + centerData.userRotation.y;
-                this.centerObject.rotation.x = centerData.userRotation.x;
-            }
-            */
-            
-            // Reset camera
-            //this.camManager.camera.updateProjectionMatrix();
-            //this.camManager.orbitControls.update();
-
             // Move spotlight to camera's position and point it to the camera's target
             this.spotlight.position.copy( this.camManager.camera.position );
             this.spotlight.target.position.copy( this.camManager.orbitControls.target );
 
-            //userPosition = { x: 0, y: 0, z: 0 };
-            //if (this.inPhongShading) this.centerObject.material.uniforms.time.value += 0.005;	// Toon shading doesn't have a time uniform
-            //if (this.inToonShading) this.centerObject.material.opacity = 0.5 + (Math.sin(timestamp / 500) / 7);	// So the bloom effect in toon shading oscillates
+            this.shaderManager.update( this.centerObject, timestamp );
 
             this.scene.remove(this.transformControls.getHelper());	// Remove before the bloom pass so it doesn't get included
-            //this.scene.traverse(this.nonBloomed);	// Darken the objects which are not bloomed
+    
             this.scene.traverse((child) => {
                 // Arrow function ensures `this` refers to the class instance
                 this.nonBloomed(child);
@@ -258,7 +238,6 @@
 
             this.mixPass.material.uniforms.bloomTexture.value = this.bloomComposer.readBuffer.texture;	// Pass the output of first pass to the final pass
 
-            //this.scene.traverse(this.restoreMaterial);	// Restore the darkened objects
             this.scene.traverse((child) => {
                 // Arrow function ensures `this` refers to the class instance
                 this.restoreMaterial(child);
@@ -866,6 +845,7 @@
 
         initShaderManager() {
             this.shaderManager = new ShaderManager( this.scene );
+            this.shaderManager.switchToPhong();
         }
 
         initPhysicsManager() {
