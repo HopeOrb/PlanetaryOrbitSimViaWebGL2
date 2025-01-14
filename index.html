@@ -59,6 +59,17 @@
 
 <!-- Will be resized by Three.js anyway but let it be initially in sufficiently appropriate size -->
 <canvas id="the_canvas" width=1280 height=800></canvas>
+
+<!-- Dynamic Help Menu-->
+<div id="helpMenu" style="display: none; position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 8px;">
+	<h3>How To Play</h3>
+	Obey Kepler Laws, Keep Planets Away From the Blazing Star and get Points! <br>
+	Enter edit mode to add more planets. But remember: More Planets = More Score = Higher Risk
+	<h3>Key Layout</h3>
+	<ul id="dynamicHelpMenu"></ul>
+</div>
+<!-- Old Help Menu -->
+<!--
 <div id="helpMenu" style="display: none; position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 8px;">
 	<h3>Help Menu</h3>
 	<ul>
@@ -71,6 +82,7 @@
 		<li><b>1/2/3:</b> Change shaders</li>
 	</ul>
 </div>
+-->
 
 
 </body>

@@ -1,0 +1,28 @@
+export const keyMap = {
+    debugButton : 'ş',
+    helpMenuButton : 'h',
+    rotateButton : 'q',
+    translateButton : 'w',
+    scaleButton : 'e',
+    resetCameraButton : ',',
+    editModeButton : ' ',
+    addPlanetButton : 'p',
+    toonShaderButton : '2',
+    phongShaderButton : '1',
+    spotLightButton : 'f',
+    creditsAnimationButton : 'j',
+}
+export const descriptions = {
+    debugButton: 'Enter Debug mode',
+    editModeButton: 'Enter Edit mode',
+    helpMenuButton: 'Toggle the descriptive menu',
+    rotateButton: 'Change to Rotation mode for selected object',
+    translateButton: 'Change to Translation mode for selected object',
+    scaleButton: 'Change to Scale mode for selected object',
+    resetCameraButton: 'Reset camera to initial scene position',
+    addPlanetButton: 'Pick a planet in Edit Mode',
+    toonShaderButton: 'Switch to Toon shader',
+    phongShaderButton: 'Switch to Phong shader',
+    spotLightButton: 'Toggle spotlight',
+    creditsAnimationButton: 'Play credits',
+};

@@ -92,9 +92,9 @@ export class Star extends GameObject {
     }
 
     updateBoundingBox() {
-        console.log("updateBoundingBox start *Star*");
-        console.log("geometry: ",this.geometry);
-        console.log("boundingBox: ",this.boundingBox);
+        // console.log("updateBoundingBox start *Star*");
+        // console.log("geometry: ",this.geometry);
+        // console.log("boundingBox: ",this.boundingBox);
 
         this.boundingBox.setFromCenterAndSize(this.position ,new Vector3(this.sizeX, this.sizeY, this.sizeZ) );
         if (this.geometry) {

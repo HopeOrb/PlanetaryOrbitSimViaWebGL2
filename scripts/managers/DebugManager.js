@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {DebuggingObject} from "../classes/DebuggingObject.js";
+import {keyMap} from "./KeyManager.js";
 
 export class DebugManager {
     scene;
@@ -19,7 +20,7 @@ export class DebugManager {
     addDebugEventListeners(){
         window.addEventListener("keypress", (event) =>{
             switch (event.key) {
-                case 'ş':
+                case keyMap.debugButton:
                     this.isDebugMode = !this.isDebugMode;
                     // reset debugging objects
                     this.clearDebuggingObjects();

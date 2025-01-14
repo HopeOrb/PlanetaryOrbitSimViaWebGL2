@@ -25,6 +25,7 @@ import { ShaderManager } from './ShaderManager.js';
 import { PhysicsManager } from './PhysicsManager.js';
 import {DebugManager} from "./DebugManager.js";
 import {CreditsManager} from "./CreditsManager.js";
+import {keyMap, descriptions} from "./KeyManager.js";
 
 export class GameManager {
     // fields
@@ -42,6 +43,7 @@ export class GameManager {
     wrapper;
     musicButton;
     helpMenu;
+    dynamicHelpMenu;
     raycaster;
     mouse;
 
@@ -192,7 +194,10 @@ export class GameManager {
         this.initWrapper();
 
         // Initialize the help menu
-        this.initHelpMenu();
+        // this.initHelpMenu();
+
+        // Initialize the dynamic version of help menu
+        this.initDynamicHelpMenu();
 
         // Init Scene
         this.initScene();
@@ -385,8 +390,22 @@ export class GameManager {
         this.isGameover=false;
     }
 
-    initHelpMenu() {
+    initDynamicHelpMenu(){
+        // New dynamic help menu
         this.helpMenu = document.getElementById("helpMenu");
+        this.dynamicHelpMenu = document.getElementById("dynamicHelpMenu");
+
+        Object.entries(keyMap).forEach(([key, value]) => {
+            const listItem = document.createElement('li');
+            const description = descriptions[key] || 'No description available';
+            listItem.innerHTML = `<b>${value.toUpperCase()}</b>: ${description}`;
+            this.helpMenu.appendChild(listItem);
+        });
+    }
+    initHelpMenu() {
+        // Old help menu
+        this.helpMenu = document.getElementById("helpMenu");
+
     }
 
     addEventListeners() {
@@ -417,6 +436,7 @@ export class GameManager {
         this.addSwitchModeEventListeners();
 
         this.addPlacementEventListeners();
+
         this.addSpotlightEventListeners();
 
     }
@@ -452,13 +472,13 @@ export class GameManager {
         this.transformControls.addEventListener('mouseUp', () => this.camManager.enableOrbitControls());
         window.addEventListener("keydown", (event) => {
             switch (event.key) {
-                case 'q':
+                case keyMap.rotateButton:
                     this.transformControls.setMode('rotate');
                     break;
-                case 'w':
+                case keyMap.translateButton:
                     this.transformControls.setMode('translate');
                     break;
-                case 'e':
+                case keyMap.scaleButton:
                     this.transformControls.setMode('scale');
                     break;
                 default:
@@ -486,6 +506,7 @@ export class GameManager {
             currents.style.display = 'block';
             this.inSimulationMode=true;
             this.mainMenu.style.display = 'none';  // Menü gizlendi
+            this.helpMenu.style.display = 'block';
         });
 
 
@@ -500,11 +521,13 @@ export class GameManager {
 
     addHelpMenuEventListeners() {
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'h') {
+            if (event.key === keyMap.helpMenuButton) {
                 // Toggle help menu visibility
                 if (this.helpMenu.style.display === 'none') {
+                    console.log("display help menu")
                     this.helpMenu.style.display = 'block';
                 } else {
+                    console.log("close help menu")
                     this.helpMenu.style.display = 'none';
                 }
             }
@@ -918,7 +941,7 @@ export class GameManager {
     addSwitchModeEventListeners() {
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
-                case ' ':
+                case keyMap.editModeButton:
                     if (this.inEditMode) {
                         this.simulationMode();
                     }
@@ -926,7 +949,7 @@ export class GameManager {
                         this.editMode();
                     }
                     break;
-                case 'p':
+                case keyMap.addPlanetButton:
                     if (this.inEditMode) {
                         if (this.inPlacementMode) {
                             this.inPlacementMode = false;
@@ -1006,7 +1029,7 @@ export class GameManager {
     addSpotlightEventListeners() {
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
-                case 's':
+                case keyMap.spotLightButton:
                     if (this.spotlight.intensity == 0) {
                         this.spotlight.intensity = this.spotlightIntensity;
                     }
