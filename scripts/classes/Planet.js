@@ -105,4 +105,9 @@ export class Planet extends GameObject {
         this.trail.geometry = new THREE.BufferGeometry().setFromPoints( this.trailPoints ); 
     }
 
+    resetTrail() {
+        this.trailPoints = [];
+        this.trail.geometry.dispose();
+    }
+
 }

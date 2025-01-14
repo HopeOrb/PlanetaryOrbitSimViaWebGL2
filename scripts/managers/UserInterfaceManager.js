@@ -8,6 +8,7 @@ export class UserInterfaceManager {
     
     objectFolder;
     spotlightFolder;
+    trailsFolder;
 
     initialValues = {};
 
@@ -18,8 +19,22 @@ export class UserInterfaceManager {
     initSpotlightInterface( spotlight ) {
         this.spotlightFolder = this.gui.addFolder( 'Spotlight' );
         
-        this.spotlightFolder.add( spotlight, 'intensity', 0, 50 );
-        this.spotlightFolder.add( spotlight, 'angle', 0, (Math.PI / 2) );
+        this.spotlightFolder.add( spotlight, 'intensity', 0, 50 ).name( 'Intensity' );
+        this.spotlightFolder.add( spotlight, 'angle', 0, (Math.PI / 2) ).name( 'Cone Angle' );
+    }
+
+    initTrailInterface( scene ) {
+        this.trailsFolder = this.gui.addFolder( 'Trails' );
+
+        this.trailsFolder.add( {reset: () => this.resetTrails( scene )}, 'reset' ).name( 'Reset Trails' );
+    }
+    
+    resetTrails( scene ) {
+        scene.traverse( (obj) => {
+            if (obj instanceof Planet) {
+                obj.resetTrail();
+            }
+        } )
     }
 
     addObjectInterface( obj ) {

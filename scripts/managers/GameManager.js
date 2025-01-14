@@ -918,6 +918,7 @@
             this.uiManager = new UserInterfaceManager();
 
             this.uiManager.initSpotlightInterface( this.spotlight );
+            this.uiManager.initTrailInterface( this.scene );
         }
 
         initRenderManager() {
