@@ -5,36 +5,46 @@ export class CreditsManager {
     letterMap;
     creatorNames;
     isCreditsMode = false;
-    constructor(scene,renderer,camera) {
+    constructor(gameManager, scene, renderer, camera) {
+        this.gameManager = gameManager;
         this.scene = scene;
         this.renderer = renderer;
         this.camera = camera;
-
     }
 
     //
     init(){
         this.letterMap = this.createLetterMap();
-        this.creators = new THREE.Group();
     }
+    
     initCreators(){
-        this.creatorNames = ["EKIN DOGA TASKIN",
+        this.creators = new THREE.Group();
+        this.creatorNames = [
+            "EKIN DOGA TASKIN",
             "ILTER DOGAC DONMEZ",
             "MELIH KOC",
-            "MURAT EREN GUVEN"];
+            "MURAT EREN GUVEN"
+        ];
         const offsetY = 5; // Space between names in Y axis
         for (let i = 0; i < this.creatorNames.length; i++) {
             this.creators.add(this.createSentence(this.creatorNames[i], i * offsetY));
         }
+        
+        // Move all letters so that they show centered in the view
+        for (const sentence of this.creators.children)
+            for (const letter of sentence.children) {
+                letter.position.add(new THREE.Vector3(-20, -5, -20));
+            }
+        
     }
-
+    
     addCreditsEventListeners(){
         window.addEventListener("keypress", (event) => {
             switch (event.key) {
                 case 'j':
                     this.isCreditsMode = !this.isCreditsMode;
                     // Animate camera
-
+                    
                     // Draw - Add Creator Names on Scene
                     if(this.isCreditsMode){
                         this.addCreditsRelativeToPosition(this.camera);
@@ -77,39 +87,46 @@ export class CreditsManager {
         console.log("-- addCreditsRelativeToPosition END --")
 
     }
-    createLetter(letter){
+    
+    createLetter(letter) {
         const vertices = this.letterMap[letter];
-
+        
         if (!vertices || vertices.length === 0) return new THREE.Group();
-
-
-
+        
+        
+        
         const group = new THREE.Group();
         for (let i = 0; i < vertices.length; i += 2) {
+            
             const startSphere = new THREE.Mesh(
-                new THREE.SphereGeometry(0.1, 16, 16), // Küre geometrisi
-                new THREE.MeshBasicMaterial({ color: 0xff0000 }) // Materyal
+                new THREE.SphereGeometry(0.05, 16, 16), // Küre geometrisi
+                new THREE.MeshBasicMaterial({ color: 0xffffff }) // Materyal
             );
-
             const endSphere = new THREE.Mesh(
-                new THREE.SphereGeometry(0.1, 16, 16),
-                new THREE.MeshBasicMaterial({ color: 0x0000ff })
+                new THREE.SphereGeometry(0.05, 16, 16),
+                new THREE.MeshBasicMaterial({ color: 0xffffff })
             );
+            
+            
+            
             const geometry = new THREE.BufferGeometry().setFromPoints([vertices[i], vertices[i + 1]]);
             console.log("for letter" + letter);
             console.log(vertices[i], vertices[i+1]);
             //console.log(geometry);
-            const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+            const material = new THREE.LineBasicMaterial({ color: 0x707070 });
             const line = new THREE.Line(geometry, material);
             startSphere.position.copy(vertices[i]);
             endSphere.position.copy(vertices[i+1]);
+            
+            startSphere.layers.toggle(this.gameManager.BLOOM_SCENE);
+            endSphere.layers.toggle(this.gameManager.BLOOM_SCENE);
             group.add(startSphere);
             group.add(line);
             group.add(endSphere);
         }
         console.log("group for letter" + letter + ": ");
         console.log(group);
-
+        
         return group;
     }
 
@@ -124,7 +141,9 @@ export class CreditsManager {
             sentenceGroup.add(letterGroup);
             offsetX += 3; // Adjust spacing between letters
         }
-
+        
+        
+        
         return sentenceGroup;
     }
 

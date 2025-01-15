@@ -480,6 +480,7 @@ export class GameManager {
         this.BLOOM_SCENE = 1;
         this.bloomLayer = new THREE.Layers();
         this.bloomLayer.set(this.BLOOM_SCENE);
+        
 
         this.darkMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
         this.materials = {};
@@ -662,7 +663,7 @@ export class GameManager {
     }
 
     initCreditsManager() {
-        this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager.camera);
+        this.creditsManager = new CreditsManager(this, this.scene, this.renderer, this.camManager.camera);
         this.creditsManager.init();
     }
 }
