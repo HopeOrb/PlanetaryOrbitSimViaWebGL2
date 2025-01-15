@@ -250,6 +250,8 @@ export class GameManager {
         if (this.isGameover) {
             this.inSimulationMode = false;
             this.isGameover = false;
+            this.score = 0;
+            this.planetNum = 0;
             this.deleteScene();
         }
 
