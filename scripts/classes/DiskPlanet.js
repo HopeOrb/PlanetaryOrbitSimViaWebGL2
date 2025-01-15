@@ -29,6 +29,7 @@ export class DiskPlanet extends Planet {
         
         this.disk = new THREE.Mesh( new THREE.TorusGeometry( this.radius, this.tube, this.radialSegments, this.tubularSegments ), new DiskPhongMaterial( this.ringTexture ) );
         
+        
         this.disk.rotateX( Math.PI / 2 );
         this.attach( this.disk );
 
@@ -44,7 +45,7 @@ export class DiskPlanet extends Planet {
         this.geometry.scale(this.sizeX, this.sizeY, this.sizeZ);
         this.material = new PlanetPhongMaterial( this.dayTexture, this.nightTexture );
 
-        this.disk.material = new DiskPhongMaterial( this.ringTexture );
+        if (this.disk) this.disk.material = new DiskPhongMaterial( this.ringTexture );
     }
 
     switchToToon() {
@@ -61,7 +62,7 @@ export class DiskPlanet extends Planet {
         outline.position.set( 0, 0, 0 );
         outline.scale.set( 1, 1, 1 );
 
-        this.disk.material = new DiskToonMaterial( this.ringTexture )
+        if (this.disk) this.disk.material = new DiskToonMaterial( this.ringTexture )
     }
 
     reset() {

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GameObject } from "../classes/GameObject";
 import {keyMap} from "./KeyManager.js";
+import { Asteroid } from "../classes/Asteroid.js";
 
 export class ShaderManager{
 
@@ -20,9 +21,11 @@ export class ShaderManager{
         document.addEventListener( 'keydown', (event) => {
             switch (event.key) {
                 case keyMap.phongShaderButton:
+                    if (this.inPhongShading) break;
                     this.switchToPhong();
                     break;
                 case keyMap.toonShaderButton:
+                    if (this.inToonShading) break;
                     this.switchToToon();
                     break;
             }
@@ -31,7 +34,7 @@ export class ShaderManager{
 
     switchToPhong() {
         this.scene.traverse( (obj) => {
-            if (obj instanceof GameObject) {
+            if ( (obj instanceof GameObject ) || ( obj instanceof Asteroid )) {
                 obj.switchToPhong();
             }
         } );
@@ -44,7 +47,7 @@ export class ShaderManager{
 
     switchToToon() {
         this.scene.traverse( (obj) => {
-            if (obj instanceof GameObject) {
+            if (( obj instanceof GameObject ) || ( obj instanceof Asteroid )) {
                 obj.switchToToon();
             }
         } );

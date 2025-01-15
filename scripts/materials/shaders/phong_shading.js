@@ -79,6 +79,7 @@ uniform sampler2D texture2;
 uniform bool isStar;
 uniform bool isPlanet;
 uniform bool isDisk;
+uniform bool isAsteroid;
 
 uniform float time;
 
@@ -128,7 +129,7 @@ void main() {
 
 
     // Texture
-    if (isPlanet) {
+    if (isPlanet || isAsteroid) {
         vec4 dayTexColor = texture2D(texture1, vUv);
         vec4 nightTexColor = texture2D(texture2, vUv);
         

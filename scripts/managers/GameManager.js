@@ -263,6 +263,9 @@ export class GameManager {
             if (obj instanceof Planet || obj instanceof Star) {
                 obj.updateBoundingBox();
             }
+            else if (obj instanceof Asteroid) {
+                obj.position.add( obj.velocity );
+            }
         } );
 
 
@@ -786,6 +789,8 @@ export class GameManager {
         // Add Background Objects
         this.addBackgroundObjects();
 
+        this.loadAsteroids();
+
     }
 
     addStarToScene() {
@@ -804,6 +809,7 @@ export class GameManager {
             planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
         } 
         else if ( texture.source == this.saturnTexture.source || texture.source == this.uranusTexture.source ) {
+            console.log( "asd" );
             planet = new DiskPlanet( new THREE.Color( 0xffffff ), texture );
         }
 
@@ -923,8 +929,6 @@ export class GameManager {
             delete this.materials[obj.uuid];
         }
     }
-
-    // TODO: Move everything below to their corresponding places before merging with test
 
     // Switch to edit mode
     editMode() {
@@ -1073,6 +1077,35 @@ export class GameManager {
     }
 
     updateScore() {
-        this.score += this.planetNum;
+        if (this.inSimulationMode && !this.isGameover) this.score += this.planetNum;
+    }
+
+    loadAsteroids() {
+        const loader = new GLTFLoader();
+
+        loader.load( '/resources/models/asteroid/scene.gltf',
+            (gltf) => {
+                for (let i=0; i<10; i++) {
+                    const asteroid = new Asteroid();
+                    asteroid.add( gltf.scene.clone() );
+
+                    let x = 0, y = 0, z = 0;
+
+                    while (Math.sqrt( x**2 + y**2 + z**2 ) < 15) {
+                        x = Math.random() * 40 - 20;
+                        y = Math.random() * 10 - 5;
+                        z = Math.random() * 40 - 20;
+                    }
+
+                    asteroid.position.set( x, y, z );
+                    let scale = Math.random() * 0.05;
+                    asteroid.scale.set( scale, scale, scale );
+
+                    asteroid.switchToPhong();
+
+                    this.scene.add( asteroid );
+                }
+            }
+         )
     }
 }

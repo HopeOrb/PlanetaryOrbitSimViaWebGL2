@@ -22,6 +22,7 @@ export class ShaderPhongMaterial extends THREE.ShaderMaterial {
                 'isStar': {value: false},
                 'isPlanet': {value: false},
                 'isDisk': {value: false},
+                'isAsteroid': {value:false},
                 'time': {value: 0.0},
                 'uvScale': {value: new THREE.Vector2( 1.0, 1.0 )}
             }
