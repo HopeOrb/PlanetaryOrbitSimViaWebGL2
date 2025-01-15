@@ -676,6 +676,7 @@ export class GameManager {
         this.BLOOM_SCENE = 1;
         this.bloomLayer = new THREE.Layers();
         this.bloomLayer.set(this.BLOOM_SCENE);
+        
 
         this.darkMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
         this.materials = {};
@@ -859,6 +860,7 @@ export class GameManager {
             }
         }
 
+
         this.background_bloom = [];
         for (let i = 0; i < 500; i++) {
             let x = THREE.MathUtils.randFloatSpread(1000);
@@ -1021,7 +1023,7 @@ export class GameManager {
     }
 
     initCreditsManager() {
-        this.creditsManager = new CreditsManager(this.scene,this.renderer, this.camManager);
+        this.creditsManager = new CreditsManager(this, this.scene, this.renderer, this.camManager);
         this.creditsManager.init();
     }
         

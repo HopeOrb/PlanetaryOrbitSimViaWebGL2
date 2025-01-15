@@ -8,12 +8,18 @@ export class CreditsManager {
     creatorNames;
     isCreditsMode = false;
     creditsPosition;
-    constructor(scene,renderer,cameraManager) {
+    //constructor(scene,renderer,cameraManager) {
+    //    this.scene = scene;
+    //    this.renderer = renderer;
+    //    
+    //    
+
+    constructor(gameManager, scene, renderer, cameraManager) {
+        this.gameManager = gameManager;
         this.scene = scene;
         this.renderer = renderer;
         this.cameraManager = cameraManager;
         this.camera = this.cameraManager.camera;
-
     }
 
     //
@@ -22,15 +28,26 @@ export class CreditsManager {
         this.creators = new THREE.Group();
         this.creditsPosition = {x:-20, y:80, z:-50}
     }
+    
     initCreators(){
-        this.creatorNames = ["EKIN DOGA TASKIN",
+        this.creators = new THREE.Group();
+        this.creatorNames = [
+            "EKIN DOGA TASKIN",
             "ILTER DOGAC DONMEZ",
             "MELIH KOC",
-            "MURAT EREN GUVEN"];
+            "MURAT EREN GUVEN"
+        ];
         const offsetY = 5; // Space between names in Y axis
         for (let i = 0; i < this.creatorNames.length; i++) {
             this.creators.add(this.createSentence(this.creatorNames[i], i * offsetY));
         }
+        
+        // Move all letters so that they show centered in the view
+        for (const sentence of this.creators.children)
+            for (const letter of sentence.children) {
+                letter.position.add(new THREE.Vector3(-20, -5, -20));
+            }
+        
     }
 
 
@@ -119,8 +136,10 @@ export class CreditsManager {
         this.scene.add(this.creators);
     }
 
-    addCreditsRelativeToPosition(camera, offset = this.creditsPosition) {
+    //addCreditsRelativeToPosition(camera, offset = this.creditsPosition) {
         // console.log("-- addCreditsRelativeToPosition START --")
+    addCreditsRelativeToPosition(camera, offset = {x:0,y:0,z:-20}) {
+        console.log("-- addCreditsRelativeToPosition START --")
         this.initCreators();
         // Determine the position relative to the camera
         const cameraPosition = camera.position.clone();
@@ -173,17 +192,46 @@ export class CreditsManager {
 
     createLetter(letter){
         const vertices = this.letterMap[letter];
+        
         if (!vertices || vertices.length === 0) return new THREE.Group();
-
+        
+        
+        
         const group = new THREE.Group();
         for (let i = 0; i < vertices.length; i += 2) {
+            
+            const startSphere = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 16, 16), // Küre geometrisi
+                new THREE.MeshBasicMaterial({ color: 0xffffff }) // Materyal
+            );
+            const endSphere = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 16, 16),
+                new THREE.MeshBasicMaterial({ color: 0xffffff })
+            );
+            
+            
+            
             const geometry = new THREE.BufferGeometry().setFromPoints([vertices[i], vertices[i + 1]]);
-            const material = new THREE.LineBasicMaterial({ color: 0xffffff });
+            console.log("for letter" + letter);
+            console.log(vertices[i], vertices[i+1]);
+            //console.log(geometry);
+            const material = new THREE.LineBasicMaterial({ color: 0x707070 });
             const line = new THREE.Line(geometry, material);
+            startSphere.position.copy(vertices[i]);
+            endSphere.position.copy(vertices[i+1]);
+            
+            startSphere.layers.toggle(this.gameManager.BLOOM_SCENE);
+            endSphere.layers.toggle(this.gameManager.BLOOM_SCENE);
+            group.add(startSphere);
             group.add(line);
+            group.add(endSphere);
         }
+        console.log("group for letter" + letter + ": ");
+        console.log(group);
+        
         return group;
     }
+
     createSentence(sentence, offsetY = 0) {
         const sentenceGroup = new THREE.Group();
         let offsetX = 0;
@@ -195,7 +243,9 @@ export class CreditsManager {
             sentenceGroup.add(letterGroup);
             offsetX += 3; // Adjust spacing between letters
         }
-
+        
+        
+        
         return sentenceGroup;
     }
 
