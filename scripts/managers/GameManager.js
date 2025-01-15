@@ -504,7 +504,6 @@ export class GameManager {
                     this.transformControls.setMode('scale');
                     break;
                 default:
-                    console.log(event.key + " is pressed!")
                     break;
 
             }
@@ -818,7 +817,6 @@ export class GameManager {
             planet = new Planet(new THREE.Color(0xffffff), this.earthDayTexture, this.earthNightTexture);
         } 
         else if ( texture.source == this.saturnTexture.source || texture.source == this.uranusTexture.source ) {
-            console.log( "asd" );
             planet = new DiskPlanet( new THREE.Color( 0xffffff ), texture );
         }
 

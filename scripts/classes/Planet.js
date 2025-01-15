@@ -130,7 +130,6 @@ export class Planet extends GameObject {
                 (Math.random() * (5 - 1) + 1) * getRandomSign()
             ),
         };
-        console.log("Generated Properties:", properties);
         return properties;
     }
 
