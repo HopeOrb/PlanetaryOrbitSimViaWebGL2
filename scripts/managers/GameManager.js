@@ -250,7 +250,6 @@ export class GameManager {
         if (this.isGameover) {
             this.inSimulationMode = false;
             this.isGameover = false;
-            this.score = 0;
             this.planetNum = 0;
             this.deleteScene();
         }
@@ -348,6 +347,8 @@ export class GameManager {
         } else if (this.outOfArea){
             this.projectTitle.textContent = "EXCEEDED THE DISTANCE LIMIT! GAME OVER YOUR SCORE IS  " + this.score;
         }
+
+        this.score = 0;
         this.mainMenu.style='block';
         let Arr = [];
         this.scene.traverse( (obj) => {
@@ -523,7 +524,13 @@ export class GameManager {
         });
 
         playButton.addEventListener('click', () => {
-            this.planetNum=1;
+            this.planetNum = 0;
+            
+            this.scene.traverse( (obj) => {
+                if (obj instanceof Planet) {
+                    this.planetNum += 1;
+                }
+            } )
             currents.style.display = 'block';
             this.inSimulationMode=true;
             this.mainMenu.style.display = 'none';  // Menü gizlendi
@@ -783,8 +790,7 @@ export class GameManager {
         let t = 0;
         //this.orbitObject.position.set(2 * Math.cos(t), 0, 2 * Math.sin(t));
         this.orbitObject.position.set( 10, 0, 10 );
-        this.scene.add(this.orbitObject);
-        
+        this.scene.add(this.orbitObject);        
         
         // Add Light
         this.addLights();
@@ -1081,7 +1087,7 @@ export class GameManager {
     }
 
     updateScore() {
-        if (this.inSimulationMode && !this.isGameover) this.score += this.planetNum;
+        if (this.inSimulationMode) this.score += this.planetNum;
     }
 
     loadAsteroids() {
