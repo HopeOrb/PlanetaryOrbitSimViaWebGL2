@@ -202,11 +202,11 @@ export class CreditsManager {
             
             const startSphere = new THREE.Mesh(
                 new THREE.SphereGeometry(0.05, 16, 16), // Küre geometrisi
-                new THREE.MeshBasicMaterial({ color: 0xffffff }) // Materyal
+                new THREE.MeshBasicMaterial({ color: 0xccccff }) // Materyal
             );
             const endSphere = new THREE.Mesh(
                 new THREE.SphereGeometry(0.05, 16, 16),
-                new THREE.MeshBasicMaterial({ color: 0xffffff })
+                new THREE.MeshBasicMaterial({ color: 0xccccff })
             );
             
             
