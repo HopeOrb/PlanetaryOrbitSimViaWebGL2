@@ -19,8 +19,8 @@ export class Star extends GameObject {
         this.light.decay = 0.5; // TODO: Will adjust based on how close the planets get to the star in the Kepler formula
 
         let textureLoader = new THREE.TextureLoader();
-        this.lavaTexture = textureLoader.load( '/resources/textures/lava/lavatile.jpg' );
-        this.cloudTexture = textureLoader.load( '/resources/textures/lava/cloud.png' );
+        this.lavaTexture = textureLoader.load( 'resources/textures/lava/lavatile.jpg' );
+        this.cloudTexture = textureLoader.load( 'resources/textures/lava/cloud.png' );
         this.lavaTexture.colorSpace = THREE.SRGBColorSpace;
         this.cloudTexture.wrapS = this.cloudTexture.wrapT = THREE.RepeatWrapping;
         this.lavaTexture.wrapS = this.lavaTexture.wrapT = THREE.RepeatWrapping;

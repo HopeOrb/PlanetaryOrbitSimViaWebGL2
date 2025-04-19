@@ -14,7 +14,7 @@ export class Asteroid extends THREE.Object3D {
         this.outline;
 
         const textureLoader = new THREE.TextureLoader();
-        this.texture = textureLoader.load( '/resources/models/asteroid/textures/Meteorite_Shader_Proxy_baseColor.png' );
+        this.texture = textureLoader.load( 'resources/models/asteroid/textures/Meteorite_Shader_Proxy_baseColor.png' );
     }
 
     switchToPhong() {

@@ -746,20 +746,20 @@ export class GameManager {
 
     initTextureLoader() {
         this.textureLoader = new THREE.TextureLoader();
-        this.earthDayTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_daymap.jpg");
-        this.earthNightTexture = this.textureLoader.load("/resources/textures/earth/2k_earth_nightmap.jpg");
-        this.mercuryTexture = this.textureLoader.load("/resources/textures/mercury/2k_mercury.jpg");
-        this.venusTexture = this.textureLoader.load("/resources/textures/venus/2k_venus_surface.jpg");
-        this.marsTexture = this.textureLoader.load("/resources/textures/mars/2k_mars.jpg");
-        this.jupiterTexture = this.textureLoader.load("/resources/textures/jupiter/2k_jupiter.jpg");
-        this.saturnTexture = this.textureLoader.load("/resources/textures/saturn/2k_saturn.jpg");
-        this.uranusTexture = this.textureLoader.load("/resources/textures/uranus/2k_uranus.jpg");
-        this.neptuneTexture = this.textureLoader.load("/resources/textures/neptune/2k_neptune.jpg");
-        this.ceresTexture = this.textureLoader.load("/resources/textures/ceres/2k_ceres_fictional.jpg");
-        this.makemakeTexture = this.textureLoader.load("/resources/textures/makemake/2k_makemake_fictional.jpg");
-        this.erisTexture = this.textureLoader.load("/resources/textures/eris/2k_eris_fictional.jpg");
-        this.haumeaTexture = this.textureLoader.load("/resources/textures/haumea/2k_haumea_fictional.jpg");
-        this.starSprite = this.textureLoader.load('/resources/textures/star_sprite/star.png');
+        this.earthDayTexture = this.textureLoader.load("resources/textures/earth/2k_earth_daymap.jpg");
+        this.earthNightTexture = this.textureLoader.load("resources/textures/earth/2k_earth_nightmap.jpg");
+        this.mercuryTexture = this.textureLoader.load("resources/textures/mercury/2k_mercury.jpg");
+        this.venusTexture = this.textureLoader.load("resources/textures/venus/2k_venus_surface.jpg");
+        this.marsTexture = this.textureLoader.load("resources/textures/mars/2k_mars.jpg");
+        this.jupiterTexture = this.textureLoader.load("resources/textures/jupiter/2k_jupiter.jpg");
+        this.saturnTexture = this.textureLoader.load("resources/textures/saturn/2k_saturn.jpg");
+        this.uranusTexture = this.textureLoader.load("resources/textures/uranus/2k_uranus.jpg");
+        this.neptuneTexture = this.textureLoader.load("resources/textures/neptune/2k_neptune.jpg");
+        this.ceresTexture = this.textureLoader.load("resources/textures/ceres/2k_ceres_fictional.jpg");
+        this.makemakeTexture = this.textureLoader.load("resources/textures/makemake/2k_makemake_fictional.jpg");
+        this.erisTexture = this.textureLoader.load("resources/textures/eris/2k_eris_fictional.jpg");
+        this.haumeaTexture = this.textureLoader.load("resources/textures/haumea/2k_haumea_fictional.jpg");
+        this.starSprite = this.textureLoader.load('resources/textures/star_sprite/star.png');
 
         this.textures = [];
         this.textures.push(this.earthDayTexture, this.earthNightTexture, this.mercuryTexture,this.venusTexture,

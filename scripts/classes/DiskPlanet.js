@@ -23,7 +23,7 @@ export class DiskPlanet extends Planet {
         this.tube = this.radius * 0.5;
 
         const textureLoader = new THREE.TextureLoader();
-        this.ringTexture = textureLoader.load( '/resources/textures/disk/rings.jpg' );
+        this.ringTexture = textureLoader.load( 'resources/textures/disk/rings.jpg' );
         this.ringTexture.wrapT = THREE.RepeatWrapping;
         this.ringTexture.rotation = 90;
         
