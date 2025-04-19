@@ -163,7 +163,7 @@ export class GameManager {
         //this.inPhongShading = true;   // Comment this out for now because our scene starts in three's own shading system, will uncomment later
 
         setInterval( () => {
-            this.score += this.planetNum;
+            this.updateScore()
         }, 1000 );
     }
 
