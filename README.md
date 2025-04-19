@@ -4,7 +4,7 @@ WebGL2.0 project that simulates the orbits of planets around a star, adjusting t
 ## About
 Our final exam project at 2024 Fall Hacettepe course BBM412 – Computer Graphics.
 
-[![Trailer](https://img.youtube.com/vi/PiQDeAovByc/0.jpg)](https://www.youtube.com/watch?v=PiQDeAovByc)
+Watch the trailer from [here](https://www.youtube.com/watch?v=PiQDeAovByc).
 
 <br>
 
