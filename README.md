@@ -2,9 +2,11 @@
 WebGL2.0 project that simulates the orbits of planets around a star, adjusting the mass and distance to see how these variables affect orbital paths, exploring Kepler's laws.
 
 ## About
-Our final exam project at 2024 Fall Hacettepe course BBM412 – Computer Graphics.
+Our term project at 2024 Fall Hacettepe course BBM412 – Computer Graphics.
 
-Play the game on your browser from [here](https://hopeorb.github.io/PlanetaryOrbitSimViaWebGL2/)\
+![Screenshot](/images/screenshot.png "Screenshot")
+
+Play the game on your browser from [here](https://hopeorb.github.io/PlanetaryOrbitSimViaWebGL2/).\
 Watch the trailer from [here](https://www.youtube.com/watch?v=PiQDeAovByc).
 
 <br>
